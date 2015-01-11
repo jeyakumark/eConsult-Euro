@@ -24410,7 +24410,7 @@ init = function() {
 initWithPhonegap = function() {
   Store.clear();
   if (navigator === void 0) {
-    alert('Phonegap is not loaded. Fatal error.');
+    alert("Phonegap is not loaded. Fatal error.");
   }
   window.Camera = navigator.camera;
   return init.call(this);
@@ -35223,11 +35223,10 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
         }, 0);
       };
       onFail = function() {
-        return console.log('unable to get ImageURI');
+        return alert('unable to get ImageURI');
       };
-      return navigator.camera.getPicture(onSuccess.bind(this), onFail, {
+      return Camera.getPicture(onSuccess.bind(this), onFail, {
         quality: 100,
-        destinationType: Camera.DestinationType.FILE_URI,
         targetWidth: 1400,
         targetHeight: 1800,
         saveToPhotoAlbum: false,
@@ -35246,11 +35245,10 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
         }, 0);
       };
       onFail = function() {
-        return console.log('unable to get ImageURI');
+        return alert('unable to get ImageURI');
       };
       return Camera.getPicture(onSuccess.bind(this), onFail, {
         quality: 100,
-        destinationType: Camera.DestinationType.FILE_URI,
         targetWidth: 1400,
         targetHeight: 1800,
         saveToPhotoAlbum: false,
