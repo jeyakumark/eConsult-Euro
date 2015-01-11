@@ -24408,13 +24408,16 @@ init = function() {
 };
 
 initWithPhonegap = function() {
+  var appView;
   Store.clear();
-  alert("camera works");
   if (navigator === void 0) {
     alert('Phonegap is not loaded. Fatal error.');
   }
   window.Camera = navigator.camera;
-  return init.call(this);
+  appView = new AppView({
+    size: [Conf.screenWidth, Conf.screenHeight]
+  });
+  return appCtx.add(appView);
 };
 
 if (Conf.isProduction) {
