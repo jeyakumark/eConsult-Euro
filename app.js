@@ -35212,6 +35212,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
     this.beforeBtn = new AsLink(new BeforeBtn(), void 0, (function() {
       var onFail, onSuccess;
       onSuccess = function(imageURI) {
+        alert("taking pic");
         return Fa.Timer.setTimeout(function() {
           var photo, timestamp;
           console.log('before setting timeout');
@@ -35223,7 +35224,6 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
         }, 0);
       };
       onFail = function() {
-        alert("camera fail");
         return console.log('unable to get ImageURI');
       };
       return navigator.camera.getPicture(onSuccess.bind(this), onFail, {
