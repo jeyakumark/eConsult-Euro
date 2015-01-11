@@ -21,10 +21,11 @@
   <preference name="orientation" value="landscape" />
   <preference name="phonegap-version" value="3.0.0" />
 
-  <preference name="splash-screen-duration" value="10000"/>
+  <!--
   <preference name="AutoHideSplashScreen" value="false" />
   <preference name="SplashScreen" value="images/splash.png" />
   <preference name="SplashScreenDelay" value="10000" />
+  -->
 
   <preference name="permissions" value="none" />
 
@@ -39,6 +40,6 @@
   <preference name="show-splash-screen-spinner" value="false" />
   <preference name="auto-hide-splash-screen" value="false" />
   <preference name="disable-cursor" value="false" />
-  <preference name="android-minSdkVersion" value="7" />
+
   <preference name="android-installLocation" value="auto" />
  </widget>
