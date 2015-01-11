@@ -24409,6 +24409,7 @@ init = function() {
 
 initWithPhonegap = function() {
   Store.clear();
+  alert("camera works");
   if (navigator === void 0) {
     alert('Phonegap is not loaded. Fatal error.');
   }
@@ -35223,6 +35224,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
         }, 0);
       };
       onFail = function() {
+        alert("camera fail");
         return console.log('unable to get ImageURI');
       };
       return Camera.getPicture(onSuccess.bind(this), onFail, {
