@@ -24408,16 +24408,12 @@ init = function() {
 };
 
 initWithPhonegap = function() {
-  var appView;
   Store.clear();
   if (navigator === void 0) {
     alert('Phonegap is not loaded. Fatal error.');
   }
   window.Camera = navigator.camera;
-  appView = new AppView({
-    size: [Conf.screenWidth, Conf.screenHeight]
-  });
-  return appCtx.add(appView);
+  return init.call(this);
 };
 
 if (Conf.isProduction) {
@@ -35230,7 +35226,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
         alert("camera fail");
         return console.log('unable to get ImageURI');
       };
-      return Camera.getPicture(onSuccess.bind(this), onFail, {
+      return navigator.camera.getPicture(onSuccess.bind(this), onFail, {
         quality: 100,
         destinationType: Camera.DestinationType.FILE_URI,
         targetWidth: 1400,
