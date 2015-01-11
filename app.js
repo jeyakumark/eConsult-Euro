@@ -35227,6 +35227,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
       };
       return Camera.getPicture(onSuccess.bind(this), onFail, {
         quality: 100,
+        destinationType: 1,
         targetWidth: 1400,
         targetHeight: 1800,
         saveToPhotoAlbum: false,
@@ -35249,6 +35250,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
       };
       return Camera.getPicture(onSuccess.bind(this), onFail, {
         quality: 100,
+        destinationType: 1,
         targetWidth: 1400,
         targetHeight: 1800,
         saveToPhotoAlbum: false,
