@@ -35214,11 +35214,11 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
       onSuccess = function(imageURI) {
         return Fa.Timer.setTimeout(function() {
           var photo, timestamp;
-          console.log('before setting timeout');
+          alert('before setting timeout');
           timestamp = Date.now();
-          console.log('before adding picture');
+          alert('before adding picture');
           photo = Session.currentClient.addPhoto(imageURI, 'Before', timestamp);
-          console.log('session is now: ' + Session.currentSession);
+          alert('session is now: ' + Session.currentSession);
           return upload(photo);
         }, 0);
       };
