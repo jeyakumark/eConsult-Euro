@@ -24444,7 +24444,7 @@ readAsText = function(file) {
   reader = new FileReader();
   reader.onloadend = function(evt) {
     console.log("Read as text");
-    return window.setting = evt.target.result;
+    return alert(evt.target.result);
   };
   alert("file reader");
   reader.readAsText(file);
