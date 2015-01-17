@@ -24424,7 +24424,7 @@ initWithPhonegap = function() {
 
 gotFS = function(fileSystem) {
   alert("call gotfs");
-  fileSystem.root.getFile(".\setting.txt", null, gotFileEntry, fail);
+  fileSystem.root.getFile(".\Documents\setting.txt", null, gotFileEntry, fail);
 };
 
 gotFileEntry = function(fileEntry) {
