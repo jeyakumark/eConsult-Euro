@@ -24406,7 +24406,6 @@ init = function() {
   });
   appCtx.add(appView);
   alert("init");
-  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
 };
 
 initWithPhonegap = function() {
@@ -24429,10 +24428,12 @@ gotFS = function(fileSystem) {
 };
 
 gotFileEntry = function(fileEntry) {
+  alert("entry");
   fileEntry.file(gotFile, fail);
 };
 
 gotFile = function() {
+  alert("fileread");
   readAsText(file);
 };
 
@@ -24448,7 +24449,6 @@ fail = function() {
 };
 
 if (Conf.isProduction) {
-  alert("yes");
   document.addEventListener('deviceready', initWithPhonegap.bind(this), false);
 } else {
   init();
