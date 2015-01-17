@@ -24422,8 +24422,10 @@ initWithPhonegap = function() {
 };
 
 gotFS = function(fileSystem) {
+  var spath;
   alert(fileSystem.root.toURL());
-  fileSystem.root.getFile(fileSystem.root.toURL() + "/" + "setting.txt", null, gotFileEntry, fail);
+  spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
 
 gotFileEntry = function(fileEntry) {
