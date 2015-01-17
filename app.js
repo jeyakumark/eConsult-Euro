@@ -24439,7 +24439,7 @@ gotFile = function(file) {
 };
 
 readAsText = function(file) {
-  var reader, setting;
+  var reader;
   alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
@@ -24447,8 +24447,9 @@ readAsText = function(file) {
     return console.log(evt.target.result);
   };
   alert("file reader");
-  window.setting = setting = reader.readAsText(file).toString();
-  alert(setting);
+  window.setting = reader.readAsText(file);
+  alert(window.setting);
+  init.call(this);
 };
 
 fail = function(error) {
