@@ -24407,7 +24407,6 @@ init = function() {
     size: [Conf.screenWidth, Conf.screenHeight]
   });
   appCtx.add(appView);
-  alert("init");
 };
 
 initWithPhonegap = function() {
@@ -24439,7 +24438,7 @@ readAsText = function(file) {
   reader = new FileReader();
   reader.onloadend = function(evt) {
     window.setting = evt.target.result;
-    alert(window.setting);
+    alert(window.setting.imageServerURL);
     return init.call(this);
   };
   reader.readAsText(file);
