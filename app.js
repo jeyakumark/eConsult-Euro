@@ -24409,46 +24409,36 @@ init = function() {
 };
 
 initWithPhonegap = function() {
-  alert("call deviceready");
   Store.clear();
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
   } else {
     window.Camera = navigator.camera;
-    alert("camera available");
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
-    return alert("after request");
+    return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
   }
 };
 
 gotFS = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
-  alert(spath);
   window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
 
 gotFileEntry = function(fileEntry) {
-  alert("entry");
   fileEntry.file(gotFile, fail);
 };
 
 gotFile = function(file) {
-  alert("fileread");
   readAsText(file);
 };
 
 readAsText = function(file) {
   var reader;
-  alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    console.log("Read as text");
     return alert(evt.target.result);
   };
-  alert("file reader");
   reader.readAsText(file);
-  alert(window.setting);
   init.call(this);
 };
 
