@@ -24322,6 +24322,8 @@ return jQuery;
 'use strict';
 var AppView, Conf, FastClick, fail, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
 
+window.setting = '';
+
 require("./..\\..\\bower_components\\famous-polyfills\\index.js");
 
 window.Conf = Conf = require('./config.coffee');
@@ -24436,10 +24438,11 @@ readAsText = function(file) {
   var reader;
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    return alert(evt.target.result);
+    window.setting = evt.target.result;
+    alert(window.setting);
+    return init.call(this);
   };
   reader.readAsText(file);
-  init.call(this);
 };
 
 fail = function(error) {
