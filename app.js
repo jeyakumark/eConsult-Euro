@@ -24439,10 +24439,10 @@ gotFile = function() {
 };
 
 readAsText = function(file) {
-  var reader;
+  var reader, setting;
   reader = new FileReader();
-  window.setting = reader.readAsText(file);
-  alert("read file");
+  window.setting = setting = reader.readAsText(file);
+  alert(setting);
 };
 
 fail = function(error) {
