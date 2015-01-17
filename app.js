@@ -24423,8 +24423,8 @@ initWithPhonegap = function() {
 };
 
 gotFS = function(fileSystem) {
-  alert(fileSystem.root.fullPath);
-  fileSystem.root.getFile("setting.txt", null, gotFileEntry, fail);
+  alert(fileSystem.root.toURL());
+  fileSystem.root.toURL().getFile("setting.txt", null, gotFileEntry, fail);
 };
 
 gotFileEntry = function(fileEntry) {
