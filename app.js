@@ -24445,10 +24445,10 @@ readAsText = function(file) {
 };
 
 fail = function(error) {
-  if (error.code = FileError.NOT_FOUND_ERR) {
+  if (error.code === FileError.NOT_FOUND_ERR) {
     alert("file not found");
   }
-  if (error.code = FileError.SECURITY_ERR) {
+  if (error.code === FileError.SECURITY_ERR) {
     alert("security error");
   }
 };
