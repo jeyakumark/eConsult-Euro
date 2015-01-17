@@ -24445,7 +24445,12 @@ readAsText = function(file) {
 };
 
 fail = function(error) {
-  alert(error.code);
+  if (error.code = FileError.NOT_FOUND_ERR) {
+    alert("file not found");
+  }
+  if (error.code = FileError.SECURITY_ERR) {
+    alert("security error");
+  }
 };
 
 if (Conf.isProduction) {
