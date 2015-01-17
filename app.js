@@ -24444,10 +24444,10 @@ readAsText = function(file) {
   reader = new FileReader();
   reader.onloadend = function(evt) {
     console.log("Read as text");
-    return console.log(evt.target.result);
+    return window.setting = evt.target.result;
   };
   alert("file reader");
-  window.setting = reader.readAsText(file);
+  reader.readAsText(file);
   alert(window.setting);
   init.call(this);
 };
