@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, init, initWithPhonegap;
+var AppView, Conf, FastClick, fail, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
 
 require("./..\\..\\bower_components\\famous-polyfills\\index.js");
 
@@ -24404,19 +24404,51 @@ init = function() {
   appView = new AppView({
     size: [Conf.screenWidth, Conf.screenHeight]
   });
-  return appCtx.add(appView);
+  appCtx.add(appView);
+  alert("init");
+  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
 };
 
 initWithPhonegap = function() {
+  alert("call deviceready");
   Store.clear();
   if (navigator === void 0) {
-    alert("Phonegap is not loaded. Fatal error.");
+    return alert("Phonegap is not loaded. Fatal error.");
+  } else {
+    window.Camera = navigator.camera;
+    alert("camera available");
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+    alert("after request");
+    return init.call(this);
   }
-  window.Camera = navigator.camera;
-  return init.call(this);
+};
+
+gotFS = function(fileSystem) {
+  alert("call gotfs");
+  fileSystem.root.getFile(".\setting.txt", null, gotFileEntry, fail);
+};
+
+gotFileEntry = function(fileEntry) {
+  fileEntry.file(gotFile, fail);
+};
+
+gotFile = function() {
+  readAsText(file);
+};
+
+readAsText = function(file) {
+  var reader;
+  reader = new FileReader();
+  window.setting = reader.readAsText(file);
+  alert("read file");
+};
+
+fail = function() {
+  alert("fail file system");
 };
 
 if (Conf.isProduction) {
+  alert("yes");
   document.addEventListener('deviceready', initWithPhonegap.bind(this), false);
 } else {
   init();
