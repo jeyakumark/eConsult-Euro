@@ -24433,7 +24433,7 @@ gotFileEntry = function(fileEntry) {
   fileEntry.file(gotFile, fail);
 };
 
-gotFile = function() {
+gotFile = function(file) {
   alert("fileread");
   readAsText(file);
 };
