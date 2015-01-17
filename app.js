@@ -24444,8 +24444,8 @@ readAsText = function(file) {
   alert("read file");
 };
 
-fail = function() {
-  alert("fail file system");
+fail = function(error) {
+  alert(error.code);
 };
 
 if (Conf.isProduction) {
