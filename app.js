@@ -24423,8 +24423,8 @@ initWithPhonegap = function() {
 
 gotFS = function(fileSystem) {
   var spath;
-  alert(fileSystem.root.toURL());
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  alert(spath);
   window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
 
@@ -24447,7 +24447,7 @@ readAsText = function(file) {
 
 fail = function(error) {
   if (error.code === FileError.NOT_FOUND_ERR) {
-    alert("file not found");
+    alert(error.code.toString() + ":file not found");
   } else if (error.code === FileError.SECURITY_ERR) {
     alert("security error");
   } else {
