@@ -24440,8 +24440,10 @@ gotFile = function() {
 
 readAsText = function(file) {
   var reader, setting;
+  alert("reading file");
   reader = new FileReader();
-  window.setting = setting = reader.readAsText(file);
+  alert("file reader");
+  window.setting = setting = reader.readAsText(file).toString();
   alert(setting);
 };
 
