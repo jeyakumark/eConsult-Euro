@@ -24417,8 +24417,7 @@ initWithPhonegap = function() {
     window.Camera = navigator.camera;
     alert("camera available");
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
-    alert("after request");
-    return init.call(this);
+    return alert("after request");
   }
 };
 
