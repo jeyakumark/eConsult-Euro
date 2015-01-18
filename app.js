@@ -24437,10 +24437,10 @@ readAsText = function(file) {
   var reader;
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    var str;
+    var exports, str;
     str = evt.target.result;
-    window.Setting = module.exports = {
-      str: str
+    window.Setting = module.exports = exports = function() {
+      return str;
     };
     alert(window.Setting);
     alert(window.Setting.imageServerURL);
