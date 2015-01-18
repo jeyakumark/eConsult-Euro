@@ -24439,14 +24439,16 @@ readAsText = function(file) {
   reader.onloadend = function(evt) {
     var json, str;
     str = evt.target.result;
-    alert(str);
     json = JSON.parse(str);
-    alert('after parse');
     window.imageServerURL = json.imageServerURL;
+    window.firstPage = json.firstPage;
+    window.backend = json.backend;
+    window.screenWidth = json.screenWidth;
+    window.screenHeight = json.screenHeight;
     alert(window.imageServerURL);
     return init.call(this);
   };
-  reader.readAsText(file);
+  return reader.readAsText(file);
 };
 
 fail = function(error) {
