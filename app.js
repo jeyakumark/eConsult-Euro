@@ -24437,10 +24437,10 @@ readAsText = function(file) {
   var reader;
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    var Set, str;
+    var Settings, str;
     str = evt.target.result;
-    Set = rtequire('./setting.js');
-    window.Setting = Set.setting(str);
+    Settings = rtequire('./settings.js');
+    window.Setting = Settings.setting(str);
     alert(window.Setting);
     alert(window.Setting.imageServerURL);
     return init.call(this);
