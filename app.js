@@ -24441,7 +24441,8 @@ readAsText = function(file) {
     str = evt.target.result;
     alert(str);
     json = JSON.parse(str);
-    window.Setting.imageServerURL = json.imageServerURL;
+    alert('after parse');
+    window.imageServerURL = json.imageServerURL;
     alert(window.Setting.imageServerURL);
     return init.call(this);
   };
