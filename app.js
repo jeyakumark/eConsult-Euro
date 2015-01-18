@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, fail, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
+var AppView, Conf, FastClick, copyFS, fail, gotFS, gotFile, gotFileEntry, gotFileEntry1, init, initWithPhonegap, readAsText;
 
 window.Setting = '';
 
@@ -24445,7 +24445,6 @@ readAsText = function(file) {
     window.backend = Conf.backend = json.backend;
     window.screenWidth = Conf.screenWidth = json.screenWidth;
     window.screenHeight = Conf.screenHeight = json.screenHeight;
-    alert(window.imageServerURL);
     return init.call(this);
   };
   return reader.readAsText(file);
@@ -24454,11 +24453,24 @@ readAsText = function(file) {
 fail = function(error) {
   if (error.code === FileError.NOT_FOUND_ERR) {
     alert(error.code.toString() + ":config file not found");
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
   } else if (error.code === FileError.SECURITY_ERR) {
     alert("security error");
   } else {
     alert(error.code);
   }
+};
+
+copyFS = function(fileSystem) {
+  var spath;
+  spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
+  window.resolveLocalFileSystemURI(spath, gotFileEntry1, fail);
+};
+
+gotFileEntry1 = function(fileEntry) {
+  var spath;
+  spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  fileEntry.copy(spath);
 };
 
 if (Conf.isProduction) {
