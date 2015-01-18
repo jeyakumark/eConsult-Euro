@@ -24443,7 +24443,7 @@ readAsText = function(file) {
     json = JSON.parse(str);
     alert('after parse');
     window.imageServerURL = json.imageServerURL;
-    alert(window.Setting.imageServerURL);
+    alert(window.imageServerURL);
     return init.call(this);
   };
   reader.readAsText(file);
