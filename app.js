@@ -24439,7 +24439,8 @@ readAsText = function(file) {
   reader.onloadend = function(evt) {
     var str;
     str = evt.target.result;
-    window.Setting = require(str);
+    window.Setting = str;
+    alert(str);
     alert(window.Setting.imageServerURL);
     return init.call(this);
   };
