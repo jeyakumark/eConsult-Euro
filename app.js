@@ -24322,7 +24322,7 @@ return jQuery;
 'use strict';
 var AppView, Conf, FastClick, fail, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
 
-window.setting = '';
+window.Setting = '';
 
 require("./..\\..\\bower_components\\famous-polyfills\\index.js");
 
@@ -24437,8 +24437,10 @@ readAsText = function(file) {
   var reader;
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    window.setting = evt.target.result;
-    alert(window.setting.imageServerURL);
+    var str;
+    str = evt.target.result;
+    window.Setting = require(str);
+    alert(window.Setting.imageServerURL);
     return init.call(this);
   };
   reader.readAsText(file);
