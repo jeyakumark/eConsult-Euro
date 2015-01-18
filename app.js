@@ -24439,9 +24439,7 @@ readAsText = function(file) {
   reader.onloadend = function(evt) {
     var exports, str;
     str = evt.target.result;
-    window.Setting = module.exports = exports = function() {
-      return str;
-    };
+    window.Setting = module.exports = exports = str;
     alert(window.Setting);
     alert(window.Setting.imageServerURL);
     return init.call(this);
