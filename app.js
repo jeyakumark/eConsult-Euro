@@ -28277,11 +28277,13 @@ module.exports = settingPage = (function(_super) {
 
   gotFile1 = function(writer) {
     alert(str);
-    writer.truncate(0);
     writer.onwriteend = function(evt) {
-      return alert("Saved successfully");
+      writer.onwriteend = function(evt) {
+        return alert("Saved successfully");
+      };
+      return writer.write(str);
     };
-    return writer.write(str);
+    return writer.truncate(0);
   };
 
   fail1 = function(error) {
