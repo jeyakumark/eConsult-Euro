@@ -28284,7 +28284,8 @@ module.exports = settingPage = (function(_super) {
     alert("filewrite");
     alert(str);
     writer.truncate(0);
-    writer.onwriteend = function(evt) {
+    alert("after trncate");
+    writer.onwrite = function(evt) {
       alert("Saved successfully");
     };
     return writer.write(str);
