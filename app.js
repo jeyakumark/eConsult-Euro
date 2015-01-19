@@ -28722,8 +28722,8 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
     var str;
     str = "{";
-    str = str + "'isProduction' :" + "'" + true + "',";
-    str = str + "'firstPage' :" + "'" + Client + "',";
+    str = str + "'isProduction' :" + "'yes',";
+    str = str + "'firstPage' :" + "'Client',";
     str = str + "'backend' :" + "'" + backend + "',";
     str = str + "'screenWidth' :" + "'" + screenWidth + "',";
     str = str + "'screenHeight' :" + "'" + screenHeight + "',";
