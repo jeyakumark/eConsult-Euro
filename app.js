@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, fail, gotFS, gotFile, gotFileEntry, gotFileEntry1, init, initWithPhonegap, readAsText;
+var AppView, Conf, FastClick, copyFS, fail, filenotfound, gotFS, gotFile, gotFileEntry, gotFileEntry1, init, initWithPhonegap, readAsText;
 
 window.Setting = '';
 
@@ -24423,7 +24423,7 @@ gotFS = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
   alert(spath);
-  window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
+  window.resolveLocalFileSystemURI(spath, gotFileEntry, failnotfound);
 };
 
 gotFileEntry = function(fileEntry) {
@@ -24462,6 +24462,10 @@ fail = function(error) {
   } else {
     alert(error.code);
   }
+};
+
+filenotfound = function(eror) {
+  return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
 };
 
 copyFS = function(fileSystem) {
