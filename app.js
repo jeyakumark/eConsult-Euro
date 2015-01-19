@@ -28077,11 +28077,13 @@ var AsLink, settingPage,
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = settingPage = (function(_super) {
-  var fail1, gotFS1, gotFile1, gotFileEntry1, _createLayouts;
+  var fail1, gotFS1, gotFile1, gotFileEntry1, str, _createLayouts;
 
   __extends(settingPage, _super);
 
   settingPage.DEFAULT_OPTIONS = {};
+
+  str = '';
 
   function settingPage(options) {
     settingPage.__super__.constructor.call(this, options);
@@ -28246,7 +28248,7 @@ module.exports = settingPage = (function(_super) {
       };
     })(this);
     new AsLink(this.clickZone, void 0, (function() {
-      var backend, imageServerURL, screenHeight, screenWidth, str;
+      var backend, imageServerURL, screenHeight, screenWidth;
       imageServerURL = this.imageServerURL.getValue();
       backend = this.backend.getValue();
       screenWidth = this.screenWidth.getValue();
@@ -28280,10 +28282,12 @@ module.exports = settingPage = (function(_super) {
 
   gotFile1 = function(Writer) {
     alert("filewrite");
+    alert(str);
+    writer.truncate(0);
     writer.onwriteend = function(evt) {
-      writer.seek(0);
-      return writer.write(str);
+      alert("Saved successfully");
     };
+    return writer.write(str);
   };
 
   fail1 = function(error) {
