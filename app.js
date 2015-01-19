@@ -28102,7 +28102,7 @@ module.exports = settingPage = (function(_super) {
   };
 
   _createLayouts = function() {
-    var backendText, imageServerURLText, modifier, radius, screenHeightText, screenWidthText, setting, settingText;
+    var backendText, closeText, imageServerURLText, modifier, radius, screenHeightText, screenWidthText, setting, settingText;
     setting = new Fa.ImageSurf({
       content: 'images/bg.png'
     });
@@ -28173,8 +28173,18 @@ module.exports = settingPage = (function(_super) {
     this.container.add(modifier).add(Fa.translateBy(350, 200, 0)).add(this.imageServerURL);
     radius = '30px';
     settingText = new Fa.Surface({
-      size: [240, 35],
+      size: [140, 35],
       content: '<strong>Save</strong>',
+      properties: {
+        pointerEvents: 'none',
+        color: '#333',
+        textAlign: 'center',
+        fontSize: '23px'
+      }
+    });
+    closeText = new Fa.Surface({
+      size: [140, 35],
+      content: '<strong>Close</strong>',
       properties: {
         pointerEvents: 'none',
         color: '#333',
@@ -28287,6 +28297,7 @@ module.exports = settingPage = (function(_super) {
       });
     }).bind(this));
     this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
+    this.container.add(Fa.translateBy(250, 387, 0)).add(closeText);
     this.container.add(Fa.translateBy(100, 55, 0)).add(backendText);
     this.container.add(Fa.translateBy(100, 105, 0)).add(screenWidthText);
     this.container.add(Fa.translateBy(100, 155, 0)).add(screenHeightText);
