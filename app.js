@@ -24439,9 +24439,10 @@ readAsText = function(file) {
   reader.onloadend = function(evt) {
     var json, jsonString, str;
     str = evt.target.result;
+    alert(str);
     jsonString = str.replace(/'/g, '"');
-    json = JSON.parse(str);
-    alert('after parse');
+    json = JSON.parse(jsonString);
+    alert(jsonString);
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
     window.firstPage = Conf.firstPage = json.firstPage;
     window.backend = Conf.backend = json.backend;
