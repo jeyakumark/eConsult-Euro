@@ -24438,16 +24438,20 @@ gotFile = function(file) {
 
 readAsText = function(file) {
   var reader;
+  alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
     var json, str;
     str = evt.target.result;
+    alert(str);
     json = JSON.parse(str);
+    alert('after parse');
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
     window.firstPage = Conf.firstPage = json.firstPage;
     window.backend = Conf.backend = json.backend;
     window.screenWidth = Conf.screenWidth = json.screenWidth;
     window.screenHeight = Conf.screenHeight = json.screenHeight;
+    alert(window.imageServerURL);
     return init.call(this);
   };
   return reader.readAsText(file);
