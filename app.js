@@ -24464,14 +24464,16 @@ fail = function(error) {
 copyFS = function(fileSystem) {
   var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
-  window.resolveLocalFileSystemURI(spath, gotFileEntry1, fail);
+  window.resolveLocalFileSystemURI(spath, gotFileEntry1, fail1);
 };
 
 gotFileEntry1 = function(fileEntry) {
-  var spath;
-  spath = fileSystem.root.toURL() + "/" + "setting.txt";
-  fileEntry.copy(spath);
+  var spath1;
+  spath1 = fileSystem.root.toURL() + "/" + "setting.txt";
+  fileEntry.copy(spath1);
 };
+
+fail = function(error) {};
 
 if (Conf.isProduction) {
   document.addEventListener('deviceready', initWithPhonegap.bind(this), false);
