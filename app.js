@@ -28266,10 +28266,7 @@ module.exports = settingPage = (function(_super) {
     var spath;
     spath = fileSystem.root.toURL() + "/" + "setting.txt";
     alert(spath);
-    fileSystem.root.toURL().getFile("setting.txt", {
-      create: false,
-      exclusive: false
-    }, gotFileEntry1, fail1);
+    window.resolveLocalFileSystemURI(spath(gotFileEntry1, fail1));
   };
 
   gotFileEntry1 = function(fileEntry) {
