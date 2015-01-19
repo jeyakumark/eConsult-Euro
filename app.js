@@ -24423,7 +24423,7 @@ gotFS = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
   alert(spath);
-  window.resolveLocalFileSystemURI(spath, gotFileEntry, filenotfound);
+  window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
 
 gotFileEntry = function(fileEntry) {
@@ -24454,6 +24454,7 @@ readAsText = function(file) {
 };
 
 fail = function(error) {
+  alert("error occured");
   if (error.code === FileError.NOT_FOUND_ERR) {
     alert(error.code.toString() + ":config file not found");
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
