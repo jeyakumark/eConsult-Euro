@@ -28716,6 +28716,17 @@ module.exports = ConsultantStore = (function() {
     }
   };
 
+  ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
+    var str;
+    str = "{";
+    str = str + "'backend' :" + "'" + backend + "'";
+    str = str + "'screenWidth' :" + "'" + screenWidth + "'";
+    str = str + "'screenHeight' :" + "'" + screenHeight + "'";
+    str = str + "'imageServerURL' :" + "'" + imageServerURL + "'";
+    str = str + "}";
+    return str;
+  };
+
   return ConsultantStore;
 
 })();
