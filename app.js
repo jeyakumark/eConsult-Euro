@@ -28264,10 +28264,10 @@ module.exports = settingPage = (function(_super) {
 
   gotFS = function(fileSystem) {
     var spath;
-    spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
+    spath = fileSystem.root.toURL() + "/" + "setting.txt";
     alert(spath);
     window.resolveLocalFileSystemURI(spath({
-      create: true,
+      create: false,
       exclusive: false
     }, gotFileEntry, fail));
   };
