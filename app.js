@@ -24422,28 +24422,23 @@ initWithPhonegap = function() {
 gotFS = function(fileSystem) {
   var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
-  alert(spath);
   window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
 
 gotFileEntry = function(fileEntry) {
-  alert("entry");
   fileEntry.file(gotFile, fail);
 };
 
 gotFile = function(file) {
-  alert("fileread");
   readAsText(file);
 };
 
 readAsText = function(file) {
   var reader;
-  alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
     var json, str;
     str = evt.target.result;
-    alert(str);
     json = JSON.parse(str);
     alert('after parse');
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
@@ -24451,14 +24446,12 @@ readAsText = function(file) {
     window.backend = Conf.backend = json.backend;
     window.screenWidth = Conf.screenWidth = json.screenWidth;
     window.screenHeight = Conf.screenHeight = json.screenHeight;
-    alert(window.imageServerURL);
     return init.call(this);
   };
   return reader.readAsText(file);
 };
 
 fail = function(error) {
-  alert("error occured");
   if (error.code === FileError.NOT_FOUND_ERR) {
     alert(error.code.toString() + ":config file not found");
   } else if (error.code === FileError.SECURITY_ERR) {
