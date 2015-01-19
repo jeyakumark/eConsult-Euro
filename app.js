@@ -28280,7 +28280,7 @@ module.exports = settingPage = (function(_super) {
     fileEntry.createWriter(gotFile1, fail1);
   };
 
-  gotFile1 = function(Writer) {
+  gotFile1 = function(writer) {
     alert("filewrite");
     alert(str);
     writer.truncate(0);
