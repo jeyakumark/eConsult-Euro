@@ -24423,7 +24423,7 @@ gotFS = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
   alert(spath);
-  window.resolveLocalFileSystemURI(spath, gotFileEntry, failnotfound);
+  window.resolveLocalFileSystemURI(spath, gotFileEntry, filenotfound);
 };
 
 gotFileEntry = function(fileEntry) {
@@ -24464,7 +24464,7 @@ fail = function(error) {
   }
 };
 
-filenotfound = function(eror) {
+filenotfound = function(error) {
   return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
 };
 
