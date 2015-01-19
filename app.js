@@ -24441,11 +24441,13 @@ readAsText = function(file) {
     str = evt.target.result;
     jsonString = str.replace(/'/g, '"');
     json = JSON.parse(jsonString);
+    alert(jsonString);
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
     window.firstPage = Conf.firstPage = json.firstPage;
     window.backend = Conf.backend = json.backend;
     window.screenWidth = Conf.screenWidth = json.screenWidth;
     window.screenHeight = Conf.screenHeight = json.screenHeight;
+    alert(window.imageServerURL);
     return init.call(this);
   };
   return reader.readAsText(file);
@@ -37193,4 +37195,1043 @@ module.exports = ElDashboardProfilePic = (function(_super) {
 })(Fa.CView);
 
 
-},{"../common/el.common.hamburger.coffee":137,"../common/el.common.horizontal_rule.coffee":139}]
+},{"../common/el.common.hamburger.coffee":137,"../common/el.common.horizontal_rule.coffee":139}],151:[function(require,module,exports){
+var ElDashboardResultBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElDashboardResultBtn = (function(_super) {
+  var init;
+
+  __extends(ElDashboardResultBtn, _super);
+
+  _.extend(ElDashboardResultBtn.prototype, Fa.Mixins.toggleable.prototype);
+
+  ElDashboardResultBtn.DEFAULT_OPTIONS = {
+    size: [170, 170],
+    inactiveBackgroundColor: '#486f9b',
+    inactiveColor: '#ddd',
+    activeBackgroundColor: '#fb9c05',
+    activeColor: '#eee',
+    isActive: true
+  };
+
+  function ElDashboardResultBtn(options) {
+    ElDashboardResultBtn.__super__.constructor.call(this, options);
+    this.options.iconSize = (0.42 * this.options.size[0]) + 'px';
+    this.options.textSize = (0.12 * this.options.size[0]) + 'px';
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex;
+    this.button = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        backgroundColor: this.options.inactiveBackgroundColor,
+        borderRadius: '50%'
+      }
+    });
+    flex = new Fa.FlexibleLayout({
+      direction: 1,
+      ratios: [8, 10, 2, 10]
+    });
+    this.icon = new Fa.WrappedSurface({
+      size: [true, true],
+      content: '<i class="ion-clipboard"></i>',
+      properties: {
+        fontSize: this.options.iconSize,
+        color: this.options.inactiveColor
+      }
+    });
+    this.text = new Fa.WrappedSurface({
+      alignment: 'top',
+      size: [true, true],
+      content: '<strong>Result</strong>',
+      properties: {
+        fontSize: this.options.textSize,
+        color: this.options.inactiveColor
+      }
+    });
+    flex.sequenceFrom([Fa.EmptyView(), this.icon, Fa.EmptyView(), this.text]);
+    this.button.addToCenter(flex);
+    return this.container.add(this.button);
+  };
+
+  return ElDashboardResultBtn;
+
+})(Fa.CView);
+
+
+},{}],152:[function(require,module,exports){
+var Elements;
+
+Elements = {
+  Common: {
+    hamburger: require('./common/el.common.hamburger.coffee'),
+    header: require('./common/el.common.header.coffee'),
+    hr: require('./common/el.common.horizontal_rule.coffee'),
+    backdrop: require('./common/el.common.backdrop.coffee'),
+    select_input: require('./common/el.common.select_input.coffee')
+  },
+  Dashboard: {
+    camera_btn: require('./dashboard/el.dashboard.camera_btn.coffee'),
+    compare_btn: require('./dashboard/el.dashboard.compare_btn.coffee'),
+    micro_btn: require('./dashboard/el.dashboard.micro_btn.coffee'),
+    result_btn: require('./dashboard/el.dashboard.result_btn.coffee'),
+    first_visit_cal: require('./dashboard/el.dashboard.first_visit_cal.coffee'),
+    last_visit_cal: require('./dashboard/el.dashboard.last_visit_cal.coffee'),
+    profile_section: require('./dashboard/el.dashboard.profile_section.coffee')
+  },
+  Snap: {
+    after_btn: require('./snap/el.snap.after_btn.coffee'),
+    before_btn: require('./snap/el.snap.before_btn.coffee'),
+    clear_btn: require('./snap/el.snap.clear_btn.coffee'),
+    view_btn: require('./snap/el.snap.view_btn.coffee'),
+    update_btn: require('./snap/el.snap.update_btn.coffee'),
+    visit_info: require('./snap/el.snap.visit_info.coffee'),
+    picture_frame: require('./snap/el.snap.picture_frame.coffee'),
+    selector_radio: require('./snap/el.snap.selector_radio.coffee'),
+    set_profile_btn: require('./snap/el.snap.set_profile_btn.coffee'),
+    browse_header: require('./snap/el.snap.browse_header.coffee')
+  },
+  Compare: {
+    active_numpad_btn: require('./compare/el.compare.active_numpad_btn.coffee'),
+    match_btn: require('./compare/el.compare.match_btn.coffee'),
+    view_match_btn: require('./compare/el.compare.view_match_btn.coffee'),
+    fav_btn: require('./compare/el.compare.fav_btn.coffee')
+  },
+  Checklist: {
+    checker: require('./checklist/el.checklist.checker.coffee'),
+    confirm_btn: require('./checklist/el.checklist.confirm_btn.coffee'),
+    cancel_btn: require('./checklist/el.checklist.cancel_btn.coffee')
+  }
+};
+
+module.exports = Elements;
+
+
+},{"./checklist/el.checklist.cancel_btn.coffee":133,"./checklist/el.checklist.checker.coffee":134,"./checklist/el.checklist.confirm_btn.coffee":135,"./common/el.common.backdrop.coffee":136,"./common/el.common.hamburger.coffee":137,"./common/el.common.header.coffee":138,"./common/el.common.horizontal_rule.coffee":139,"./common/el.common.select_input.coffee":140,"./compare/el.compare.active_numpad_btn.coffee":141,"./compare/el.compare.fav_btn.coffee":142,"./compare/el.compare.match_btn.coffee":143,"./compare/el.compare.view_match_btn.coffee":144,"./dashboard/el.dashboard.camera_btn.coffee":145,"./dashboard/el.dashboard.compare_btn.coffee":146,"./dashboard/el.dashboard.first_visit_cal.coffee":147,"./dashboard/el.dashboard.last_visit_cal.coffee":148,"./dashboard/el.dashboard.micro_btn.coffee":149,"./dashboard/el.dashboard.profile_section.coffee":150,"./dashboard/el.dashboard.result_btn.coffee":151,"./snap/el.snap.after_btn.coffee":153,"./snap/el.snap.before_btn.coffee":154,"./snap/el.snap.browse_header.coffee":155,"./snap/el.snap.clear_btn.coffee":156,"./snap/el.snap.picture_frame.coffee":157,"./snap/el.snap.selector_radio.coffee":158,"./snap/el.snap.set_profile_btn.coffee":159,"./snap/el.snap.update_btn.coffee":160,"./snap/el.snap.view_btn.coffee":161,"./snap/el.snap.visit_info.coffee":162}],153:[function(require,module,exports){
+var ElSnapAfterBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapAfterBtn = (function(_super) {
+  var init;
+
+  __extends(ElSnapAfterBtn, _super);
+
+  _.extend(ElSnapAfterBtn.prototype, Fa.Mixins.toggleable.prototype);
+
+  ElSnapAfterBtn.DEFAULT_OPTIONS = {
+    size: [100, 100],
+    inactiveBackgroundColor: '#3e6279',
+    inactiveColor: '#ddd',
+    activeBackgroundColor: '#fb9c05',
+    activeColor: '#eee',
+    isActive: true
+  };
+
+  function ElSnapAfterBtn(options) {
+    ElSnapAfterBtn.__super__.constructor.call(this, options);
+    this.options.iconSize = (0.38 * this.options.size[0]) + 'px';
+    this.options.textSize = (0.18 * this.options.size[0]) + 'px';
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex, iconContainer;
+    this.button = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        backgroundColor: this.options.inactiveBackgroundColor,
+        borderRadius: '50%'
+      }
+    });
+    flex = new Fa.FlexibleLayout({
+      direction: 1,
+      ratios: [1, 10, 6]
+    });
+    iconContainer = new Fa.CContainer();
+    this.icon = new Fa.Surface({
+      size: [true, true],
+      content: '<i class="icon-after"></i>',
+      properties: {
+        fontSize: this.options.iconSize,
+        color: this.options.inactiveColor
+      }
+    });
+    iconContainer.add(Fa.translateBy(31, 15, 0)).add(this.icon);
+    this.text = new Fa.WrappedSurface({
+      alignment: 'top',
+      size: [true, true],
+      content: '<strong>after</strong>',
+      properties: {
+        fontSize: this.options.textSize,
+        color: this.options.inactiveColor
+      }
+    });
+    flex.sequenceFrom([Fa.EmptyView(), iconContainer, this.text]);
+    this.button.addToCenter(flex);
+    return this.container.add(this.button);
+  };
+
+  return ElSnapAfterBtn;
+
+})(Fa.CView);
+
+
+},{}],154:[function(require,module,exports){
+var ElSnapBeforeBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapBeforeBtn = (function(_super) {
+  var init;
+
+  __extends(ElSnapBeforeBtn, _super);
+
+  _.extend(ElSnapBeforeBtn.prototype, Fa.Mixins.toggleable.prototype);
+
+  ElSnapBeforeBtn.DEFAULT_OPTIONS = {
+    size: [100, 100],
+    inactiveBackgroundColor: '#3e6279',
+    inactiveColor: '#ddd',
+    activeBackgroundColor: '#fb9c05',
+    activeColor: '#eee',
+    isActive: true
+  };
+
+  function ElSnapBeforeBtn(options) {
+    ElSnapBeforeBtn.__super__.constructor.call(this, options);
+    this.options.iconSize = (0.38 * this.options.size[0]) + 'px';
+    this.options.textSize = (0.18 * this.options.size[0]) + 'px';
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex, iconContainer;
+    this.button = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        backgroundColor: this.options.inactiveBackgroundColor,
+        borderRadius: '50%'
+      }
+    });
+    flex = new Fa.FlexibleLayout({
+      direction: 1,
+      ratios: [1, 10, 6]
+    });
+    iconContainer = new Fa.CContainer();
+    this.icon = new Fa.Surface({
+      size: [true, true],
+      content: '<i class="icon-before"></i>',
+      properties: {
+        fontSize: this.options.iconSize,
+        color: this.options.inactiveColor
+      }
+    });
+    iconContainer.add(Fa.translateBy(12, 15, 0)).add(this.icon);
+    this.text = new Fa.WrappedSurface({
+      alignment: 'top',
+      size: [true, true],
+      content: '<strong>before</strong>',
+      properties: {
+        fontSize: this.options.textSize,
+        color: this.options.inactiveColor
+      }
+    });
+    flex.sequenceFrom([Fa.EmptyView(), iconContainer, this.text]);
+    this.button.addToCenter(flex);
+    return this.container.add(this.button);
+  };
+
+  return ElSnapBeforeBtn;
+
+})(Fa.CView);
+
+
+},{}],155:[function(require,module,exports){
+var ElBrowseHeader,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElBrowseHeader = (function(_super) {
+  var init;
+
+  __extends(ElBrowseHeader, _super);
+
+  ElBrowseHeader.DEFAULT_OPTIONS = {
+    titleColor: '#fb9c05',
+    iconColor: '#fb9c05',
+    fontSize: '20px',
+    iconSize: '27px',
+    backgroundColor: '#221b66'
+  };
+
+  function ElBrowseHeader(options) {
+    ElBrowseHeader.__super__.constructor.call(this, options);
+    this.container = new Fa.CContainer({
+      size: [this.options.size, this.options.size],
+      properties: {
+        backgroundColor: '#221b66'
+      }
+    });
+    init.call(this);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex;
+    this.header = new Fa.WrappedSurface({
+      alignment: 'left',
+      size: [true, true],
+      content: "<strong>BROWSE</strong>",
+      properties: {
+        color: this.options.titleColor,
+        fontSize: this.options.fontSize,
+        textAlign: 'center'
+      }
+    });
+    this.search = new Fa.WrappedSurface({
+      alignment: 'center',
+      size: [true, true],
+      content: '<i class="ion-search"></i>',
+      properties: {
+        color: this.options.iconColor,
+        fontSize: this.options.iconSize,
+        textAlign: 'center',
+        cursor: 'pointer'
+      }
+    });
+    this.search.on('click', function() {
+      return Dispatcher.emit('browse_snap');
+    });
+    flex = new Fa.FlexibleLayout({
+      ratios: [10, 130, 60]
+    });
+    flex.sequenceFrom([Fa.EmptyView(), this.header, this.search]);
+    return this.container.addToCenter(flex);
+  };
+
+  return ElBrowseHeader;
+
+})(Fa.CView);
+
+
+},{}],156:[function(require,module,exports){
+var ElSnapClearBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapClearBtn = (function(_super) {
+  var init;
+
+  __extends(ElSnapClearBtn, _super);
+
+  _.extend(ElSnapClearBtn.prototype, Fa.Mixins.toggleable.prototype);
+
+  ElSnapClearBtn.DEFAULT_OPTIONS = {
+    size: [100, 100],
+    inactiveBackgroundColor: '#3e6279',
+    inactiveColor: '#ddd',
+    activeBackgroundColor: '#fb9c05',
+    activeColor: '#eee',
+    isActive: true
+  };
+
+  function ElSnapClearBtn(options) {
+    ElSnapClearBtn.__super__.constructor.call(this, options);
+    this.options.iconSize = (0.60 * this.options.size[0]) + 'px';
+    this.options.textSize = (0.15 * this.options.size[0]) + 'px';
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex;
+    this.button = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        backgroundColor: this.options.inactiveBackgroundColor,
+        borderRadius: '50%'
+      }
+    });
+    flex = new Fa.FlexibleLayout({
+      direction: 1,
+      ratios: [1, 30, 1]
+    });
+    this.icon = new Fa.WrappedSurface({
+      size: [true, true],
+      content: '<i class="icon-clear"></i>',
+      properties: {
+        fontSize: this.options.iconSize,
+        color: this.options.inactiveColor
+      }
+    });
+    this.text = new Fa.WrappedSurface({
+      alignment: 'top',
+      size: [true, true],
+      content: '',
+      properties: {
+        fontSize: this.options.textSize,
+        color: this.options.inactiveColor
+      }
+    });
+    flex.sequenceFrom([Fa.EmptyView(), this.icon, this.text]);
+    this.button.addToCenter(flex);
+    return this.container.add(this.button);
+  };
+
+  return ElSnapClearBtn;
+
+})(Fa.CView);
+
+
+},{}],157:[function(require,module,exports){
+var ElSnapPictureFrame,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapPictureFrame = (function(_super) {
+  var createBackground, createScrollview, init;
+
+  __extends(ElSnapPictureFrame, _super);
+
+  ElSnapPictureFrame.DEFAULT_OPTIONS = {
+    size: [350, 540],
+    data: void 0,
+    title: 'Frame',
+    titleColor: '#000',
+    titleSize: '21px',
+    scrollBarHeight: 26,
+    scrollViewHeight: 480
+  };
+
+  function ElSnapPictureFrame(options) {
+    ElSnapPictureFrame.__super__.constructor.call(this, options);
+    this.container = new Fa.CContainer;
+    this.register();
+    init.call(this);
+    this.add(this.container);
+  }
+
+  ElSnapPictureFrame.prototype.updateFramePosition = function() {
+    return _.each(this.images, (function(_this) {
+      return function(img, key) {
+        if (img.photo.index === Session.currentPhoto.index) {
+          return _this.picturesScrollview.moveToIndex(key);
+        }
+      };
+    })(this));
+  };
+
+  ElSnapPictureFrame.prototype.updateFramePositionTo = function(timestamp) {
+    return _.each(this.images, (function(_this) {
+      return function(img, key) {
+        if (img.photo.timestamp.toString() === timestamp.toString()) {
+          return _this.picturesScrollview.moveToIndex(key, true);
+        }
+      };
+    })(this));
+  };
+
+  init = function() {
+    this.frame = new Fa.CContainer({
+      size: this.options.size
+    });
+    this.frameContainer = new Fa.CContainer({
+      size: [362, 552]
+    });
+    this.frameContainer.addClass('hidden-border-picture-frame');
+    this.frameContainer.addToCenter(this.frame);
+    createBackground.call(this);
+    createScrollview.call(this);
+    return this.container.add(Fa.Pos.top).add(this.frameContainer);
+  };
+
+  ElSnapPictureFrame.prototype.register = function() {
+    this._eventInput.subscribe(Dispatcher.event);
+    return this._eventInput.on('session_changed:current_client', (function(_this) {
+      return function() {
+        return init.call(_this);
+      };
+    })(this));
+  };
+
+  ElSnapPictureFrame.prototype.deregister = function() {
+    return this._eventInput.unsubscribe(Dispatcher.event);
+  };
+
+  ElSnapPictureFrame.prototype.addBorder = function() {
+    this.frameContainer.addClass('bordered-picture-frame');
+    return this.frameContainer.removeClass('hidden-border-picture-frame');
+  };
+
+  ElSnapPictureFrame.prototype.removeBorder = function() {
+    this.frameContainer.addClass('hidden-border-picture-frame');
+    return this.frameContainer.removeClass('bordered-picture-frame');
+  };
+
+  ElSnapPictureFrame.prototype.getScrollInstance = function() {
+    return this.picturesScrollview;
+  };
+
+  createBackground = function() {
+    var bg;
+    bg = new Fa.Surface({
+      properties: {
+        backgroundColor: '#000',
+        pointerEvents: 'none'
+      }
+    });
+    this.title = new Fa.Surface({
+      size: [true, true],
+      content: this.options.title,
+      properties: {
+        color: this.options.titleColor,
+        fontSize: this.options.titleSize,
+        pointerEvents: 'none'
+      }
+    });
+    this.frame.add(Fa.opaqueBy(0.1)).add(bg);
+    return this.frame.addToTop(this.title);
+  };
+
+  createScrollview = function() {
+    this.picturesScrollview = new Fa.EasyScrollview({
+      containerSize: [this.options.size[0], this.options.scrollViewHeight],
+      itemSize: [this.options.size[0], this.options.scrollViewHeight],
+      direction: 0,
+      paginate: true,
+      scrollBarThickness: 26,
+      id: this.options.id
+    });
+    this.pictures = [];
+    this.images = [];
+    _.each(this.options.data, (function(_this) {
+      return function(item) {
+        var box, flex, image;
+        box = new Fa.CContainer({
+          size: [_this.options.size[0], _this.options.scrollViewHeight]
+        });
+        flex = new Fa.FlexibleLayout({
+          direction: 1,
+          ratios: [25, 1]
+        });
+        image = new Fa.ImageSurf({
+          classes: ['size-350-450'],
+          size: [350, 450],
+          content: item.photo.sizedPic()
+        });
+        image.photo = item.photo;
+        _this.images.push(image);
+        flex.sequenceFrom([image, item.subtitle]);
+        box.addToCenter(flex);
+        return _this.pictures.push(box);
+      };
+    })(this));
+    this.picturesScrollview.addItems(this.pictures);
+    this.frame.addToCenter(this.picturesScrollview);
+    return this.frame.addToBottom(this.picturesScrollview.getScrollbarContainer());
+  };
+
+  return ElSnapPictureFrame;
+
+})(Fa.CView);
+
+
+},{}],158:[function(require,module,exports){
+var ElSnapSelectorRadio,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapSelectorRadio = (function(_super) {
+  var init;
+
+  __extends(ElSnapSelectorRadio, _super);
+
+  ElSnapSelectorRadio.DEFAULT_OPTIONS = {
+    size: [void 0, 35],
+    iconTranslation: 10,
+    textTranslation: 35,
+    iconSize: 20,
+    textSize: 20,
+    color: '#555',
+    isActive: true,
+    title: 'title'
+  };
+
+  function ElSnapSelectorRadio(options) {
+    ElSnapSelectorRadio.__super__.constructor.call(this, options);
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var iconPos, textPos;
+    this.icon = new Fa.Surface({
+      size: [this.options.iconSize, this.options.iconSize],
+      content: '<i class="ion-ios7-circle-filled"></i>',
+      properties: {
+        fontSize: "" + this.options.iconSize + "px",
+        color: this.options.color
+      }
+    });
+    this.text = new Fa.Surface({
+      size: [void 0, this.options.textSize],
+      content: this.options.title,
+      properties: {
+        fontSize: "" + this.options.textSize + "px",
+        color: this.options.color
+      }
+    });
+    iconPos = new Fa.Modifier({
+      align: [0, 0.5],
+      origin: [0, 0.5]
+    });
+    textPos = new Fa.Modifier({
+      align: [0, 0.5],
+      origin: [0, 0.5]
+    });
+    this.container.add(iconPos).add(Fa.translateXBy(this.options.iconTranslation)).add(this.icon);
+    return this.container.add(textPos).add(Fa.translateXBy(this.options.textTranslation)).add(this.text);
+  };
+
+  ElSnapSelectorRadio.prototype.toggleActive = function() {
+    if (this.options.isActive) {
+      this.options.isActive = false;
+      return this.setInactive();
+    } else {
+      this.options.isActive = true;
+      return this.setActive();
+    }
+  };
+
+  ElSnapSelectorRadio.prototype.setActive = function() {
+    this.options.isActive = true;
+    return this.icon.setContent('<i class="ion-ios7-circle-filled"></i>');
+  };
+
+  ElSnapSelectorRadio.prototype.setInactive = function() {
+    this.options.isActive = false;
+    return this.icon.setContent('<i class="ion-ios7-circle-outline"></i>');
+  };
+
+  return ElSnapSelectorRadio;
+
+})(Fa.CView);
+
+
+},{}],159:[function(require,module,exports){
+var ElSnapSetProfileBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapSetProfileBtn = (function(_super) {
+  var init;
+
+  __extends(ElSnapSetProfileBtn, _super);
+
+  _.extend(ElSnapSetProfileBtn.prototype, Fa.Mixins.toggleable.prototype);
+
+  ElSnapSetProfileBtn.DEFAULT_OPTIONS = {
+    size: [100, 100],
+    inactiveBackgroundColor: '#3e6279',
+    inactiveColor: '#ddd',
+    activeBackgroundColor: '#fb9c05',
+    activeColor: '#eee',
+    isActive: true
+  };
+
+  function ElSnapSetProfileBtn(options) {
+    ElSnapSetProfileBtn.__super__.constructor.call(this, options);
+    this.options.iconSize = (0.60 * this.options.size[0]) + 'px';
+    this.options.textSize = (0.14 * this.options.size[0]) + 'px';
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex;
+    this.button = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        backgroundColor: this.options.inactiveBackgroundColor,
+        borderRadius: '50%'
+      }
+    });
+    flex = new Fa.FlexibleLayout({
+      direction: 1,
+      ratios: [1, 30, 1]
+    });
+    this.icon = new Fa.WrappedSurface({
+      size: [true, true],
+      content: '<i class="icon-profile"></i>',
+      properties: {
+        fontSize: this.options.iconSize,
+        color: this.options.inactiveColor
+      }
+    });
+    this.text = new Fa.WrappedSurface({
+      alignment: 'top',
+      size: [true, true],
+      content: '',
+      properties: {
+        fontSize: this.options.textSize,
+        color: this.options.inactiveColor
+      }
+    });
+    flex.sequenceFrom([Fa.EmptyView(), this.icon, this.text]);
+    this.button.addToCenter(flex);
+    return this.container.add(this.button);
+  };
+
+  return ElSnapSetProfileBtn;
+
+})(Fa.CView);
+
+
+},{}],160:[function(require,module,exports){
+var ElSnapUpdateBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapUpdateBtn = (function(_super) {
+  var init;
+
+  __extends(ElSnapUpdateBtn, _super);
+
+  _.extend(ElSnapUpdateBtn.prototype, Fa.Mixins.toggleable.prototype);
+
+  ElSnapUpdateBtn.DEFAULT_OPTIONS = {
+    size: [100, 100],
+    inactiveBackgroundColor: '#3e6279',
+    inactiveColor: '#ddd',
+    activeBackgroundColor: '#fb9c05',
+    activeColor: '#eee',
+    isActive: true
+  };
+
+  function ElSnapUpdateBtn(options) {
+    ElSnapUpdateBtn.__super__.constructor.call(this, options);
+    this.options.iconSize = (0.55 * this.options.size[0]) + 'px';
+    this.options.textSize = (0.15 * this.options.size[0]) + 'px';
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex;
+    this.button = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        backgroundColor: this.options.inactiveBackgroundColor,
+        borderRadius: '50%'
+      }
+    });
+    flex = new Fa.FlexibleLayout({
+      direction: 1,
+      ratios: [3, 30, 1]
+    });
+    this.icon = new Fa.WrappedSurface({
+      size: [true, true],
+      content: '<i class="icon-update"></i>',
+      properties: {
+        fontSize: this.options.iconSize,
+        color: this.options.inactiveColor
+      }
+    });
+    this.text = new Fa.WrappedSurface({
+      alignment: 'top',
+      size: [true, true],
+      content: '',
+      properties: {
+        fontSize: this.options.textSize,
+        color: this.options.inactiveColor
+      }
+    });
+    flex.sequenceFrom([Fa.EmptyView(), this.icon, this.text]);
+    this.button.addToCenter(flex);
+    return this.container.add(this.button);
+  };
+
+  return ElSnapUpdateBtn;
+
+})(Fa.CView);
+
+
+},{}],161:[function(require,module,exports){
+var ElSnapViewBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapViewBtn = (function(_super) {
+  var init;
+
+  __extends(ElSnapViewBtn, _super);
+
+  _.extend(ElSnapViewBtn.prototype, Fa.Mixins.toggleable.prototype);
+
+  ElSnapViewBtn.DEFAULT_OPTIONS = {
+    size: [100, 100],
+    inactiveBackgroundColor: '#3e6279',
+    inactiveColor: '#ddd',
+    activeBackgroundColor: '#fb9c05',
+    activeColor: '#eee',
+    isActive: true
+  };
+
+  function ElSnapViewBtn(options) {
+    ElSnapViewBtn.__super__.constructor.call(this, options);
+    this.options.iconSize = (0.60 * this.options.size[0]) + 'px';
+    this.options.textSize = (0.15 * this.options.size[0]) + 'px';
+    this.container = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        cursor: 'pointer'
+      }
+    });
+    init.call(this);
+    this.container.pipe(this._eventOutput);
+    this.addToCenter(this.container);
+  }
+
+  init = function() {
+    var flex;
+    this.button = new Fa.CContainer({
+      size: [this.options.size[0], this.options.size[1]],
+      properties: {
+        backgroundColor: this.options.inactiveBackgroundColor,
+        borderRadius: '50%'
+      }
+    });
+    flex = new Fa.FlexibleLayout({
+      direction: 1,
+      ratios: [1, 30, 1]
+    });
+    this.icon = new Fa.WrappedSurface({
+      size: [true, true],
+      content: '<i class="icon-view"></i>',
+      properties: {
+        fontSize: this.options.iconSize,
+        color: this.options.inactiveColor
+      }
+    });
+    this.text = new Fa.WrappedSurface({
+      alignment: 'top',
+      size: [true, true],
+      content: '',
+      properties: {
+        fontSize: this.options.textSize,
+        color: this.options.inactiveColor
+      }
+    });
+    flex.sequenceFrom([Fa.EmptyView(), this.icon, this.text]);
+    this.button.addToCenter(flex);
+    return this.container.add(this.button);
+  };
+
+  return ElSnapViewBtn;
+
+})(Fa.CView);
+
+
+},{}],162:[function(require,module,exports){
+var ElSnapVisitInfo,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = ElSnapVisitInfo = (function(_super) {
+  var init;
+
+  __extends(ElSnapVisitInfo, _super);
+
+  ElSnapVisitInfo.DEFAULT_OPTIONS = {};
+
+  function ElSnapVisitInfo(options) {
+    var error;
+    ElSnapVisitInfo.__super__.constructor.call(this, options);
+    this.container = new Fa.CContainer({
+      properties: {
+        backgroundColor: '#71bcdd'
+      }
+    });
+    init.call(this);
+    Dispatcher.pipe(this._eventInput);
+    this._eventInput.on('session_changed:current_session', this.updateInfo.bind(this));
+    this._eventInput.on('snap_current_session_updated', this.updateInfo.bind(this));
+    try {
+      this.updateInfo.call(this);
+    } catch (_error) {
+      error = _error;
+      console.log(error);
+    }
+    this.add(this.container);
+  }
+
+  ElSnapVisitInfo.prototype.updateInfo = function() {
+    var client;
+    client = Session.currentClient;
+    return this.info.setContent("<strong>Date Visited:</strong>&nbsp; " + Session.currentClient.sessions[Session.currentSession - 1].date + "<br><strong>Session:</strong>&nbsp; " + Session.currentSession);
+  };
+
+  init = function() {
+    this.info = new Fa.Surface({
+      size: [true, true],
+      content: '',
+      properties: {
+        color: '#26404c',
+        fontSize: '17px'
+      }
+    });
+    return this.container.addToCenter(this.info);
+  };
+
+  return ElSnapVisitInfo;
+
+})(Fa.CView);
+
+
+},{}],163:[function(require,module,exports){
+var Mixins;
+
+Mixins = {
+  toggleable: require('./toggleable.coffee')
+};
+
+module.exports = Mixins;
+
+
+},{"./toggleable.coffee":164}],164:[function(require,module,exports){
+var Toggleable;
+
+module.exports = Toggleable = (function() {
+  function Toggleable() {}
+
+  Toggleable.prototype.toggleActive = function() {
+    if (this.options.isActive) {
+      this.options.isActive = false;
+      return this.setInactive();
+    } else {
+      this.options.isActive = true;
+      return this.setActive();
+    }
+  };
+
+  Toggleable.prototype.setActive = function() {
+    this.options.isActive = true;
+    this.button.setProperties({
+      backgroundColor: this.options.activeBackgroundColor
+    });
+    if (this.icon !== void 0) {
+      if (this.icon.surface) {
+        this.icon.surface.setProperties({
+          color: this.options.activeColor
+        });
+      } else {
+        this.icon.setProperties({
+          color: this.options.activeColor
+        });
+      }
+    }
+    if (this.text !== void 0) {
+      if (this.text.surface) {
+        return this.text.surface.setProperties({
+          color: this.options.activeColor
+        });
+      } else {
+        return this.text.setProperties({
+          color: this.options.activeColor
+        });
+      }
+    }
+  };
+
+  Toggleable.prototype.setInactive = function() {
+    this.options.isActive = false;
+    this.button.setProperties({
+      backgroundColor: this.options.inactiveBackgroundColor
+    });
+    if (this.icon !== void 0) {
+      if (this.icon.surface) {
+        this.icon.surface.setProperties({
+          color: this.options.inactiveColor
+        });
+      } else {
+        this.icon.setProperties({
+          color: this.options.inactiveColor
+        });
+      }
+    }
+    if (this.text !== void 0) {
+      if (this.text.surface) {
+        return this.text.surface.setProperties({
+          color: this.options.inactiveColor
+        });
+      } else {
+        return this.text.setProperties({
+          color: this.options.inactiveColor
+        });
+      }
+    }
+  };
+
+  return Toggleable;
+
+})();
+
+
+},{}]},{},[68])
