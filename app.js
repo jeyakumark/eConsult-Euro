@@ -28256,12 +28256,43 @@ module.exports = settingPage = (function(_super) {
       str = Stores.Consultant.setting(backend, screenWidth, screenHeight, imageServerURL);
       return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS1, fail1);
     }).bind(this));
+    this.clickZone1 = new Fa.Surface({
+      size: [330, 35],
+      properties: {
+        cursor: 'pointer',
+        backgroundColor: '#000',
+        borderTopLeftRadius: radius,
+        borderTopRightRadius: radius,
+        borderBottomLeftRadius: radius,
+        borderBottomRightRadius: radius
+      }
+    });
+    this.clickZone1.setActive = (function(_this) {
+      return function() {
+        return _this.clickZone1.setProperties({
+          backgroundColor: '#fff'
+        });
+      };
+    })(this);
+    this.clickZone1.setInactive = (function(_this) {
+      return function() {
+        return _this.clickZone1.setProperties({
+          backgroundColor: '#000'
+        });
+      };
+    })(this);
+    new AsLink(this.clickZone1, void 0, (function() {
+      return Dispatcher.emit('page_change', {
+        to: 'Client'
+      });
+    }).bind(this));
     this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
     this.container.add(Fa.translateBy(100, 55, 0)).add(backendText);
     this.container.add(Fa.translateBy(100, 105, 0)).add(screenWidthText);
     this.container.add(Fa.translateBy(100, 155, 0)).add(screenHeightText);
     this.container.add(Fa.translateBy(100, 205, 0)).add(imageServerURLText);
-    return this.container.add(Fa.opaqueBy(0.3)).add(Fa.translateBy(330, 330, 0)).add(this.clickZone);
+    this.container.add(Fa.opaqueBy(0.3)).add(Fa.translateBy(330, 330, 0)).add(this.clickZone);
+    return this.container.add(Fa.opaqueBy(0.3)).add(Fa.translateBy(330, 380, 0)).add(this.clickZone1);
   };
 
   gotFS1 = function(fileSystem) {
