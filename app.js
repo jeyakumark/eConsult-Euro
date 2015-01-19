@@ -28077,7 +28077,7 @@ var AsLink, settingPage,
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = settingPage = (function(_super) {
-  var fail, gotFS, gotFile, gotFileEntry, _createLayouts;
+  var fail1, gotFS, gotFile1, gotFileEntry1, _createLayouts;
 
   __extends(settingPage, _super);
 
@@ -28252,7 +28252,7 @@ module.exports = settingPage = (function(_super) {
       screenWidth = this.screenWidth.getValue();
       screenHeight = this.screenHeight.getValue();
       str = Stores.Consultant.setting(backend, screenWidth, screenHeight, imageServerURL);
-      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail1);
     }).bind(this));
     this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
     this.container.add(Fa.translateBy(100, 55, 0)).add(backendText);
@@ -28269,15 +28269,15 @@ module.exports = settingPage = (function(_super) {
     window.resolveLocalFileSystemURI(spath({
       create: false,
       exclusive: false
-    }, gotFileEntry, fail));
+    }, gotFileEntry1, fail1));
   };
 
-  gotFileEntry = function(fileEntry) {
+  gotFileEntry1 = function(fileEntry) {
     alert("entry");
-    fileEntry.createWriter(gotFile, fail);
+    fileEntry.createWriter(gotFile1, fail);
   };
 
-  gotFile = function(Writer) {
+  gotFile1 = function(Writer) {
     alert("filewrite");
     writer.onwriteend = function(evt) {
       writer.seek(0);
@@ -28285,7 +28285,7 @@ module.exports = settingPage = (function(_super) {
     };
   };
 
-  fail = function(error) {
+  fail1 = function(error) {
     alert("error occured");
     if (error.code === FileError.NOT_FOUND_ERR) {
       alert(error.code.toString() + ":config file not found");
