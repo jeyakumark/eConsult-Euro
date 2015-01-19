@@ -28077,7 +28077,7 @@ var AsLink, settingPage,
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = settingPage = (function(_super) {
-  var fail1, gotFS, gotFile1, gotFileEntry1, _createLayouts;
+  var fail1, gotFS1, gotFile1, gotFileEntry1, _createLayouts;
 
   __extends(settingPage, _super);
 
@@ -28252,7 +28252,7 @@ module.exports = settingPage = (function(_super) {
       screenWidth = this.screenWidth.getValue();
       screenHeight = this.screenHeight.getValue();
       str = Stores.Consultant.setting(backend, screenWidth, screenHeight, imageServerURL);
-      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail1);
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS1, fail1);
     }).bind(this));
     this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
     this.container.add(Fa.translateBy(100, 55, 0)).add(backendText);
@@ -28262,7 +28262,7 @@ module.exports = settingPage = (function(_super) {
     return this.container.add(Fa.opaqueBy(0.3)).add(Fa.translateBy(330, 330, 0)).add(this.clickZone);
   };
 
-  gotFS = function(fileSystem) {
+  gotFS1 = function(fileSystem) {
     var spath;
     spath = fileSystem.root.toURL() + "/" + "setting.txt";
     alert(spath);
