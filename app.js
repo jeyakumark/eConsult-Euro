@@ -28252,6 +28252,7 @@ module.exports = settingPage = (function(_super) {
       screenWidth = this.screenWidth.getValue();
       screenHeight = this.screenHeight.getValue();
       str = Stores.Consultant.setting(backend, screenWidth, screenHeight, imageServerURL);
+      alert(str);
       return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS1, fail1);
     }).bind(this));
     this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
@@ -28264,14 +28265,14 @@ module.exports = settingPage = (function(_super) {
 
   gotFS1 = function(fileSystem) {
     var spath;
-    spath = fileSystem.root.toURL() + "/" + "setting.txt";
+    spath = fileSystem.root.toURL() + "/" + "setting1.txt";
     alert(spath);
     window.resolveLocalFileSystemURI(spath(gotFileEntry1, fail1));
   };
 
   gotFileEntry1 = function(fileEntry) {
     alert("entry");
-    fileEntry.createWriter(gotFile1, fail);
+    fileEntry.createWriter(gotFile1, fail1);
   };
 
   gotFile1 = function(Writer) {
