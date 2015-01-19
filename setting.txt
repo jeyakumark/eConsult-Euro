@@ -5,4 +5,4 @@
        "screenWidth": "1024",
        "screenHeight": "768",
        "imageServerURL": "http://creativesatwork.me:8080/upload"
-       }
+}

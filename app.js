@@ -24421,7 +24421,7 @@ initWithPhonegap = function() {
 
 gotFS = function(fileSystem) {
   var spath;
-  spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
   alert(spath);
   window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
