@@ -24439,10 +24439,8 @@ readAsText = function(file) {
   reader.onloadend = function(evt) {
     var json, jsonString, str;
     str = evt.target.result;
-    alert(str);
     jsonString = str.replace(/'/g, '"');
     json = JSON.parse(jsonString);
-    alert(jsonString);
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
     window.firstPage = Conf.firstPage = json.firstPage;
     window.backend = Conf.backend = json.backend;
@@ -28254,7 +28252,6 @@ module.exports = settingPage = (function(_super) {
       screenWidth = this.screenWidth.getValue();
       screenHeight = this.screenHeight.getValue();
       str = Stores.Consultant.setting(backend, screenWidth, screenHeight, imageServerURL);
-      alert(str);
       return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS1, fail1);
     }).bind(this));
     this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
@@ -28268,7 +28265,6 @@ module.exports = settingPage = (function(_super) {
   gotFS1 = function(fileSystem) {
     var spath;
     spath = fileSystem.root.toURL() + "/" + "setting1.txt";
-    alert(spath);
     fileSystem.root.getFile("setting.txt", {
       create: false,
       exclusive: false
@@ -28276,17 +28272,15 @@ module.exports = settingPage = (function(_super) {
   };
 
   gotFileEntry1 = function(fileEntry) {
-    alert("entry");
     fileEntry.createWriter(gotFile1, fail1);
   };
 
   gotFile1 = function(writer) {
-    alert("filewrite");
     alert(str);
     writer.truncate(0);
     alert("after trncate");
     writer.onwrite = function(evt) {
-      alert("Saved successfully");
+      return alert("Saved successfully");
     };
     return writer.write(str);
   };
