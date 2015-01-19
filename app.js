@@ -24437,8 +24437,9 @@ readAsText = function(file) {
   var reader;
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    var json, str;
+    var json, jsonString, str;
     str = evt.target.result;
+    jsonString = str.replace(/'/g, '"');
     json = JSON.parse(str);
     alert('after parse');
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
@@ -28244,6 +28245,11 @@ module.exports = settingPage = (function(_super) {
       };
     })(this);
     new AsLink(this.clickZone, void 0, (function() {
+      var backend, imageServerURL, screenHeight, screenWidth;
+      imageServerURL = this.imageServerURL.getValue();
+      backend = this.backend.getValue();
+      screenWidth = this.screenWidth.getValue();
+      screenHeight = this.screenHeight.getValue();
       return Dispatcher.emit('page_change', {
         to: 'Client'
       });
