@@ -28077,7 +28077,7 @@ var AsLink, settingPage,
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = settingPage = (function(_super) {
-  var _createLayouts;
+  var fail, gotFS, gotFile, gotFileEntry, _createLayouts;
 
   __extends(settingPage, _super);
 
@@ -28246,14 +28246,13 @@ module.exports = settingPage = (function(_super) {
       };
     })(this);
     new AsLink(this.clickZone, void 0, (function() {
-      var backend, imageServerURL, screenHeight, screenWidth;
+      var backend, imageServerURL, screenHeight, screenWidth, str;
       imageServerURL = this.imageServerURL.getValue();
       backend = this.backend.getValue();
       screenWidth = this.screenWidth.getValue();
       screenHeight = this.screenHeight.getValue();
-      return Dispatcher.emit('page_change', {
-        to: 'Client'
-      });
+      str = Stores.Consultant.setting(backend, screenWidth, screenHeight, imageServerURL);
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
     }).bind(this));
     this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
     this.container.add(Fa.translateBy(100, 55, 0)).add(backendText);
@@ -28261,6 +28260,40 @@ module.exports = settingPage = (function(_super) {
     this.container.add(Fa.translateBy(100, 155, 0)).add(screenHeightText);
     this.container.add(Fa.translateBy(100, 205, 0)).add(imageServerURLText);
     return this.container.add(Fa.opaqueBy(0.3)).add(Fa.translateBy(330, 330, 0)).add(this.clickZone);
+  };
+
+  gotFS = function(fileSystem) {
+    var spath;
+    spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
+    alert(spath);
+    window.resolveLocalFileSystemURI(spath({
+      create: true,
+      exclusive: false
+    }, gotFileEntry, fail));
+  };
+
+  gotFileEntry = function(fileEntry) {
+    alert("entry");
+    fileEntry.createWriter(gotFile, fail);
+  };
+
+  gotFile = function(Writer) {
+    alert("filewrite");
+    writer.onwriteend = function(evt) {
+      writer.seek(0);
+      return writer.write(str);
+    };
+  };
+
+  fail = function(error) {
+    alert("error occured");
+    if (error.code === FileError.NOT_FOUND_ERR) {
+      alert(error.code.toString() + ":config file not found");
+    } else if (error.code === FileError.SECURITY_ERR) {
+      alert("security error");
+    } else {
+      alert(error.code);
+    }
   };
 
   return settingPage;
@@ -28681,6 +28714,17 @@ module.exports = ConsultantStore = (function() {
     } else {
       return false;
     }
+  };
+
+  ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
+    var str;
+    str = "{";
+    str = str + "'backend' :" + "'" + backend + "'";
+    str = str + "'screenWidth' :" + "'" + screenWidth + "'";
+    str = str + "'screenHeight' :" + "'" + screenHeight + "'";
+    str = str + "'imageServerURL' :" + "'" + imageServerURL + "'";
+    str = str + "}";
+    return str;
   };
 
   return ConsultantStore;
