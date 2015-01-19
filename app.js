@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, fail, filenotfound, gotFS, gotFile, gotFileEntry, gotFileEntry1, init, initWithPhonegap, readAsText;
+var AppView, Conf, FastClick, copyFS, fail, gotFS, gotFile, gotFileEntry, gotFileEntry1, init, initWithPhonegap, readAsText;
 
 window.Setting = '';
 
@@ -24467,10 +24467,6 @@ fail = function(error) {
   } else {
     alert(error.code);
   }
-};
-
-filenotfound = function(error) {
-  return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
 };
 
 copyFS = function(fileSystem) {
