@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, fail, gotFS, gotFile, gotFileEntry, gotFileEntry1, init, initWithPhonegap, readAsText;
+var AppView, Conf, FastClick, fail, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
 
 window.Setting = '';
 
@@ -24461,27 +24461,12 @@ fail = function(error) {
   alert("error occured");
   if (error.code === FileError.NOT_FOUND_ERR) {
     alert(error.code.toString() + ":config file not found");
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
   } else if (error.code === FileError.SECURITY_ERR) {
     alert("security error");
   } else {
     alert(error.code);
   }
 };
-
-copyFS = function(fileSystem) {
-  var spath;
-  spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
-  window.resolveLocalFileSystemURI(spath, gotFileEntry1, fail1);
-};
-
-gotFileEntry1 = function(fileEntry) {
-  var spath1;
-  spath1 = fileSystem.root.toURL() + "/" + "setting.txt";
-  fileEntry.copy(spath1);
-};
-
-fail = function(error) {};
 
 if (Conf.isProduction) {
   document.addEventListener('deviceready', initWithPhonegap.bind(this), false);
