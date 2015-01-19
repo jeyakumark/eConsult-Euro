@@ -28267,7 +28267,10 @@ module.exports = settingPage = (function(_super) {
     var spath;
     spath = fileSystem.root.toURL() + "/" + "setting1.txt";
     alert(spath);
-    window.resolveLocalFileSystemURI(spath(gotFileEntry1, fail1));
+    fileSystem.root.toURL().getFile("setting.txt", {
+      create: false,
+      exclusive: false
+    }, gotFileEntry1, fail1);
   };
 
   gotFileEntry1 = function(fileEntry) {
@@ -28717,9 +28720,9 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
     var str;
     str = "{";
-    str = str + "'backend' :" + "'" + backend + "'";
-    str = str + "'screenWidth' :" + "'" + screenWidth + "'";
-    str = str + "'screenHeight' :" + "'" + screenHeight + "'";
+    str = str + "'backend' :" + "'" + backend + "',";
+    str = str + "'screenWidth' :" + "'" + screenWidth + "',";
+    str = str + "'screenHeight' :" + "'" + screenHeight + "',";
     str = str + "'imageServerURL' :" + "'" + imageServerURL + "'";
     str = str + "}";
     return str;
