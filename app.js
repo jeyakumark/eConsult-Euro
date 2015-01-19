@@ -28294,8 +28294,8 @@ module.exports = settingPage = (function(_super) {
         to: 'Client'
       });
     }).bind(this));
-    this.container.add(Fa.translateBy(250, 337, 0)).add(settingText);
-    this.container.add(Fa.translateBy(250, 387, 0)).add(closeText);
+    this.container.add(Fa.translateBy(3600, 337, 0)).add(settingText);
+    this.container.add(Fa.translateBy(360, 387, 0)).add(closeText);
     this.container.add(Fa.translateBy(100, 55, 0)).add(backendText);
     this.container.add(Fa.translateBy(100, 105, 0)).add(screenWidthText);
     this.container.add(Fa.translateBy(100, 155, 0)).add(screenHeightText);
