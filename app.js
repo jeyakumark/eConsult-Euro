@@ -24468,7 +24468,7 @@ copyFS = function(fileSystem) {
   window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
 };
 
-gotCopyFileEntry = function(fileEntry1) {
+gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
   destination = new DirectoryEntry(fileSystem.root.toURL());
