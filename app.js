@@ -24455,7 +24455,7 @@ readAsText = function(file) {
 fail = function(error) {
   if (error.code === FileError.NOT_FOUND_ERR) {
     alert(error.code.toString() + ":config file not found.copy from www folder");
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, failcopy);
   } else if (error.code === FileError.SECURITY_ERR) {
     alert("security error");
   } else {
