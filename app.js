@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, fail, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
+var AppView, Conf, FastClick, copyFS, fail, failcopy, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
 
 window.Setting = '';
 
@@ -24453,12 +24453,30 @@ readAsText = function(file) {
 
 fail = function(error) {
   if (error.code === FileError.NOT_FOUND_ERR) {
-    alert(error.code.toString() + ":config file not found");
+    alert(error.code.toString() + ":config file not found.copy from www folder");
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, copyfail);
   } else if (error.code === FileError.SECURITY_ERR) {
     alert("security error");
   } else {
     alert(error.code);
   }
+};
+
+copyFS = function(fileSystem) {
+  var spath;
+  spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
+  window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
+};
+
+gotCopyFileEntry = function(fileEntry1) {
+  var destination;
+  alert("entry");
+  destination = new DirectoryEntry(fileSystem.root.toURL());
+  fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
+};
+
+failcopy = function(error) {
+  alert("error copy file from www -> document directory");
 };
 
 if (Conf.isProduction) {
@@ -24470,7 +24488,7 @@ if (Conf.isProduction) {
 
 },{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":94,"./views/app_view.coffee":98,"./views/behaviors":101,"./views/components":132,"./views/elements":152,"./views/mixins":163,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":95,"panzoom":96,"store":67,"zoom":97}],69:[function(require,module,exports){
 module.exports = {
-  isProduction: true,
+  isProduction: false,
   firstPage: 'Client'
 };
 
@@ -28761,7 +28779,7 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
     var str;
     str = "{";
-    str = str + "'isProduction' :" + "'yes',";
+    str = str + "'isProduction' :" + "'no',";
     str = str + "'firstPage' :" + "'Client',";
     str = str + "'backend' :" + "'" + backend + "',";
     str = str + "'screenWidth' :" + "'" + screenWidth + "',";
