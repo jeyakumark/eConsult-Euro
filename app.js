@@ -24481,7 +24481,7 @@ gotCopyFileEntry = function(fileEntry) {
   destination = new DirectoryEntry({
     fullpath: dest
   });
-  alert(destination);
+  alert(destination.fullPath);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
