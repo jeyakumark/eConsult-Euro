@@ -24476,7 +24476,7 @@ copyFS = function(fileSystem) {
 gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
-  dest = dest.substring(8);
+  dest = dest.substring(7);
   alert(dest);
   destination = new DirectoryEntry({
     fullpath: dest
