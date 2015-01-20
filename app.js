@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, fail, failcopy, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText;
+var AppView, Conf, FastClick, copyFS, fail, failcopy, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
 
 window.Setting = '';
 
@@ -24475,6 +24475,10 @@ gotCopyFileEntry = function(fileEntry) {
   alert("entry");
   destination = new DirectoryEntry(fileSystem.root.toURL());
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
+};
+
+successCopy = function() {
+  return alert("Copy successful.Please restart the application");
 };
 
 failcopy = function(error) {
