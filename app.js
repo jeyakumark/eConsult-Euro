@@ -24446,6 +24446,7 @@ readAsText = function(file) {
     window.backend = Conf.backend = json.backend;
     window.screenWidth = Conf.screenWidth = json.screenWidth;
     window.screenHeight = Conf.screenHeight = json.screenHeight;
+    alert(window.imageServerURL);
     return init.call(this);
   };
   return reader.readAsText(file);
