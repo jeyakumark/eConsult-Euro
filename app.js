@@ -24478,7 +24478,8 @@ gotCopyFileEntry = function(fileEntry) {
   alert("entry");
   alert(fileEntry.fullPath);
   alert(dest);
-  parentName = dest.substring(targetDirectory.lastIndexOf('/') + 1);
+  parentName = dest.substring(dest.lastIndexOf('/') + 1);
+  alert(parentName);
   destination = new DirectoryEntry(parentName, dest);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
