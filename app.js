@@ -24474,15 +24474,12 @@ copyFS = function(fileSystem) {
 };
 
 gotCopyFileEntry = function(fileEntry) {
-  var destination, parentName;
+  var destination;
   alert("entry");
   alert(fileEntry.fullPath);
   alert(dest);
-  parentName = dest.substring(6);
-  alert(parentName);
-  destination = new DirectoryEntry({
-    fullPath: parentName
-  });
+  destination = new DirectoryEntry(window.resolveLocalFileSystemURL(dest.substring(8)));
+  alert(destination);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
