@@ -24477,8 +24477,7 @@ gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
   alert(fileEntry.fullPath);
-  alert(dest);
-  alert(window.resolveLocalFileSystemURL(dest.substring(8)));
+  alert(cordova.file.documentDirectory);
   destination = new DirectoryEntry(window.resolveLocalFileSystemURL(dest.substring(8)));
   alert(destination);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
