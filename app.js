@@ -24478,6 +24478,7 @@ gotCopyFileEntry = function(fileEntry) {
   alert("entry");
   alert(fileEntry.fullPath);
   alert(dest);
+  alert(window.resolveLocalFileSystemURL(dest.substring(8)));
   destination = new DirectoryEntry(window.resolveLocalFileSystemURL(dest.substring(8)));
   alert(destination);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
