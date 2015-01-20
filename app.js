@@ -24476,9 +24476,11 @@ copyFS = function(fileSystem) {
 gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
-  alert(fileEntry.fullPath);
-  alert(cordova.file.documentDirectory);
-  destination = new DirectoryEntry(window.resolveLocalFileSystemURL(dest.substring(8)));
+  dest = dest.substring(8);
+  alert(dest);
+  destination = new DirectoryEntry({
+    fullpath: dest
+  });
   alert(destination);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
