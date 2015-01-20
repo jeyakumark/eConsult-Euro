@@ -24466,6 +24466,7 @@ fail = function(error) {
 copyFS = function(fileSystem) {
   var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
+  alert(spath);
   window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
 };
 
