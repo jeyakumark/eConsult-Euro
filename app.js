@@ -24472,7 +24472,10 @@ copyFS = function(fileSystem) {
 };
 
 gotCopyFileEntry = function(fileEntry, dest) {
+  var destination;
   alert("entry");
+  alert(fileSystem.root.toURL());
+  destination = new DirectoryEntry(fileSystem.root.toURL());
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
