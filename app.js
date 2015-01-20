@@ -24320,9 +24320,11 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, fail, failcopy, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
+var AppView, Conf, FastClick, copyFS, dest, fail, failcopy, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
 
 window.Setting = '';
+
+dest = '';
 
 require("./..\\..\\bower_components\\famous-polyfills\\index.js");
 
@@ -24464,18 +24466,18 @@ fail = function(error) {
 };
 
 copyFS = function(fileSystem) {
-  var dest, spath;
+  var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
   dest = fileSystem.root.toURL();
   alert(spath);
-  window.resolveLocalFileSystemURI(spath, dest, gotCopyFileEntry, failcopy);
+  window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
 };
 
-gotCopyFileEntry = function(fileEntry, dest) {
+gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
-  alert(fileSystem.root.toURL());
-  destination = new DirectoryEntry(fileSystem.root.toURL());
+  alert(dest);
+  destination = new DirectoryEntry(dest);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
