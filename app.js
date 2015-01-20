@@ -24474,6 +24474,7 @@ gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
   destination = new DirectoryEntry(fileSystem.root.toURL());
+  alert(destination);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
