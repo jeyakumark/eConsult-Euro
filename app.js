@@ -24464,17 +24464,15 @@ fail = function(error) {
 };
 
 copyFS = function(fileSystem) {
-  var spath;
+  var dest, spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
+  dest = fileSystem.root.toURL();
   alert(spath);
-  window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
+  window.resolveLocalFileSystemURI(spath, dest, gotCopyFileEntry, failcopy);
 };
 
-gotCopyFileEntry = function(fileEntry) {
-  var destination;
+gotCopyFileEntry = function(fileEntry, dest) {
   alert("entry");
-  destination = new DirectoryEntry(fileSystem.root.toURL());
-  alert(destination);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
