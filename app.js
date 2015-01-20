@@ -24476,10 +24476,9 @@ copyFS = function(fileSystem) {
 gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
-  dest = dest.substring(7);
-  alert(dest);
-  destination = new DirectoryEntry('', dest);
-  alert(destination.fullPath);
+  destination = new DirectoryEntry({
+    fullPath: dest
+  });
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
