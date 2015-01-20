@@ -24474,15 +24474,13 @@ copyFS = function(fileSystem) {
 };
 
 gotCopyFileEntry = function(fileEntry) {
-  var destination;
   alert("entry");
   alert(dest);
-  destination = new DirectoryEntry(dest);
-  fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
+  fileEntry.copyTo(dest, "setting.txt", successCopy, failcopy);
 };
 
 successCopy = function() {
-  return alert("Copy successful.Please restart the application");
+  alert("Copy successful.Please restart the application");
 };
 
 failcopy = function(error) {
