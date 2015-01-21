@@ -25908,12 +25908,11 @@ module.exports = Client = (function() {
   Client.prototype.fetchFromBackend = function(clientId) {
     var fetchPromise;
     fetchPromise = $.ajax({
-      url: "" + Conf.backend + "/clients",
+      url: "#(Conf.backend)/api/login"
+    });
+    ({
       dataType: "json",
       async: false,
-      data: {
-        client_name: clientId
-      },
       type: 'GET'
     });
     return fetchPromise;
