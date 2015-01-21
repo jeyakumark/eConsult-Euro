@@ -25360,6 +25360,7 @@ module.exports = Client = (function() {
     promise.done((function(_this) {
       return function(data) {
         var client, default_profile_pic;
+        alert("fetch data");
         console.log('fetch for init');
         console.log(data);
         if (data.length !== 0) {
@@ -27114,6 +27115,7 @@ module.exports = clientPage = (function(_super) {
           return alert('Please enter the client ID');
         }
       } else {
+        navigator.notification.alert('checking client');
         client = new Models.Client(clientId);
         Session.setCurrentClient(client);
         return Dispatcher.emit('page_change', {
