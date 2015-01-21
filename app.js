@@ -25364,7 +25364,7 @@ module.exports = Client = (function() {
         console.log('fetch for init');
         console.log(data);
         if (data.length !== 0) {
-          alert("get data");
+          alert("get data" + data);
           client = data[0];
           _this.Id = client.Id;
           _this.name = client.name;
@@ -25908,18 +25908,24 @@ module.exports = Client = (function() {
   };
 
   Client.prototype.fetchFromBackend = function(clientId) {
-    var fetchPromise;
+    var fetchPromise, password, username;
+    username = "EURO\doreenchan";
+    password = "eurogrp!12345";
     fetchPromise = $.ajax({
-      url: "#(Conf.backend)/api/login"
-    });
-    ({
+      url: "" + Conf.backend + "/api/login",
       dataType: "jsonp",
       async: false,
       data: {
         username: "TP184",
         password: "123456"
       },
-      type: 'GET'
+      type: 'GET',
+      beforeSend: function(xhr) {
+        var base64, bytes;
+        bytes = Crypto.charenc.Binary.stringToBytes(username + ":" + password);
+        base64 = Crypto.util.bytesToBase64(bytes);
+        return xhr.setRequestHeader("Authorization", "Basic " + base64);
+      }
     });
     return fetchPromise;
   };
