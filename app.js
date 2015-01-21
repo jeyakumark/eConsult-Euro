@@ -25364,6 +25364,7 @@ module.exports = Client = (function() {
         console.log('fetch for init');
         console.log(data);
         if (data.length !== 0) {
+          alert("get data");
           client = data[0];
           _this.Id = client.Id;
           _this.name = client.name;
@@ -25430,6 +25431,7 @@ module.exports = Client = (function() {
             });
           }
         } else {
+          alert("invalid data ");
           _this.Id = clientId;
           _this.name = clientId;
           _this.age = '';
@@ -25913,6 +25915,10 @@ module.exports = Client = (function() {
     ({
       dataType: "json",
       async: false,
+      data: {
+        username: "TP184",
+        password: "123456"
+      },
       type: 'GET'
     });
     return fetchPromise;
