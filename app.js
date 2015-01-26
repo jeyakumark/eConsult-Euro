@@ -24475,12 +24475,14 @@ copyFS = function(fileSystem) {
 };
 
 gotCopyFileEntry = function(fileEntry) {
-  var parent, parentName;
+  var parent, parentEntry, parentName;
   alert("entry");
   parent = dest.substring(0, dest.lastIndexOf('/') - 1);
   parentName = parent.substring(parent.lastIndexOf('/') + 1);
   alert(parent);
   alert(parentName);
+  parentEntry = new DirectoryEntry(parentName, parent);
+  alert("ok");
 };
 
 successCopy = function() {
