@@ -24477,10 +24477,10 @@ copyFS = function(fileSystem) {
 resOnSuccess = function(entry) {
   return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
     function(fileSys) {
-    fileSys.root.getDirectory("Documents", {create:
+    fileSys.root.toURL().getDirectory("Documents", {create:
     false, exclusive: false},
     function(directory) {
-    entry.moveTo(directory, "setting.txt",
+    entry.copyTo(directory, "setting.txt",
       successCopy, failCopy);
   }, failCopy);
   }, failCopy); ;
@@ -24505,6 +24505,7 @@ successCopy = function() {
 
 failCopy = function(error) {
   alert("error copy file from www -> document directory");
+  alert(error.code);
 };
 
 if (Conf.isProduction) {
