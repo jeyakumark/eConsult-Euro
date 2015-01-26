@@ -24425,7 +24425,7 @@ initWithPhonegap = function() {
 
 gotFS = function(fileSystem) {
   var spath;
-  spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  spath = fileSystem.root.toURL() + "/Data/" + "setting.txt";
   window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
 
@@ -24501,6 +24501,7 @@ gotCopyFileEntry = function(fileEntry) {
 
 successCopy = function() {
   alert("Copy successful.Please restart the application");
+  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
 };
 
 failCopy = function(error) {
