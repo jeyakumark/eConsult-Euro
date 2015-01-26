@@ -24475,15 +24475,15 @@ copyFS = function(fileSystem) {
 };
 
 resOnSuccess = function(entry) {
-  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {
-    fileSys.root.getDirectory("Documents", {
-      create: false,
-      exclusive: false
-    }, function(directory) {
-      return entry.moveTo(directory, "newFile.jpg", successCopy, failCopy);
-    });
-    return failCopy;
-  }, failCopy);
+  return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
+    function(fileSys) {
+    fileSys.root.getDirectory("SingleSurvey_4", {create:
+      false, exclusive: false},
+      function(directory) {
+      entry.moveTo(directory, "newFile.jpg",
+        success, resOnError);
+  }, resOnError);
+  }, resOnError); ;
 };
 
 gotCopyFileEntry = function(fileEntry) {
