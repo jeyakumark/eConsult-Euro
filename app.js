@@ -24477,10 +24477,10 @@ copyFS = function(fileSystem) {
 resOnSuccess = function(entry) {
   return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
     function(fileSys) {
-    fileSys.root.getDirectory("SingleSurvey_4", {create:
+    fileSys.root.getDirectory("Documents", {create:
       false, exclusive: false},
       function(directory) {
-      entry.moveTo(directory, "newFile.jpg",
+      entry.moveTo(directory, "setting.txt",
         success, resOnError);
   }, resOnError);
   }, resOnError); ;
