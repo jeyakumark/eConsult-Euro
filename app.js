@@ -24412,6 +24412,7 @@ init = function() {
 };
 
 initWithPhonegap = function() {
+  alert("call deviceready");
   Store.clear();
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
@@ -24437,6 +24438,7 @@ gotFile = function(file) {
 
 readAsText = function(file) {
   var reader;
+  alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
     var json, jsonString, str;
@@ -24477,6 +24479,9 @@ gotCopyFileEntry = function(fileEntry) {
   var destination;
   alert("entry");
   destination = new DirectoryEntry({
+    fullPath: dest
+  });
+  alert({
     fullPath: dest
   });
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
@@ -25919,12 +25924,15 @@ module.exports = Client = (function() {
         username: "TP184",
         password: "123456"
       },
-      type: 'GET',
+      type: "GET",
       beforeSend: function(xhr) {
         var base64, bytes;
         bytes = Crypto.charenc.Binary.stringToBytes(username + ":" + password);
         base64 = Crypto.util.bytesToBase64(bytes);
         return xhr.setRequestHeader("Authorization", "Basic " + base64);
+      },
+      xhrFields: {
+        withCredentials: true
       }
     });
     return fetchPromise;
