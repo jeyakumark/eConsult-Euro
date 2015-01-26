@@ -24475,6 +24475,7 @@ copyFS = function(fileSystem) {
 };
 
 resOnSuccess = function(entry) {
+  alert(fileSystm.root);
   return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
     function(fileSys) {
     fileSys.root.getDirectory(window.appRootDirName, {create:
