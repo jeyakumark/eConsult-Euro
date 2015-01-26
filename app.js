@@ -24475,8 +24475,8 @@ copyFS = function(fileSystem) {
 
 gotCopyFileEntry = function(fileEntry) {
   alert("entry");
-  alert(gFileSystem.root.toURL());
-  fileEntry.moveTo(gFileSystem.root.toURL(), "setting.txt", successCopy, failCopy);
+  alert(gFileSystem.root);
+  fileEntry.moveTo(gFileSystem.root, "setting.txt", successCopy, failCopy);
 };
 
 successCopy = function() {
