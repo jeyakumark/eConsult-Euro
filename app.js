@@ -24470,18 +24470,12 @@ copyFS = function(fileSystem) {
   var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
   dest = fileSystem.root.toURL();
+  alert(dest);
   window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
 };
 
 gotCopyFileEntry = function(fileEntry) {
-  var parent, parentEntry, parentName;
   alert("entry");
-  parent = dest;
-  parentName = parent.substring(parent.lastIndexOf('/') + 1);
-  parentEntry = new DirectoryEntry(parentName, parent);
-  alert(parent);
-  alert(parentName);
-  fileEntry.copyTo(parentEntry, "setting.txt", successCopy, failCopy);
 };
 
 successCopy = function() {
