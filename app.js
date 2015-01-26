@@ -24481,7 +24481,7 @@ resOnSuccess = function(entry) {
     false, exclusive: false},
     function(directory) {
     entry.moveTo(directory, "setting.txt",
-      success, failCopy);
+      successCopy, failCopy);
   }, failCopy);
   }, failCopy); ;
 };
@@ -38294,4 +38294,4 @@ module.exports = Toggleable = (function() {
 })();
 
 
-},{}]},{},[68]){},[68])
+},{}]},{},[68])
