@@ -24483,6 +24483,8 @@ gotCopyFileEntry = function(fileEntry) {
   alert(parentName);
   parentEntry = new DirectoryEntry(parentName, parent);
   alert("ok");
+  fileEntry.copyTo(parentEntry, "setting.txt", successCopy, failCopy);
+  alert("copied");
 };
 
 successCopy = function() {
