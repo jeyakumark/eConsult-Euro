@@ -24469,14 +24469,18 @@ fail = function(error) {
 copyFS = function(fileSystem) {
   var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
-  gFileSystem = fileSystem;
   window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
 };
 
 gotCopyFileEntry = function(fileEntry) {
+  var parent, parentEntry, parentName;
   alert("entry");
-  alert(gFileSystem.root);
-  fileEntry.moveTo(gFileSystem.root, "setting.txt", successCopy, failCopy);
+  parent = document.getElementById('parent').value;
+  parentName = parent.substring(parent.lastIndexOf('/') + 1);
+  parentEntry = new DirectoryEntry(parentName, parent);
+  alert(parent);
+  alert(parentName);
+  fileEntry.copyTo(parentEntry, "setting.txt", successCopy, failCopy);
 };
 
 successCopy = function() {
