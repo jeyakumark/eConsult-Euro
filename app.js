@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, dest, fail, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
+var AppView, Conf, FastClick, copyFS, dest, fail, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, resOnSuccess, successCopy;
 
 window.Setting = '';
 
@@ -24471,7 +24471,19 @@ copyFS = function(fileSystem) {
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
   dest = fileSystem.root.toURL();
   alert(dest);
-  window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failCopy);
+  window.resolveLocalFileSystemURI(spath, resOnSuccess, failCopy);
+};
+
+resOnSuccess = function(entry) {
+  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {
+    fileSys.root.getDirectory("Documents", {
+      create: false,
+      exclusive: false
+    }, function(directory) {
+      return entry.moveTo(directory, "newFile.jpg", successCopy, failCopy);
+    });
+    return failCopy;
+  }, failCopy);
 };
 
 gotCopyFileEntry = function(fileEntry) {
