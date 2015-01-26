@@ -24412,7 +24412,6 @@ init = function() {
 };
 
 initWithPhonegap = function() {
-  alert("call deviceready");
   Store.clear();
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
@@ -24438,7 +24437,6 @@ gotFile = function(file) {
 
 readAsText = function(file) {
   var reader;
-  alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
     var json, jsonString, str;
@@ -24450,7 +24448,6 @@ readAsText = function(file) {
     window.backend = Conf.backend = json.backend;
     window.screenWidth = Conf.screenWidth = json.screenWidth;
     window.screenHeight = Conf.screenHeight = json.screenHeight;
-    alert(window.imageServerURL);
     return init.call(this);
   };
   return reader.readAsText(file);
@@ -24471,7 +24468,6 @@ copyFS = function(fileSystem) {
   var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
   dest = fileSystem.root.toURL();
-  alert(spath);
   window.resolveLocalFileSystemURI(spath, gotCopyFileEntry, failcopy);
 };
 
@@ -24481,9 +24477,7 @@ gotCopyFileEntry = function(fileEntry) {
   destination = new DirectoryEntry({
     fullPath: dest
   });
-  alert({
-    fullPath: dest
-  });
+  alert(destination);
   fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
 };
 
