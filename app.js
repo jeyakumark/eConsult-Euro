@@ -24320,11 +24320,13 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, dest, fail, failcopy, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
+var AppView, Conf, FastClick, copyFS, dest, fail, failcopy, gFileSystem, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
 
 window.Setting = '';
 
 dest = '';
+
+gFileSystem = {};
 
 require("./..\\..\\bower_components\\famous-polyfills\\index.js");
 
@@ -24423,6 +24425,7 @@ initWithPhonegap = function() {
 
 gotFS = function(fileSystem) {
   var spath;
+  gFileSystem = fileSystem;
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
   window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
@@ -24480,7 +24483,7 @@ gotCopyFileEntry = function(fileEntry) {
   DirectoryEntry(destination = new DirectoryEntry({
     fullPath: dest
   }));
-  fileEntry.copyTo(destination, "setting.txt", successCopy, failcopy);
+  fileEntry.copyTo(gFileSystem.root.toURL(), "setting.txt", successCopy, failcopy);
 };
 
 successCopy = function() {
