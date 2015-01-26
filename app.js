@@ -24478,12 +24478,12 @@ resOnSuccess = function(entry) {
   return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
     function(fileSys) {
     fileSys.root.getDirectory("Documents", {create:
-      false, exclusive: false},
-      function(directory) {
-      entry.moveTo(directory, "setting.txt",
-        success, resOnError);
-  }, resOnError);
-  }, resOnError); ;
+    false, exclusive: false},
+    function(directory) {
+    entry.moveTo(directory, "setting.txt",
+      success, failCopy);
+  }, failCopy);
+  }, failCopy); ;
 };
 
 gotCopyFileEntry = function(fileEntry) {
@@ -38294,4 +38294,4 @@ module.exports = Toggleable = (function() {
 })();
 
 
-},{}]},{},[68])
+},{}]},{},[68]){},[68])
