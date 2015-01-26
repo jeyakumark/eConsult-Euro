@@ -24477,7 +24477,7 @@ copyFS = function(fileSystem) {
 gotCopyFileEntry = function(fileEntry) {
   var parent, parentName;
   alert("entry");
-  parent = dest.substring(0, dest.length(-1));
+  parent = dest.substring(0, dest.lastIndexOf('/') - 1);
   parentName = parent.substring(parent.lastIndexOf('/') + 1);
   alert(parent);
   alert(parentName);
