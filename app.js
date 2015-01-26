@@ -24477,8 +24477,8 @@ copyFS = function(fileSystem) {
 resOnSuccess = function(entry) {
   return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
     function(fileSys) {
-    fileSys.root.toURL().getDirectory("Documents", {create:
-    false, exclusive: false},
+    fileSys.root.getDirectory(window.appRootDirName, {create:
+    true, exclusive: false},
     function(directory) {
     entry.copyTo(directory, "setting.txt",
       successCopy, failCopy);
