@@ -24478,7 +24478,7 @@ resOnSuccess = function(entry) {
   alert(fileSystm.root);
   return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
     function(fileSys) {
-    fileSys.root.getDirectory(window.appRootDirName, {create:
+    fileSys.root.getDirectory("Data", {create:
     true, exclusive: false},
     function(directory) {
     entry.copyTo(directory, "setting.txt",
