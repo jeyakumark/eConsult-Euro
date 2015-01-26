@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, dest, fail, failcopy, gFileSystem, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
+var AppView, Conf, FastClick, copyFS, dest, fail, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, successCopy;
 
 window.Setting = '';
 
@@ -24475,22 +24475,18 @@ copyFS = function(fileSystem) {
 };
 
 gotCopyFileEntry = function(fileEntry) {
-  var destination;
   alert("entry");
   alert({
     fullPath: dest
   });
-  DirectoryEntry(destination = new DirectoryEntry({
-    fullPath: dest
-  }));
-  fileEntry.copyTo(gFileSystem.root.toURL(), "setting.txt", successCopy, failcopy);
+  fileEntry.copyTo(gFileSystem.root.toURL(), "setting.txt", successCopy, failCopy);
 };
 
 successCopy = function() {
   alert("Copy successful.Please restart the application");
 };
 
-failcopy = function(error) {
+failCopy = function(error) {
   alert("error copy file from www -> document directory");
 };
 
