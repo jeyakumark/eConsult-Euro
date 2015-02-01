@@ -28377,8 +28377,6 @@ module.exports = settingPage = (function(_super) {
   }
 
   settingPage.prototype.afterLoad = function() {
-    var backend;
-    backend = Conf.backend;
     this.backend.setValue(Conf.backend);
     this.screenWidth.setValue(Conf.screenWidth);
     this.screenHeight.setValue(Conf.screenHeight);
