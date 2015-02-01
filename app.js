@@ -24472,7 +24472,8 @@ initWithPhonegap = function() {
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
   } else {
-    return window.Camera = navigator.camera;
+    window.Camera = navigator.camera;
+    return init.call(this);
   }
 };
 
