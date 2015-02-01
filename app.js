@@ -24433,6 +24433,7 @@ init = function() {
   return deviceAuthenticated.done(function(data) {
     var Checklist, json, jsonString;
     if (data.Status === "OK") {
+      alert("success getting Config");
       str = Stores.Consultant.configTest(data);
       jsonString = str.replace(/'/g, '"');
       json = JSON.parse(jsonString);
@@ -24609,10 +24610,8 @@ if (Conf.isProduction) {
 module.exports = {
   isProduction: true,
   firstPage: 'Login',
-  backend: 'http://localhost:1337',
   screenWidth: '1024',
-  screenHeight: '768',
-  imageServerURL: 'http://localhost:8080/upload'
+  screenHeight: '768'
 };
 
 
@@ -29129,14 +29128,14 @@ module.exports = ConsultantStore = (function() {
       return deferred.resolve(data);
     });
     promise.fail(function(jqXHR, textStatus, errorThrown) {
-      return alert("Error :" + jqXHR.status + " " + errorThrown);
+      return alert("Error Get Config:" + jqXHR.status + " " + errorThrown);
     });
     return deferred;
   };
 
   ConsultantStore.GetConfig = function(macId) {
     var deviceid, fetchPromise;
-    alert("checking....");
+    alert("Getting Configuration");
     deviceid = {
       "DeviceMacId": macId
     };
