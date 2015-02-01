@@ -28810,7 +28810,7 @@ module.exports = ConsultantStore = (function() {
     });
   };
 
-  checkConsultant(function(username, password) {
+  ConsultantStore.prototype.checkConsultant = function(username, password) {
     var consultant, fetchPromise;
     consultant = {
       "UserId": username,
@@ -28827,7 +28827,7 @@ module.exports = ConsultantStore = (function() {
       data: JSON.stringify(consultant)
     });
     return fetchPromise;
-  });
+  };
 
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
     var str;
