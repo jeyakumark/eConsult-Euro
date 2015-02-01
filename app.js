@@ -28802,10 +28802,10 @@ module.exports = ConsultantStore = (function() {
     var promise;
     promise = this.checkConsultant(username, password);
     promise.done(function(data) {
-      alert(data);
       return data.message;
     });
-    promise.fail(function(err) {
+    promise.fail(function(jqXHR, textStatus, errorThrown) {
+      alert("Error :" + jqXHR.status + " " + errorThrown);
       return false;
     });
     return alert('done');
@@ -28813,7 +28813,6 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.checkConsultant = function(username, password) {
     var consultant, fetchPromise;
-    alert("checking....");
     consultant = {
       "UserId": username,
       "Password": password
