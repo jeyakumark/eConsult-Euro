@@ -28799,30 +28799,34 @@ module.exports = ConsultantStore = (function() {
   function ConsultantStore() {}
 
   ConsultantStore.login = function(username, password) {
+    var consultant, isExists;
     alert("fetch data" + username + password);
-    return $.ajax({
+    isExists = false;
+    consultant = {
+      "UserId": username,
+      "Password": password
+    };
+    $.ajax({
       url: 'http://testsvr.eurogrp.com:8006/api/Login',
       type: 'POST',
       dataType: "json",
       async: false,
       crossDomain: true,
-      data: JSON.stringify({
-        userid: username,
-        password: password
-      }),
+      data: JSON.stringify(consultant),
       success: function(data) {
         alert(data.message);
         if (data.message === true) {
-          return true;
+          return isExists = true;
         } else {
-          return false;
+          return isExists = false;
         }
       },
       error: function(jqXHR, textStatus, errorThrown) {
         alert("Error :" + jqXHR.status + " " + errorThrown);
-        return false;
+        return isExists = false;
       }
     });
+    return isExists;
   };
 
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
