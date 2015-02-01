@@ -24409,9 +24409,9 @@ init = function() {
   deviceAuthenticated.done(function(data) {
     if (data.message.Status === "OK") {
       str = Stores.Consultant.config(data);
-      window.imageServerURL = Conf.imageServerURL = data.config.PrimaryNasIp;
+      window.imageServerURL = Conf.imageServerURL = 'http://localhost:8080';
       window.firstPage = Conf.firstPage = "Login";
-      window.backend = Conf.backend = data.config.DataIp;
+      window.backend = Conf.backend = 'http://localhost:1337';
       window.OutletId = Conf.outletId = data.config.OutletId;
       window.branchId = Conf.branchId = data.config.BranchId;
       window.brand = Conf.brand = data.config.Brand;
@@ -24576,7 +24576,7 @@ if (Conf.isProduction) {
 
 },{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":97,"./views/app_view.coffee":101,"./views/behaviors":104,"./views/components":130,"./views/elements":150,"./views/mixins":161,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":98,"panzoom":99,"store":67,"zoom":100}],69:[function(require,module,exports){
 module.exports = {
-  isProduction: false,
+  isProduction: true,
   firstPage: 'Login',
   backend: 'http://172.0.6.168:1337',
   screenWidth: '1024',
