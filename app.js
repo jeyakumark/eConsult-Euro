@@ -33518,7 +33518,7 @@ module.exports = CDashboardActionButtons = (function(_super) {
       ratios: [1, 1]
     });
     this.cameraBtn = new AsLink(new CameraBtn(), 'Snap');
-    this.microBtn = new AsLink(new MicroBtn(), 'Micro');
+    this.microBtn = new AsLink(new MicroBtn(), void 0);
     this.compareBtn = new AsLink(new CompareBtn(), 'Compare');
     this.resultBtn = new AsLink(new ResultBtn(), 'Result');
     this.sectionARows.sequenceFrom([this.cameraBtn.item, this.microBtn.item]);
