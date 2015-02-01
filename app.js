@@ -33979,7 +33979,8 @@ module.exports = sideMenuView = (function(_super) {
     Dispatcher.emit('show_backdrop', {
       "for": 'side_menu'
     });
-    return this.lightbox.show(this.menu);
+    this.lightbox.show(this.menu);
+    return alert(this.menu);
   };
 
   sideMenuView.prototype.hideMenu = function() {
