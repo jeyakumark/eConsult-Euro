@@ -24578,10 +24578,8 @@ if (Conf.isProduction) {
 module.exports = {
   isProduction: true,
   firstPage: 'Login',
-  backend: 'http://172.0.6.168:1337',
   screenWidth: '1024',
-  screenHeight: '768',
-  settingUrl: 'http://testsvr.eurogrp.com:8016'
+  screenHeight: '768'
 };
 
 
