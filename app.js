@@ -24581,7 +24581,7 @@ if (Conf.isProduction) {
 
 },{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":94,"./views/app_view.coffee":98,"./views/behaviors":101,"./views/components":132,"./views/elements":152,"./views/mixins":163,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":95,"panzoom":96,"store":67,"zoom":97}],69:[function(require,module,exports){
 module.exports = {
-  isProduction: true,
+  isProduction: false,
   firstPage: 'Client',
   backend: 'http://egcbsc.com:1337',
   screenWidth: '1024',
@@ -32518,22 +32518,6 @@ module.exports = qCauses = (function(_super) {
         size: [280, 40]
       });
     }
-    this.opt1 = new Checker({
-      text: 'Travel Outstation 出外玻',
-      size: [280, 40]
-    });
-    this.opt2 = new Checker({
-      text: 'Inadequate Sleep 睡眠不足',
-      size: [280, 40]
-    });
-    this.opt3 = new Checker({
-      text: 'Outdoor 户外活动',
-      size: [280, 40]
-    });
-    this.opt4 = new Checker({
-      text: 'Stressful 生活压力',
-      size: [280, 40]
-    });
     rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
@@ -32697,22 +32681,6 @@ module.exports = qFacial = (function(_super) {
         size: [280, 40]
       });
     }
-    this.opt1 = new Checker({
-      text: 'Travel Outstation 出外玻',
-      size: [280, 40]
-    });
-    this.opt2 = new Checker({
-      text: 'Inadequate Sleep 睡眠不足',
-      size: [280, 40]
-    });
-    this.opt3 = new Checker({
-      text: 'Outdoor 户外活动',
-      size: [280, 40]
-    });
-    this.opt4 = new Checker({
-      text: 'Stressful 生活压力',
-      size: [280, 40]
-    });
     rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
@@ -32876,22 +32844,6 @@ module.exports = qHomecare = (function(_super) {
         size: [280, 40]
       });
     }
-    this.opt1 = new Checker({
-      text: 'Travel Outstation 出外玻',
-      size: [280, 40]
-    });
-    this.opt2 = new Checker({
-      text: 'Inadequate Sleep 睡眠不足',
-      size: [280, 40]
-    });
-    this.opt3 = new Checker({
-      text: 'Outdoor 户外活动',
-      size: [280, 40]
-    });
-    this.opt4 = new Checker({
-      text: 'Stressful 生活压力',
-      size: [280, 40]
-    });
     rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
@@ -33055,22 +33007,6 @@ module.exports = qLifeStyle = (function(_super) {
         size: [280, 40]
       });
     }
-    this.opt1 = new Checker({
-      text: 'Travel Outstation 出外玻',
-      size: [280, 40]
-    });
-    this.opt2 = new Checker({
-      text: 'Inadequate Sleep 睡眠不足',
-      size: [280, 40]
-    });
-    this.opt3 = new Checker({
-      text: 'Outdoor 户外活动',
-      size: [280, 40]
-    });
-    this.opt4 = new Checker({
-      text: 'Stressful 生活压力',
-      size: [280, 40]
-    });
     rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
@@ -33234,22 +33170,6 @@ module.exports = qRemarks = (function(_super) {
         size: [280, 40]
       });
     }
-    this.opt1 = new Checker({
-      text: 'Travel Outstation 出外玻',
-      size: [280, 40]
-    });
-    this.opt2 = new Checker({
-      text: 'Inadequate Sleep 睡眠不足',
-      size: [280, 40]
-    });
-    this.opt3 = new Checker({
-      text: 'Outdoor 户外活动',
-      size: [280, 40]
-    });
-    this.opt4 = new Checker({
-      text: 'Stressful 生活压力',
-      size: [280, 40]
-    });
     rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
