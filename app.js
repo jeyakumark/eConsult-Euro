@@ -28813,7 +28813,7 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.login = function(username, password) {
     var promise;
     alert("fetch data" + username + password);
-    promise = this.fetchFromBackend(username, password);
+    promise = fetchFromBackend(username, password);
     promise.done(function(data) {
       var consult, isExists;
       alert("inside promise dont");
