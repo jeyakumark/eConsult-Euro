@@ -24579,7 +24579,7 @@ if (Conf.isProduction) {
 }
 
 
-},{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":94,"./views/app_view.coffee":98,"./views/behaviors":101,"./views/components":132,"./views/elements":152,"./views/mixins":163,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":95,"panzoom":96,"store":67,"zoom":97}],69:[function(require,module,exports){
+},{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":86,"./utils.coffee":93,"./views/app_view.coffee":97,"./views/behaviors":100,"./views/components":131,"./views/elements":151,"./views/mixins":162,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":94,"panzoom":95,"store":67,"zoom":96}],69:[function(require,module,exports){
 module.exports = {
   isProduction: true,
   firstPage: 'Client',
@@ -26222,14 +26222,13 @@ Pages = {
   Experi: require('./page.experi.coffee'),
   Compare: require('./page.compare.coffee'),
   Result: require('./page.result.coffee'),
-  Checklist: require('./page.checklist.coffee'),
   Setting: require('./page.setting.coffee')
 };
 
 module.exports = Pages;
 
 
-},{"./page.canvas.coffee":76,"./page.checklist.coffee":77,"./page.client.coffee":78,"./page.compare.coffee":79,"./page.dashboard.coffee":80,"./page.experi.coffee":81,"./page.login.coffee":82,"./page.result.coffee":83,"./page.setting.coffee":84,"./page.snap.coffee":85,"./page.splash.coffee":86}],76:[function(require,module,exports){
+},{"./page.canvas.coffee":76,"./page.client.coffee":77,"./page.compare.coffee":78,"./page.dashboard.coffee":79,"./page.experi.coffee":80,"./page.login.coffee":81,"./page.result.coffee":82,"./page.setting.coffee":83,"./page.snap.coffee":84,"./page.splash.coffee":85}],76:[function(require,module,exports){
 var canvasPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -26292,981 +26291,6 @@ module.exports = canvasPage = (function(_super) {
 
 
 },{}],77:[function(require,module,exports){
-var AsLink, FaceRating, Hamburger, Header, QuickLinks, ResultHeader, Tristar, checklistPage,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-Hamburger = Fa.Elements.Common.hamburger;
-
-Header = Fa.Elements.Common.header;
-
-QuickLinks = Fa.Components.Snap.quick_links;
-
-ResultHeader = Fa.Components.Checklist.result_header;
-
-Tristar = Fa.Components.Checklist.tristar;
-
-FaceRating = Fa.Components.Checklist.face_rating;
-
-AsLink = Fa.Behaviors.AsLink;
-
-module.exports = checklistPage = (function(_super) {
-  var causes, createLeftPanel, createLeftPanelConsultantRatings, createLeftPanelCustomerRatings, createLeftPanelDesiredResultBox, createLeftPanelSaveResult, createQ1, createQ2, createQ3, createQ4, createQ5, createQ6, createQuestions, createRightPanel, facial, homecare, init, lifestyle, remarks;
-
-  __extends(checklistPage, _super);
-
-  checklistPage.DEFAULT_OPTIONS = {};
-
-  checklistPage.opFacial = [];
-
-  checklistPage.opCauses = [];
-
-  checklistPage.opHomecare = [];
-
-  checklistPage.opLifestyle = [];
-
-  checklistPage.opRemarks = [];
-
-  facial = [
-    {
-      "op": "Facial Option1"
-    }, {
-      "op": "Facial Option2"
-    }, {
-      "op": "Facial Option3"
-    }, {
-      "op": "Facial Option4"
-    }
-  ];
-
-  causes = [
-    {
-      "op": "Causes Option1"
-    }, {
-      "op": "Causes Option2"
-    }, {
-      "op": "Causes Option3"
-    }, {
-      "op": "Causes Option4"
-    }
-  ];
-
-  homecare = [
-    {
-      "op": "Home Care Option1"
-    }, {
-      "op": "Home Care Option2"
-    }, {
-      "op": "Home Care  Option3"
-    }, {
-      "op": "Home Care  Option4"
-    }
-  ];
-
-  lifestyle = [
-    {
-      "op": "Life Style Option1"
-    }, {
-      "op": "Life Style Option2"
-    }, {
-      "op": "Life Style Option3"
-    }, {
-      "op": "Life Style Option4"
-    }
-  ];
-
-  remarks = [
-    {
-      "op": "Remarks Option1"
-    }, {
-      "op": "Remarks Option2"
-    }, {
-      "op": "Remarks Option3"
-    }, {
-      "op": "Remarks Option4"
-    }
-  ];
-
-  function checklistPage(options) {
-    var updateQ1Box, updateQ3Box, updateQ4Box, updateQ5Box, updateQ6Box, updateResultBox;
-    checklistPage.__super__.constructor.call(this, options);
-    this.container = new Fa.CContainer();
-    init.call(this);
-    Dispatcher.pipe(this._eventInput);
-    updateResultBox = function() {
-      var text;
-      text = '';
-      if (Session.currentClient.desire_skin_brightening) {
-        text += 'Skin Brightening. ';
-      }
-      if (Session.currentClient.desire_skin_hydrates) {
-        text += 'Skin Hydrates. ';
-      }
-      if (Session.currentClient.desire_eye_bags) {
-        text += 'Eye bags. ';
-      }
-      if (Session.currentClient.desire_dark_spots) {
-        text += 'Dark spots. ';
-      }
-      if (Session.currentClient.desire_pigmentation) {
-        text += 'Pigmentation. ';
-      }
-      if (Session.currentClient.desire_acne) {
-        text += 'Acne. ';
-      }
-      if (Session.currentClient.desire_sensitive) {
-        text += 'Sensitive. ';
-      }
-      if (Session.currentClient.desire_aging) {
-        text += 'Aging. ';
-      }
-      if (Session.currentClient.desire_wrinkles) {
-        text += 'Wrinkles. ';
-      }
-      if (Session.currentClient.desire_pimples) {
-        text += 'Pimples. ';
-      }
-      if (Session.currentClient.desire_blackheads) {
-        text += 'Blackheads. ';
-      }
-      if (Session.currentClient.desire_coloration) {
-        text += 'Coloration. ';
-      }
-      return this.desiredResultText.setContent(text);
-    };
-    updateQ1Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opLifestyle = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = lifestyle.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = lifestyle.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(lifestyle[i]));
-        this.opLifestyle[i] = json.op;
-      }
-      if (Session.currentClient.cl_lifestyle_opt1) {
-        text = text + this.opLifestyle[0];
-      }
-      if (Session.currentClient.cl_lifestyle_opt2) {
-        text += this.opLifestyle[1];
-      }
-      if (Session.currentClient.cl_lifestyle_opt3) {
-        text += this.opLifestyle[2];
-      }
-      if (Session.currentClient.cl_lifestyle_opt4) {
-        text += this.opLifestyle[3];
-      }
-      return this.answerTextQ1.setContent(text);
-    };
-    updateQ3Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opCauses = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = causes.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = causes.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(causes[i]));
-        this.opCauses[i] = json.op;
-      }
-      if (Session.currentClient.cl_causes_opt1) {
-        text = text + this.opCauses[0];
-      }
-      if (Session.currentClient.cl_causes_opt2) {
-        text = text + this.opCauses[1];
-      }
-      if (Session.currentClient.cl_causes_opt3) {
-        text = text + this.opCauses[2];
-      }
-      if (Session.currentClient.cl_causes_opt4) {
-        text = text + this.opCauses[3];
-      }
-      return this.answerTextQ3.setContent(text);
-    };
-    updateQ4Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opHomecare = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = homecare.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = homecare.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(homecare[i]));
-        this.opHomecare[i] = json.op;
-      }
-      if (Session.currentClient.cl_homecare_opt1) {
-        text = text + this.opHomecare[0];
-      }
-      if (Session.currentClient.cl_homecare_opt2) {
-        text = text + this.opHomecare[0];
-      }
-      if (Session.currentClient.cl_homecare_opt3) {
-        text = text + this.opHomecare[0];
-      }
-      if (Session.currentClient.cl_homecare_opt4) {
-        text = text + this.opHomecare[0];
-      }
-      return this.answerTextQ4.setContent(text);
-    };
-    updateQ5Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opFacial = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = facial.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = facial.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(facial[i]));
-        this.opFacial[i] = json.op;
-      }
-      if (Session.currentClient.cl_facial_opt1) {
-        text = text + this.opFacial[0];
-      }
-      if (Session.currentClient.cl_facial_opt2) {
-        text = text + this.opFacial[1];
-      }
-      if (Session.currentClient.cl_facial_opt3) {
-        text = text + this.opFacial[2];
-      }
-      if (Session.currentClient.cl_facial_opt4) {
-        text = text + this.opFacial[3];
-      }
-      return this.answerTextQ5.setContent(text);
-    };
-    updateQ6Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opRemarks = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = remarks.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = remarks.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(remarks[i]));
-        this.opRemarks[i] = json.op;
-      }
-      if (Session.currentClient.cl_remarks_opt1) {
-        text = text + this.opRemarks[0];
-      }
-      if (Session.currentClient.cl_remarks_opt2) {
-        text = text + this.opRemarks[1];
-      }
-      if (Session.currentClient.cl_remarks_opt3) {
-        text = text + this.opRemarks[2];
-      }
-      if (Session.currentClient.cl_remarks_opt4) {
-        text = text + this.opRemarks[3];
-      }
-      return this.answerTextQ6.setContent(text);
-    };
-    this._eventInput.on('update_desired_results_text', updateResultBox.bind(this));
-    this._eventInput.on('session_changed:current_client', updateResultBox.bind(this));
-    this._eventInput.on('update_cl_lifestyle_text', updateQ1Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ1Box.bind(this));
-    this._eventInput.on('update_cl_causes_text', updateQ3Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ3Box.bind(this));
-    this._eventInput.on('update_cl_homecare_text', updateQ4Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ4Box.bind(this));
-    this._eventInput.on('update_cl_facial_text', updateQ5Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ5Box.bind(this));
-    this._eventInput.on('update_cl_remarks_text', updateQ6Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ6Box.bind(this));
-    this.add(this.container);
-  }
-
-  init = function() {
-    var leftPanel, rightPanel, sections;
-    sections = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [4, 6]
-    });
-    leftPanel = createLeftPanel.call(this);
-    rightPanel = createRightPanel.call(this);
-    sections.sequenceFrom([leftPanel, rightPanel]);
-    return this.container.add(sections);
-  };
-
-  createLeftPanel = function() {
-    var rows;
-    this.hamContainer = new Fa.CContainer({
-      properties: {
-        background: 'linear-gradient(#abebff, #6bb4d8)'
-      }
-    });
-    this.hamburger = new Hamburger();
-    this.hamContainer.add(this.hamburger);
-    this.quickLinks = new QuickLinks();
-    this.resultBox = createLeftPanelDesiredResultBox.call(this);
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 3, 15, 3, 12, 3, 9, 5, 8]
-    });
-    rows.sequenceFrom([
-      this.hamContainer, new Header({
-        title: 'Consultant Ratings'
-      }), createLeftPanelConsultantRatings.call(this), new ResultHeader(), this.resultBox, new Header({
-        title: 'Customer Ratings'
-      }), createLeftPanelCustomerRatings.call(this), createLeftPanelSaveResult.call(this), this.quickLinks
-    ]);
-    return rows;
-  };
-
-  createLeftPanelConsultantRatings = function() {
-    var container, createRatingItem, rows;
-    createRatingItem = function(text) {
-      var cols, textItem;
-      cols = new Fa.FlexibleLayout({
-        direction: 0,
-        ratios: [1, 6, 4, 1]
-      });
-      textItem = new Fa.Surface({
-        content: text,
-        properties: {
-          align: 'left',
-          color: '#221b66',
-          fontSize: '20px',
-          lineHeight: '1.8',
-          fontWeight: 'bolder'
-        }
-      });
-      cols.sequenceFrom([
-        Fa.EmptyView(), textItem, new Tristar({
-          id: text
-        }), Fa.EmptyView()
-      ]);
-      return cols;
-    };
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 3, 3, 3, 3, 1]
-    });
-    rows.sequenceFrom([Fa.EmptyView(), createRatingItem('Pigmentation'), createRatingItem('Sensitive'), createRatingItem('Aging'), createRatingItem('Acne'), Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      properties: {
-        background: 'linear-gradient(#abebff, #6bb4d8)'
-      }
-    });
-    container.add(rows);
-    return container;
-  };
-
-  createLeftPanelDesiredResultBox = function() {
-    var cols, container, rows;
-    this.desiredResultText = new Fa.Surface({
-      content: 'hell2o',
-      properties: {
-        border: '2px solid white',
-        borderTopLeftRadius: '10px',
-        borderTopRightRadius: '10px',
-        borderBottomLeftRadius: '10px',
-        borderBottomRightRadius: '10px',
-        color: '#221b66',
-        fontSize: '17px',
-        padding: '12px'
-      }
-    });
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 12, 1]
-    });
-    cols.sequenceFrom([Fa.EmptyView(), this.desiredResultText, Fa.EmptyView()]);
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 6, 1]
-    });
-    rows.sequenceFrom([Fa.EmptyView(), cols, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      properties: {
-        background: 'linear-gradient(#6bb4d8, #438cba)'
-      }
-    });
-    container.add(rows);
-    container.on('click', function() {
-      return Dispatcher.emit('show_desired_opts');
-    });
-    return container;
-  };
-
-  createLeftPanelCustomerRatings = function() {
-    var container, createRatingItem, rows;
-    createRatingItem = function(text) {
-      var cols, textItem;
-      cols = new Fa.FlexibleLayout({
-        direction: 0,
-        ratios: [1, 13, 8, 2]
-      });
-      textItem = new Fa.Surface({
-        content: text,
-        properties: {
-          align: 'left',
-          color: 'white',
-          fontSize: '18px',
-          lineHeight: '2.3',
-          fontWeight: 'bolder'
-        }
-      });
-      cols.sequenceFrom([
-        Fa.EmptyView(), textItem, new Tristar({
-          id: text
-        }), Fa.EmptyView()
-      ]);
-      return cols;
-    };
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 3, 3, 1]
-    });
-    rows.sequenceFrom([Fa.EmptyView(), createRatingItem('Treatment Improvement'), createRatingItem('Service'), Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      properties: {
-        background: 'linear-gradient(#6bb4d8, #438cba)'
-      }
-    });
-    container.add(rows);
-    return container;
-  };
-
-  createLeftPanelSaveResult = function() {
-    var button, cols, container, icon, rows, text;
-    container = new Fa.CContainer({
-      properties: {
-        borderTopLeftRadius: '10px',
-        borderTopRightRadius: '10px',
-        borderBottomLeftRadius: '10px',
-        borderBottomRightRadius: '10px',
-        color: 'white',
-        align: 'center',
-        backgroundColor: '#221b66',
-        padding: '12px',
-        cursor: 'pointer'
-      }
-    });
-    icon = new Fa.Surface({
-      size: [true, true],
-      content: '<span class="ion-document-text" style="vertical-align: middle"></span>',
-      properties: {
-        fontSize: '30px',
-        lineHeight: '30px'
-      }
-    });
-    text = new Fa.Surface({
-      size: [true, true],
-      content: 'Save Result',
-      properties: {
-        fontSize: '17px',
-        lineHeight: '12px',
-        fontWeight: 'bolder'
-      }
-    });
-    container.add(Fa.translateBy(40, -12, 0)).add(icon);
-    button = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 2, 4, 2]
-    });
-    button.sequenceFrom([Fa.EmptyView(), Fa.EmptyView(), text, Fa.EmptyView()]);
-    container.addToCenter(button);
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 3, 1]
-    });
-    cols.sequenceFrom([Fa.EmptyView(), container, Fa.EmptyView()]);
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 3, 1]
-    });
-    rows.sequenceFrom([Fa.EmptyView(), cols, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      properties: {
-        background: 'linear-gradient(#2f78a6, #2f78a6)'
-      }
-    });
-    container.add(rows);
-    container.on('click', function() {
-      Session.currentClient.save();
-      if (Conf.isProduction) {
-        return navigator.notification.alert('Saved successfully', void 0, 'Info');
-      } else {
-        return alert('Saved successfully');
-      }
-    });
-    return container;
-  };
-
-  createRightPanel = function() {
-    var container, questions, questionsHeight, result, sequences, wrapper;
-    wrapper = new Fa.CContainer({
-      properties: {
-        border: '2px solid white'
-      }
-    });
-    result = createQuestions.call(this);
-    questions = result.questions;
-    questionsHeight = result.questionsHeight;
-    sequences = new Fa.SequentialLayout();
-    sequences.sequenceFrom(questions);
-    container = new Fa.CContainer({
-      size: [500, questionsHeight]
-    });
-    container.add(sequences);
-    this.scrollview = new Fa.EasyScrollview({
-      containerSize: [500, 700],
-      itemSize: [500, 1000],
-      direction: 1,
-      paginate: false,
-      scrollBarThickness: 11,
-      scrollBarOpacity: 0.5,
-      scrollBarColor: '#555',
-      scrollContainerOpacity: 0,
-      id: 'checklist_questions'
-    });
-    this.scrollview.addItems([container]);
-    wrapper.addToCenter(this.scrollview);
-    return wrapper;
-  };
-
-  createQuestions = function() {
-    var questions;
-    this.questionsHeight = 0;
-    questions = [];
-    this.q1 = createQ1.call(this);
-    this.questionsHeight += this.q1.getSize()[1];
-    questions.push(this.q1);
-    this.q2 = createQ2.call(this);
-    this.questionsHeight += this.q2.getSize()[1];
-    questions.push(this.q2);
-    this.q3 = createQ3.call(this);
-    this.questionsHeight += this.q3.getSize()[1];
-    questions.push(this.q3);
-    this.q4 = createQ4.call(this);
-    this.questionsHeight += this.q4.getSize()[1];
-    questions.push(this.q4);
-    this.q5 = createQ5.call(this);
-    this.questionsHeight += this.q5.getSize()[1];
-    questions.push(this.q5);
-    this.q6 = createQ6.call(this);
-    this.questionsHeight += this.q6.getSize()[1];
-    questions.push(this.q6);
-    return {
-      questions: questions,
-      questionsHeight: this.questionsHeight
-    };
-  };
-
-  createQ1 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [2, 5, 2, 20, 2]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '1. Lifestyle  生活方式',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ1 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ1);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_lifestyle');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_lifestyle');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 120]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ2 = function() {
-    var answer, answerFlex, container, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [2, 5, 2, 20, 2]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '2. Result of Treatment So Far 护理效果',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    answer = new Fa.CContainer({
-      size: [400, void 0]
-    });
-    answerFlex = new FaceRating({
-      id: 'cl_result_rating'
-    });
-    answer.add(answerFlex);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 100]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ3 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '3. Possible Causes of Skin Problem & Advice <br>&nbsp;&nbsp;&nbsp; 肌肤问题的原因及建议',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ3 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ3);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_causes');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_causes');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ4 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '4. Home Care Recommendation & Advice <br>&nbsp;&nbsp;&nbsp; 家居护理及建议',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ4 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ4);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_homecare');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_homecare');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ5 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '5. Facial Treatment Recommended for the Next Visit <br>&nbsp;&nbsp;&nbsp; 下次肌肤护理推荐',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ5 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ5);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_facial');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_facial');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ6 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '6. Remarks of Treatment 护理备注',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ6 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ6);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_remarks');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_remarks');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  return checklistPage;
-
-})(Fa.View);
-
-
-},{}],78:[function(require,module,exports){
 var AsLink, clientPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -27413,7 +26437,7 @@ module.exports = clientPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],79:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var Hamburger, Header, Numpad, PictureFrame, QuickLinks, SelSnapMicro, SelectorSection, VisitInfo, comparePage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -27715,7 +26739,7 @@ module.exports = comparePage = (function(_super) {
 })(Fa.View);
 
 
-},{}],80:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 var ActionButtons, FirstVisit, LastVisit, ProfileSection, dashboardPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -27774,7 +26798,7 @@ module.exports = dashboardPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],81:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 var Btn, ClientHeader, ResultHeader, experiPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -27823,7 +26847,7 @@ module.exports = experiPage = (function(_super) {
 })(Fa.CView);
 
 
-},{}],82:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 var AsLink, loginPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -27947,7 +26971,7 @@ module.exports = loginPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],83:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var ClientHeader, Hamburger, Header, SessionRow, resultPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -28353,7 +27377,7 @@ module.exports = resultPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],84:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 var AsLink, settingPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -28627,7 +27651,7 @@ module.exports = settingPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],85:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var BrowseHeader, Hamburger, Header, Numpad, PictureFrame, QuickLinks, SelBeforeAfter, SelectorSection, VisitInfo, snapPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -28982,7 +28006,7 @@ module.exports = snapPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],86:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var splashPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -29018,7 +28042,7 @@ module.exports = splashPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],87:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 var Stores;
 
 Stores = {
@@ -29028,7 +28052,7 @@ Stores = {
 module.exports = Stores;
 
 
-},{"./store.consultants.coffee":88}],88:[function(require,module,exports){
+},{"./store.consultants.coffee":87}],87:[function(require,module,exports){
 var ConsultantStore;
 
 module.exports = ConsultantStore = (function() {
@@ -29161,7 +28185,7 @@ module.exports = ConsultantStore = (function() {
 })();
 
 
-},{}],89:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29178,7 +28202,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],90:[function(require,module,exports){
+},{"hbsfy/runtime":64}],89:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29199,7 +28223,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],91:[function(require,module,exports){
+},{"hbsfy/runtime":64}],90:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29280,7 +28304,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],92:[function(require,module,exports){
+},{"hbsfy/runtime":64}],91:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29353,7 +28377,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],93:[function(require,module,exports){
+},{"hbsfy/runtime":64}],92:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29374,7 +28398,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],94:[function(require,module,exports){
+},{"hbsfy/runtime":64}],93:[function(require,module,exports){
 var Utils;
 
 module.exports = Utils = (function() {
@@ -29452,7 +28476,7 @@ module.exports = Utils = (function() {
 })();
 
 
-},{}],95:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -30166,7 +29190,7 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],96:[function(require,module,exports){
+},{"jquery":65}],95:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -31408,7 +30432,7 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],97:[function(require,module,exports){
+},{"jquery":65}],96:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -31649,7 +30673,7 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],98:[function(require,module,exports){
+},{"jquery":65}],97:[function(require,module,exports){
 var AppView, Backdrop, Browser, ClientFilter, DesiredOptions, Fa, Fullview, MatchBrowser, Matchview, PageRegisters, QCauses, QFacial, QHomecare, QLifestyle, QRemarks, SideMenu,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -31872,7 +30896,7 @@ module.exports = AppView = (function(_super) {
 })(Fa.View);
 
 
-},{"../famous.coffee":71,"../pages":75}],99:[function(require,module,exports){
+},{"../famous.coffee":71,"../pages":75}],98:[function(require,module,exports){
 
 /*
 Description: apply this to a single element, this element will behave as link
@@ -31913,7 +30937,7 @@ module.exports = BhCommonAsLink = (function() {
 })();
 
 
-},{}],100:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 var BhCommonSelectGroup;
 
 module.exports = BhCommonSelectGroup = (function() {
@@ -31994,7 +31018,7 @@ module.exports = BhCommonSelectGroup = (function() {
 })();
 
 
-},{}],101:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 var Behaviors;
 
 Behaviors = {
@@ -32005,7 +31029,7 @@ Behaviors = {
 module.exports = Behaviors;
 
 
-},{"./bh.common.as_link.coffee":99,"./bh.common.select_group.coffee":100}],102:[function(require,module,exports){
+},{"./bh.common.as_link.coffee":98,"./bh.common.select_group.coffee":99}],101:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, desiredOptions,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32206,7 +31230,7 @@ module.exports = desiredOptions = (function(_super) {
 })(Fa.View);
 
 
-},{}],103:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 var CChecklistFaceRating,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32393,7 +31417,7 @@ module.exports = CChecklistFaceRating = (function(_super) {
 })(Fa.CView);
 
 
-},{}],104:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qCauses,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32572,7 +31596,7 @@ module.exports = qCauses = (function(_super) {
 })(Fa.View);
 
 
-},{}],105:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qFacial,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32751,7 +31775,7 @@ module.exports = qFacial = (function(_super) {
 })(Fa.View);
 
 
-},{}],106:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qHomecare,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32930,7 +31954,7 @@ module.exports = qHomecare = (function(_super) {
 })(Fa.View);
 
 
-},{}],107:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qLifeStyle,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33109,7 +32133,7 @@ module.exports = qLifeStyle = (function(_super) {
 })(Fa.View);
 
 
-},{}],108:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qRemarks,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33288,7 +32312,7 @@ module.exports = qRemarks = (function(_super) {
 })(Fa.View);
 
 
-},{}],109:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 var CChecklistResultHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33356,7 +32380,7 @@ module.exports = CChecklistResultHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],110:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var CChecklistTristar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33510,7 +32534,7 @@ module.exports = CChecklistTristar = (function(_super) {
 })(Fa.CView);
 
 
-},{}],111:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 var Button, SessionNumpad,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33832,7 +32856,7 @@ module.exports = SessionNumpad = (function(_super) {
 })(Fa.CView);
 
 
-},{}],112:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 var sideMenuView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33909,7 +32933,7 @@ module.exports = sideMenuView = (function(_super) {
     var items, layout;
     layout = new Fa.FlexibleLayout({
       direction: 1,
-      ratios: [2, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 34]
+      ratios: [2, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 34]
     });
     items = {
       profile: _createMenuItem.call(this, 'ion-ios7-person', 'Profile Summary', 'Dashboard'),
@@ -33929,7 +32953,7 @@ module.exports = sideMenuView = (function(_super) {
         return item.on('click', _triggerAction.bind(_this, item));
       };
     })(this));
-    layout.sequenceFrom([Fa.EmptyView(), items.profile, _createHr(), items.camera, _createHr(), items.compare, _createHr(), items.result, _createHr(), items.checklist, _createHr(), items["switch"], _createHr(), items.exit, _createHr(), items.setting, _createHr(), items.canvas, _createHr(), items.experi, Fa.EmptyView()]);
+    layout.sequenceFrom([Fa.EmptyView(), items.profile, _createHr(), items.camera, _createHr(), items.compare, _createHr(), items.result, _createHr(), items["switch"], _createHr(), items.exit, _createHr(), items.setting, _createHr(), items.canvas, _createHr(), items.experi, Fa.EmptyView()]);
     return layout;
   };
 
@@ -33992,7 +33016,7 @@ module.exports = sideMenuView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/side_menu.menu_btn.hbs":93}],113:[function(require,module,exports){
+},{"../../templates/side_menu.menu_btn.hbs":92}],112:[function(require,module,exports){
 var Button, FrameNumpad,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34308,7 +33332,7 @@ module.exports = FrameNumpad = (function(_super) {
 })(Fa.CView);
 
 
-},{}],114:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 var BrowserContent, matchBrowserView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34423,7 +33447,7 @@ module.exports = matchBrowserView = (function(_super) {
 })(Fa.View);
 
 
-},{"./c.compare.match_browser_content.coffee":115}],115:[function(require,module,exports){
+},{"./c.compare.match_browser_content.coffee":114}],114:[function(require,module,exports){
 var MatchBrowserContent,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34623,7 +33647,7 @@ module.exports = MatchBrowserContent = (function(_super) {
 })(Fa.CView);
 
 
-},{}],116:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 var AsLink, CCompareSelSnapMicro, CameraBtn, MicroBtn, SelGroup,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34680,7 +33704,7 @@ module.exports = CCompareSelSnapMicro = (function(_super) {
 })(Fa.CView);
 
 
-},{}],117:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 var AsLink, CCompareSelectorSection, ClearBtn, FavBtn, MatchBtn, Radio, SelGroup, SetProfileBtn, UpdateBtn, ViewBtn, ViewMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34825,7 +33849,7 @@ module.exports = CCompareSelectorSection = (function(_super) {
 })(Fa.CView);
 
 
-},{}],118:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 var AsLink, CDashboardActionButtons, CameraBtn, CompareBtn, MicroBtn, ResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34905,7 +33929,7 @@ module.exports = CDashboardActionButtons = (function(_super) {
 })(Fa.CView);
 
 
-},{}],119:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 var CDashboardFirstVisit, Calendar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34993,7 +34017,7 @@ module.exports = CDashboardFirstVisit = (function(_super) {
 })(Fa.CView);
 
 
-},{}],120:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 var CDashboardLastTreatment, Calendar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35081,7 +34105,7 @@ module.exports = CDashboardLastTreatment = (function(_super) {
 })(Fa.CView);
 
 
-},{}],121:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, SelectInput, clientFilter,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35269,7 +34293,7 @@ module.exports = clientFilter = (function(_super) {
 })(Fa.View);
 
 
-},{}],122:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 var CResultClientHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35337,7 +34361,7 @@ module.exports = CResultClientHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],123:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 var matchviewView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35425,7 +34449,7 @@ module.exports = matchviewView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/matchview.hbs":90}],124:[function(require,module,exports){
+},{"../../templates/matchview.hbs":89}],123:[function(require,module,exports){
 var CResultSessionBox,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35500,7 +34524,7 @@ module.exports = CResultSessionBox = (function(_super) {
 })(Fa.CView);
 
 
-},{"../../templates/result_box.hbs":91,"../../templates/result_box_fav.hbs":92}],125:[function(require,module,exports){
+},{"../../templates/result_box.hbs":90,"../../templates/result_box_fav.hbs":91}],124:[function(require,module,exports){
 var CResultSessionRowView, SessionBox,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35648,7 +34672,7 @@ module.exports = CResultSessionRowView = (function(_super) {
 })(Fa.CView);
 
 
-},{"./c.result.session_box.coffee":124}],126:[function(require,module,exports){
+},{"./c.result.session_box.coffee":123}],125:[function(require,module,exports){
 var BrowserContent, browserView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35772,7 +34796,7 @@ module.exports = browserView = (function(_super) {
 })(Fa.View);
 
 
-},{"./c.snap.browser_content.coffee":127}],127:[function(require,module,exports){
+},{"./c.snap.browser_content.coffee":126}],126:[function(require,module,exports){
 var CSnapBrowserContent,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35856,7 +34880,7 @@ module.exports = CSnapBrowserContent = (function(_super) {
 })(Fa.CView);
 
 
-},{}],128:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 var fullviewView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35942,7 +34966,7 @@ module.exports = fullviewView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/fullview.hbs":89}],129:[function(require,module,exports){
+},{"../../templates/fullview.hbs":88}],128:[function(require,module,exports){
 var AsLink, CSnapSelBeforeAfter, CompareBtn, ResultBtn, SnapBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36003,7 +35027,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
 })(Fa.CView);
 
 
-},{}],130:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 var AfterBtn, AsLink, BeforeBtn, CSnapSelBeforeAfter, SelGroup,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36133,7 +35157,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
 })(Fa.CView);
 
 
-},{}],131:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var AsLink, CSnapSelectorSection, ClearBtn, Radio, SelGroup, SetProfileBtn, UpdateBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36342,7 +35366,7 @@ module.exports = CSnapSelectorSection = (function(_super) {
 })(Fa.CView);
 
 
-},{}],132:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 var Components;
 
 Components = {
@@ -36393,7 +35417,7 @@ Components = {
 module.exports = Components;
 
 
-},{"./c.checklist.desired_options.coffee":102,"./c.checklist.face_rating.coffee":103,"./c.checklist.q_causes.coffee":104,"./c.checklist.q_facial.coffee":105,"./c.checklist.q_homecare.coffee":106,"./c.checklist.q_lifestyle.coffee":107,"./c.checklist.q_remarks.coffee":108,"./c.checklist.result_header.coffee":109,"./c.checklist.tristar.coffee":110,"./c.common.session_numpad.coffee":111,"./c.common.side_menu.coffee":112,"./c.compare.frame_numpad.coffee":113,"./c.compare.match_browser.coffee":114,"./c.compare.match_browser_content.coffee":115,"./c.compare.sel_snap_micro.coffee":116,"./c.compare.selector_section.coffee":117,"./c.dashboard.action_buttons.coffee":118,"./c.dashboard.first_visit.coffee":119,"./c.dashboard.last_treatment.coffee":120,"./c.result.client_filter.coffee":121,"./c.result.client_header.coffee":122,"./c.result.matchview.coffee":123,"./c.result.session_box.coffee":124,"./c.result.session_row.coffee":125,"./c.snap.browser.coffee":126,"./c.snap.browser_content.coffee":127,"./c.snap.fullview.coffee":128,"./c.snap.quick_links.coffee":129,"./c.snap.sel_before_after.coffee":130,"./c.snap.selector_section.coffee":131}],133:[function(require,module,exports){
+},{"./c.checklist.desired_options.coffee":101,"./c.checklist.face_rating.coffee":102,"./c.checklist.q_causes.coffee":103,"./c.checklist.q_facial.coffee":104,"./c.checklist.q_homecare.coffee":105,"./c.checklist.q_lifestyle.coffee":106,"./c.checklist.q_remarks.coffee":107,"./c.checklist.result_header.coffee":108,"./c.checklist.tristar.coffee":109,"./c.common.session_numpad.coffee":110,"./c.common.side_menu.coffee":111,"./c.compare.frame_numpad.coffee":112,"./c.compare.match_browser.coffee":113,"./c.compare.match_browser_content.coffee":114,"./c.compare.sel_snap_micro.coffee":115,"./c.compare.selector_section.coffee":116,"./c.dashboard.action_buttons.coffee":117,"./c.dashboard.first_visit.coffee":118,"./c.dashboard.last_treatment.coffee":119,"./c.result.client_filter.coffee":120,"./c.result.client_header.coffee":121,"./c.result.matchview.coffee":122,"./c.result.session_box.coffee":123,"./c.result.session_row.coffee":124,"./c.snap.browser.coffee":125,"./c.snap.browser_content.coffee":126,"./c.snap.fullview.coffee":127,"./c.snap.quick_links.coffee":128,"./c.snap.sel_before_after.coffee":129,"./c.snap.selector_section.coffee":130}],132:[function(require,module,exports){
 var ElChecklistCancelBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36466,7 +35490,7 @@ module.exports = ElChecklistCancelBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],134:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var ElChecker,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36564,7 +35588,7 @@ module.exports = ElChecker = (function(_super) {
 })(Fa.CView);
 
 
-},{}],135:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 var ElChecklistConfirmBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36637,7 +35661,7 @@ module.exports = ElChecklistConfirmBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],136:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 var ElCommonBackdrop,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36733,7 +35757,7 @@ module.exports = ElCommonBackdrop = (function(_super) {
 })(Fa.CView);
 
 
-},{}],137:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 var ElCommonHamburger,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36782,7 +35806,7 @@ module.exports = ElCommonHamburger = (function(_super) {
 })(Fa.CView);
 
 
-},{}],138:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 var ElCommonHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36835,7 +35859,7 @@ module.exports = ElCommonHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],139:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 var ElCommonHorizontalRule,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36881,7 +35905,7 @@ module.exports = ElCommonHorizontalRule = (function(_super) {
 })(Fa.CView);
 
 
-},{}],140:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 var ElCommonSelectInput,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36941,7 +35965,7 @@ module.exports = ElCommonSelectInput = (function(_super) {
 })(Fa.CView);
 
 
-},{}],141:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 var ElCompareActiveNumpadBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37002,7 +36026,7 @@ module.exports = ElCompareActiveNumpadBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],142:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 var ElFavMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37062,7 +36086,7 @@ module.exports = ElFavMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],143:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 var ElCompareMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37122,7 +36146,7 @@ module.exports = ElCompareMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],144:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 var ElCompareViewMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37182,7 +36206,7 @@ module.exports = ElCompareViewMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],145:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 var ElDashboardCameraBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37258,7 +36282,7 @@ module.exports = ElDashboardCameraBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],146:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 var ElDashboardResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37334,7 +36358,7 @@ module.exports = ElDashboardResultBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],147:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 var ElDashboardFirstVisitCal,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37389,7 +36413,7 @@ module.exports = ElDashboardFirstVisitCal = (function(_super) {
 })(Fa.CView);
 
 
-},{}],148:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 var ElDashboardLastVisitCal,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37444,7 +36468,7 @@ module.exports = ElDashboardLastVisitCal = (function(_super) {
 })(Fa.CView);
 
 
-},{}],149:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 var ElDashboardMicroBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37520,7 +36544,7 @@ module.exports = ElDashboardMicroBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],150:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 var ElDashboardProfilePic, HRule, Hamburger,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37727,7 +36751,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
 })(Fa.CView);
 
 
-},{"../common/el.common.hamburger.coffee":137,"../common/el.common.horizontal_rule.coffee":139}],151:[function(require,module,exports){
+},{"../common/el.common.hamburger.coffee":136,"../common/el.common.horizontal_rule.coffee":138}],150:[function(require,module,exports){
 var ElDashboardResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37803,7 +36827,7 @@ module.exports = ElDashboardResultBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],152:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 var Elements;
 
 Elements = {
@@ -37851,7 +36875,7 @@ Elements = {
 module.exports = Elements;
 
 
-},{"./checklist/el.checklist.cancel_btn.coffee":133,"./checklist/el.checklist.checker.coffee":134,"./checklist/el.checklist.confirm_btn.coffee":135,"./common/el.common.backdrop.coffee":136,"./common/el.common.hamburger.coffee":137,"./common/el.common.header.coffee":138,"./common/el.common.horizontal_rule.coffee":139,"./common/el.common.select_input.coffee":140,"./compare/el.compare.active_numpad_btn.coffee":141,"./compare/el.compare.fav_btn.coffee":142,"./compare/el.compare.match_btn.coffee":143,"./compare/el.compare.view_match_btn.coffee":144,"./dashboard/el.dashboard.camera_btn.coffee":145,"./dashboard/el.dashboard.compare_btn.coffee":146,"./dashboard/el.dashboard.first_visit_cal.coffee":147,"./dashboard/el.dashboard.last_visit_cal.coffee":148,"./dashboard/el.dashboard.micro_btn.coffee":149,"./dashboard/el.dashboard.profile_section.coffee":150,"./dashboard/el.dashboard.result_btn.coffee":151,"./snap/el.snap.after_btn.coffee":153,"./snap/el.snap.before_btn.coffee":154,"./snap/el.snap.browse_header.coffee":155,"./snap/el.snap.clear_btn.coffee":156,"./snap/el.snap.picture_frame.coffee":157,"./snap/el.snap.selector_radio.coffee":158,"./snap/el.snap.set_profile_btn.coffee":159,"./snap/el.snap.update_btn.coffee":160,"./snap/el.snap.view_btn.coffee":161,"./snap/el.snap.visit_info.coffee":162}],153:[function(require,module,exports){
+},{"./checklist/el.checklist.cancel_btn.coffee":132,"./checklist/el.checklist.checker.coffee":133,"./checklist/el.checklist.confirm_btn.coffee":134,"./common/el.common.backdrop.coffee":135,"./common/el.common.hamburger.coffee":136,"./common/el.common.header.coffee":137,"./common/el.common.horizontal_rule.coffee":138,"./common/el.common.select_input.coffee":139,"./compare/el.compare.active_numpad_btn.coffee":140,"./compare/el.compare.fav_btn.coffee":141,"./compare/el.compare.match_btn.coffee":142,"./compare/el.compare.view_match_btn.coffee":143,"./dashboard/el.dashboard.camera_btn.coffee":144,"./dashboard/el.dashboard.compare_btn.coffee":145,"./dashboard/el.dashboard.first_visit_cal.coffee":146,"./dashboard/el.dashboard.last_visit_cal.coffee":147,"./dashboard/el.dashboard.micro_btn.coffee":148,"./dashboard/el.dashboard.profile_section.coffee":149,"./dashboard/el.dashboard.result_btn.coffee":150,"./snap/el.snap.after_btn.coffee":152,"./snap/el.snap.before_btn.coffee":153,"./snap/el.snap.browse_header.coffee":154,"./snap/el.snap.clear_btn.coffee":155,"./snap/el.snap.picture_frame.coffee":156,"./snap/el.snap.selector_radio.coffee":157,"./snap/el.snap.set_profile_btn.coffee":158,"./snap/el.snap.update_btn.coffee":159,"./snap/el.snap.view_btn.coffee":160,"./snap/el.snap.visit_info.coffee":161}],152:[function(require,module,exports){
 var ElSnapAfterBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37929,7 +36953,7 @@ module.exports = ElSnapAfterBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],154:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 var ElSnapBeforeBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38007,7 +37031,7 @@ module.exports = ElSnapBeforeBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],155:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 var ElBrowseHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38075,7 +37099,7 @@ module.exports = ElBrowseHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],156:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 var ElSnapClearBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38151,7 +37175,7 @@ module.exports = ElSnapClearBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],157:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 var ElSnapPictureFrame,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38304,7 +37328,7 @@ module.exports = ElSnapPictureFrame = (function(_super) {
 })(Fa.CView);
 
 
-},{}],158:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 var ElSnapSelectorRadio,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38393,7 +37417,7 @@ module.exports = ElSnapSelectorRadio = (function(_super) {
 })(Fa.CView);
 
 
-},{}],159:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 var ElSnapSetProfileBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38469,7 +37493,7 @@ module.exports = ElSnapSetProfileBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],160:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 var ElSnapUpdateBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38545,7 +37569,7 @@ module.exports = ElSnapUpdateBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],161:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 var ElSnapViewBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38621,7 +37645,7 @@ module.exports = ElSnapViewBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],162:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 var ElSnapVisitInfo,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38677,7 +37701,7 @@ module.exports = ElSnapVisitInfo = (function(_super) {
 })(Fa.CView);
 
 
-},{}],163:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 var Mixins;
 
 Mixins = {
@@ -38687,7 +37711,7 @@ Mixins = {
 module.exports = Mixins;
 
 
-},{"./toggleable.coffee":164}],164:[function(require,module,exports){
+},{"./toggleable.coffee":163}],163:[function(require,module,exports){
 var Toggleable;
 
 module.exports = Toggleable = (function() {
