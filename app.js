@@ -28810,8 +28810,10 @@ module.exports = ConsultantStore = (function() {
       url: 'http://testsvr.eurogrp.com:8006/api/Login',
       type: 'POST',
       dataType: "json",
-      async: false,
+      contentType: 'application/json',
       crossDomain: true,
+      withCredentials: false,
+      useDefaultXhrHeader: false,
       data: JSON.stringify(consultant),
       success: function(data) {
         alert(data.message);
