@@ -29254,7 +29254,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "\r\n <div>\r\n   <center><h1>paint</h1></center>\r\n </div>\r\n\r\n";
+  return "\r\n <iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\" width=\"1024\" height=\"768\"></iframe>\r\n";
   });
 
 },{"hbsfy/runtime":64}],92:[function(require,module,exports){
