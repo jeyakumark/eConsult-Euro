@@ -24440,8 +24440,10 @@ initWithPhonegap = function() {
   } else {
     window.Camera = navigator.camera;
     macId = "TEST";
+    alert(data.Status);
     if (data.status === "OK") {
       str = data;
+      alert(str);
       return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFSConfig, failConfig);
     } else {
       return alert(data.Message);
@@ -24536,6 +24538,7 @@ failCopy = function(error) {
 gotFSConfig = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  alert(spath);
   fileSystem.root.getFile("setting.txt", {
     create: false,
     exclusive: false
@@ -24543,12 +24546,15 @@ gotFSConfig = function(fileSystem) {
 };
 
 gotFileEntryConfig = function(fileEntry) {
+  alert("config entry");
   fileEntry.createWriter(gotFileConfig, failConfig);
 };
 
 gotFileConfig = function(writer) {
   writer.onwriteend = function(evt) {
-    writer.onwriteend = function(evt) {};
+    writer.onwriteend = function(evt) {
+      return alert("Saved successfully");
+    };
     writer.write(str);
     return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
   };
