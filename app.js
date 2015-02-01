@@ -24455,7 +24455,6 @@ init = function() {
         window.Homecare = Conf.Homecare = data.homecare;
         window.Remarks = Conf.Remarks = data.remarks;
         window.lifestyle = Conf.lifestyle = data.lifestyle;
-        alert(data.causes[0]);
         Store.clear();
         appView = new AppView({
           size: [Conf.screenWidth, Conf.screenHeight]
@@ -25537,7 +25536,6 @@ module.exports = Client = (function() {
               treatment_improvement: null,
               service: null
             });
-            alert("done");
           }
         } else {
           alert("First Visit?");
@@ -25548,6 +25546,7 @@ module.exports = Client = (function() {
             this.age = 0;
             if (data.length !== 0) {
               this.age = data.Age;
+              alert(this.age);
             }
             this.photos = [];
             this.sessions = [];
@@ -25560,6 +25559,7 @@ module.exports = Client = (function() {
             this.first_joined = null;
             if (data.length !== 0) {
               this.first_joined = data.Registered_Date;
+              alert(this.first_joined);
             }
             this.profile_pic = {
               temp: 'images/profile.png',
