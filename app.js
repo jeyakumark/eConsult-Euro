@@ -36307,6 +36307,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
         sized_picture = JSON.parse(response.response)['sized'];
         square_picture = JSON.parse(response.response)['square'];
         large_picture = JSON.parse(response.response)['large'];
+        alert(large_picture);
         return Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
       }), (function(error) {
         alert("Upload failed");
@@ -36316,6 +36317,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     this.addButton.on('click', (function(_this) {
       return function() {
         var onFail, onSuccess;
+        alert("on click button");
         onSuccess = function(imageURI) {
           var photo;
           photo = Session.currentClient.setProfilePicTemp(imageURI);
@@ -36324,6 +36326,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
           }, 0);
         };
         onFail = function() {
+          alert("unable to get ImageURI");
           return console.log('unable to get ImageURI');
         };
         return Camera.getPicture(onSuccess.bind(_this), onFail, {
