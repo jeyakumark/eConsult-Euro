@@ -28814,30 +28814,26 @@ module.exports = ConsultantStore = (function() {
     var promise;
     alert("fetch data" + username + password);
     promise = this.fetchFromBackend(username, password);
-    promise.done((function(_this) {
-      return function(data) {
-        var consult, isExists;
-        alert("inside promise dont");
-        isExists = false;
-        if (data.length !== 0) {
-          alert("get data" + data);
-          consult = data[0];
-          isExists = consult.isExists;
-          if (isExists) {
-            return true;
-          } else {
-            return false;
-          }
+    promise.done(function(data) {
+      var consult, isExists;
+      alert("inside promise dont");
+      isExists = false;
+      if (data.length !== 0) {
+        alert("get data" + data);
+        consult = data[0];
+        isExists = consult.isExists;
+        if (isExists) {
+          return true;
         } else {
-          return alert("invalid data");
+          return false;
         }
-      };
-    })(this));
-    return promise.fail(err)((function(_this) {
-      return function() {
-        return alert("fail");
-      };
-    })(this));
+      } else {
+        return alert("invalid data");
+      }
+    });
+    return promise.fail()(function() {
+      return alert("fail");
+    });
   };
 
   ConsultantStore.prototype.fetchFromBackend = function(username, password) {
