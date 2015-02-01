@@ -25490,7 +25490,7 @@ module.exports = Client = (function() {
     } else {
       alert("First Visit ");
       this.Id = clientId;
-      this.name = cliendId;
+      this.name = clientId;
       this.age = clientAge;
       this.photos = [];
       this.sessions = [];
@@ -25527,7 +25527,6 @@ module.exports = Client = (function() {
       this.desire_blackheads = false;
       this.desire_coloration = false;
       this.checklist = [];
-      this.session = this.sessions.length;
     }
     this.session = this.sessions.length;
     this.reindex();
@@ -26726,18 +26725,19 @@ module.exports = clientPage = (function(_super) {
               window.clientdetails = Conf.clientdetails = clientdata;
               this.age = clientdata.client.Age;
               this.registerDate = clientdata.client.Registered_Date;
-              alert(Conf.backend);
               backpromise = Stores.Consultant.fetchFromBackend(clientId);
-              backpromise.done(function(data) {
-                var client;
-                client = new Models.Client(clientId, this.age, this.registerDate, data);
-                return client.clientFetchPromise.done(function() {
-                  Session.setCurrentClient(client);
-                  return Dispatcher.emit('page_change', {
-                    to: 'Dashboard'
+              backpromise.done((function(_this) {
+                return function(data) {
+                  var client;
+                  client = new Models.Client(clientId, _this.age, _this.registerDate, data);
+                  return client.clientFetchPromise.done(function() {
+                    Session.setCurrentClient(client);
+                    return Dispatcher.emit('page_change', {
+                      to: 'Dashboard'
+                    });
                   });
-                });
-              });
+                };
+              })(this));
               return backpromise.fail(function(jqXHR, textStatus, errorThrown) {
                 return alert("Error Connecting Mongo Server status:" + jqXHR.status + " " + errorThrown);
               });
