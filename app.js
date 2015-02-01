@@ -24443,6 +24443,15 @@ init = function() {
       window.authIp = Conf.authIp = data.AuthIp;
       window.secondaryHost = Conf.secondaryHost = data.SecondaryHost;
       window.secondaryNasIp = Conf.secondaryNasIp = data.SecondaryNasIp;
+      alert(data.PrimaryNasIp);
+      alert(data.DataIp);
+      alert(data.OutletId);
+      alert(data.BranchId);
+      alert(data.Brand);
+      alert(data.DeviceType);
+      alert(data.AuthIp);
+      alert(data.SecondaryHost);
+      alert(data.SecondaryNasIp);
     } else {
       alert("error getting config");
     }
@@ -29184,6 +29193,7 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.checkListFromDb = function(macId) {
     var fetchPromise;
+    alert("Get checklist from:" + ("" + Conf.backend + "/checklists/getOptions"));
     fetchPromise = $.ajax({
       url: "" + Conf.backend + "/checklists/getOptions",
       dataType: "json",
