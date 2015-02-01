@@ -36189,12 +36189,7 @@ module.exports = ElDashboardMicroBtn = (function(_super) {
     });
     flex.sequenceFrom([Fa.EmptyView(), this.icon, Fa.EmptyView(), this.text]);
     this.button.addToCenter(flex);
-    this.container.add(this.button);
-    return this.addButton.on('click', (function(_this) {
-      return function() {
-        return alert("Only for Desktop");
-      };
-    })(this));
+    return this.container.add(this.button);
   };
 
   return ElDashboardMicroBtn;
