@@ -28810,13 +28810,13 @@ module.exports = ConsultantStore = (function() {
     });
   };
 
-  ConsultantStore.prototype.checkConsultant = function(username, password) {
-    var consultant;
+  checkConsultant(function(username, password) {
+    var consultant, fetchPromise;
     consultant = {
       "UserId": username,
       "Password": password
     };
-    return $.ajax({
+    fetchPromise = $.ajax({
       url: 'http://testsvr.eurogrp.com:8006/api/Login',
       type: 'POST',
       dataType: "json",
@@ -28826,7 +28826,8 @@ module.exports = ConsultantStore = (function() {
       useDefaultXhrHeader: false,
       data: JSON.stringify(consultant)
     });
-  };
+    return fetchPromise;
+  });
 
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
     var str;
