@@ -28799,11 +28799,9 @@ module.exports = ConsultantStore = (function() {
   function ConsultantStore() {}
 
   ConsultantStore.login = function(username, password) {
-    var apiurl;
     alert("fetch data" + username + password);
-    apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
     return $.ajax({
-      url: apiurl,
+      url: 'http://testsvr.eurogrp.com:8006/api/Login',
       type: 'POST',
       dataType: "json",
       async: false,
