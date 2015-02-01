@@ -24449,7 +24449,6 @@ init = function() {
     Checklist = Stores.Consultant.getCheckList(macId);
     return Checklist.done(function(data) {
       var appView;
-      alert("success get checklist");
       if (data.length !== 0) {
         window.Causes = Conf.Causes = data.causes;
         window.Facial = Conf.Facial = data.facial;
@@ -24457,7 +24456,6 @@ init = function() {
         window.Remarks = Conf.Remarks = data.remarks;
         window.lifestyle = Conf.lifestyle = data.lifestyle;
         alert(data.causes[0]);
-        alert("done get checklist");
         Store.clear();
         appView = new AppView({
           size: [Conf.screenWidth, Conf.screenHeight]
