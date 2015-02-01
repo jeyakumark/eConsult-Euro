@@ -28800,13 +28800,12 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.login = function(username, password) {
     var consultant, isExists;
-    alert("fetch data" + username + password);
     isExists = false;
     consultant = {
       "UserId": username,
       "Password": password
     };
-    $.ajax({
+    return $.ajax({
       url: 'http://testsvr.eurogrp.com:8006/api/Login',
       type: 'POST',
       dataType: "json",
@@ -28818,17 +28817,16 @@ module.exports = ConsultantStore = (function() {
       success: function(data) {
         alert(data.message);
         if (data.message === true) {
-          return isExists = true;
+          return true;
         } else {
-          return isExists = false;
+          return false;
         }
       },
       error: function(jqXHR, textStatus, errorThrown) {
         alert("Error :" + jqXHR.status + " " + errorThrown);
-        return isExists = false;
+        return false;
       }
     });
-    return isExists;
   };
 
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
