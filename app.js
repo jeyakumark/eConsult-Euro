@@ -28813,7 +28813,7 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.login = function(username, password) {
     var promise;
     alert("fetch data" + username + password);
-    promise = fetchFromBackend(username, password);
+    promise = this.fetchFromBackend(username, password);
     promise.done(function(data) {
       var consult, isExists;
       alert("inside promise dont");
@@ -28838,8 +28838,8 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.prototype.fetchFromBackend = function(username, password) {
     var apiurl, fetchPromise;
-    apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
     alert(username + "," + password);
+    apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
     fetchPromise = $.ajax({
       url: "" + apiurl,
       dataType: "json",
