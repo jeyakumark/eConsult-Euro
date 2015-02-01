@@ -28805,6 +28805,7 @@ module.exports = ConsultantStore = (function() {
       type: 'POST',
       dataType: "json",
       async: false,
+      crossDomain: true,
       data: JSON.stringify({
         userid: username,
         password: password

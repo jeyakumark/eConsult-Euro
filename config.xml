@@ -21,4 +21,6 @@
  <gap:plugin name="org.apache.cordova.core.file" />
  <gap:plugin name="org.apache.cordova.core.file-transfer"  />
  <gap:plugin name="org.apache.cordova.dialogs"  />
+  <access origin="http://*" />
+  <access origin="https://*" />
 </widget>
