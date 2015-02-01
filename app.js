@@ -24537,7 +24537,6 @@ failCopy = function(error) {
 gotFSConfig = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/Data/" + "setting.txt";
-  alert(spath);
   fileSystem.root.getFile("setting.txt", {
     create: true,
     exclusive: false
@@ -24545,14 +24544,12 @@ gotFSConfig = function(fileSystem) {
 };
 
 gotFileEntryConfig = function(fileEntry) {
-  alert("config entry");
   fileEntry.createWriter(gotFileConfig, failConfig);
 };
 
 gotFileConfig = function(writer) {
   writer.onwriteend = function(evt) {
     writer.onwriteend = function(evt) {
-      alert(str);
       return alert("Saved successfully");
     };
     writer.write(str);
@@ -33765,7 +33762,6 @@ module.exports = sideMenuView = (function(_super) {
   sideMenuView.DEFAULT_OPTIONS = {};
 
   function sideMenuView(options) {
-    alert("constructor");
     sideMenuView.__super__.constructor.call(this, options);
     _createLayouts.call(this);
     Dispatcher.pipe(this._eventInput);
@@ -33893,7 +33889,6 @@ module.exports = sideMenuView = (function(_super) {
   };
 
   sideMenuView.prototype.showMenu = function() {
-    alert("show menu");
     Dispatcher.emit('show_backdrop', {
       "for": 'side_menu'
     });
@@ -33901,7 +33896,6 @@ module.exports = sideMenuView = (function(_super) {
   };
 
   sideMenuView.prototype.hideMenu = function() {
-    alert("hide menu");
     this.lightbox.hide(this.menu);
     return Dispatcher.emit('hide_backdrop');
   };
