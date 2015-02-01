@@ -28801,7 +28801,7 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.login = function(username, password) {
     var promise;
     promise = checkConsultant(username, password);
-    promise.success(function(data) {
+    promise.done(function(data) {
       alert(data);
       return data.message;
     });
