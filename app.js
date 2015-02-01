@@ -36252,6 +36252,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     var client;
     client = Session.currentClient;
     this.picture.setContent(client.profilePic());
+    alert("setclient");
     this.clientName.surface.setContent(client.name);
     this.clientAge.surface.setContent("Age:&nbsp;<strong>" + client.age + " years old</strong>");
     return this.clientDateJoined.surface.setContent("Date Joined:&nbsp;<strong>" + (client.firstVisit()) + "</strong>");
@@ -36326,7 +36327,6 @@ module.exports = ElDashboardProfilePic = (function(_super) {
           }, 0);
         };
         onFail = function() {
-          alert("unable to get ImageURI");
           return console.log('unable to get ImageURI');
         };
         return Camera.getPicture(onSuccess.bind(_this), onFail, {
