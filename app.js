@@ -29220,7 +29220,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.picture) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.picture); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" class=\"\" />\r\n  </div>\r\n</div>\r\n-->\r\n<iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\" width=\"1024\" height=\"768\"></iframe>";
+    + "\" class=\"\" />\r\n  </div>\r\n</div>\r\n-->\r\n<iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\"></iframe>";
   return buffer;
   });
 
