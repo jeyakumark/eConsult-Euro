@@ -36309,6 +36309,8 @@ module.exports = ElDashboardProfilePic = (function(_super) {
         large_picture = JSON.parse(response.response)['large'];
         Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
         client = Session.currentClient;
+        alert(client.Id);
+        alert(client.profilePic());
         return this.picture.setContent(client.profilePic());
       }), (function(error) {
         alert("Upload failed");
