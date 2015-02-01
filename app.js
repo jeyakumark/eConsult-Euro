@@ -36272,7 +36272,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     var client;
     alert("client profile");
     client = Session.currentClient;
-    return this.picture.setContent(client.profilePic());
+    return ElDashboardProfilePic.picture.setContent(client.profilePic());
   };
 
   createHamburger = function() {
@@ -36326,7 +36326,8 @@ module.exports = ElDashboardProfilePic = (function(_super) {
         square_picture = JSON.parse(response.response)['square'];
         large_picture = JSON.parse(response.response)['large'];
         Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
-        return this.setClientProfile();
+        this.setClientProfile();
+        return alert("after set profile pic");
       }), (function(error) {
         alert("Upload failed");
         return console.log(error);
