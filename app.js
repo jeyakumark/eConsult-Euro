@@ -33847,6 +33847,7 @@ module.exports = sideMenuView = (function(_super) {
   sideMenuView.DEFAULT_OPTIONS = {};
 
   function sideMenuView(options) {
+    alert("constructor");
     sideMenuView.__super__.constructor.call(this, options);
     _createLayouts.call(this);
     Dispatcher.pipe(this._eventInput);
@@ -33920,7 +33921,7 @@ module.exports = sideMenuView = (function(_super) {
       matches: _createMenuItem.call(this, 'ion-clipboard', 'Matches', 'Matches'),
       checklist: _createMenuItem.call(this, 'ion-compose', 'Checklist', 'Checklist'),
       "switch": _createMenuItem.call(this, 'ion-arrow-swap', 'Switch', 'Client'),
-      exit: _createMenuItem.call(this, 'ion-log-out', 'Exit', 'Login'),
+      exit: _createMenuItem.call(this, 'ion-log-out', 'Exit', 'Splash'),
       experi: _createMenuItem.call(this, 'ion-flask', 'Experiment', 'Experi'),
       canvas: _createMenuItem.call(this, 'ion-beer', 'Developer', 'Canvas'),
       setting: _createMenuItem.call(this, 'ion-camera', 'Setting', 'Setting')
