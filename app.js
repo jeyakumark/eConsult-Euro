@@ -28800,7 +28800,7 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.login = function(username, password) {
     var promise;
-    promise = checkConsultant(username, password);
+    promise = this.checkConsultant(username, password);
     promise.done(function(data) {
       alert(data);
       return data.message;
@@ -28811,8 +28811,9 @@ module.exports = ConsultantStore = (function() {
     return alert('done');
   };
 
-  ConsultantStore.prototype.checkConsultant = function(username, password) {
+  ConsultantStore.checkConsultant = function(username, password) {
     var consultant, fetchPromise;
+    alert("checking....");
     consultant = {
       "UserId": username,
       "Password": password
