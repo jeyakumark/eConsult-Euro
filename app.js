@@ -24582,7 +24582,7 @@ if (Conf.isProduction) {
 },{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":94,"./views/app_view.coffee":98,"./views/behaviors":101,"./views/components":132,"./views/elements":152,"./views/mixins":163,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":95,"panzoom":96,"store":67,"zoom":97}],69:[function(require,module,exports){
 module.exports = {
   isProduction: true,
-  firstPage: 'Client',
+  firstPage: 'Login',
   backend: 'http://egcbsc.com:1337',
   screenWidth: '1024',
   screenHeight: '768',
