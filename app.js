@@ -28814,8 +28814,8 @@ module.exports = ConsultantStore = (function() {
       success: function(data) {
         return alert("success");
       },
-      error: function(error) {
-        return alert("fail");
+      error: function(jqXHR, textStatus, errorThrown) {
+        return alert("Error :" + jqXHR.status + " " + errorThrown);
       }
     });
   };
