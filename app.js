@@ -24320,13 +24320,32 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, dest, fail, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, init, initWithPhonegap, readAsText, resOnSuccess, successCopy;
+var AppView, Conf, FastClick, copyFS, data, dest, fail, failConfig, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFSConfig, gotFile, gotFileConfig, gotFileEntry, gotFileEntryConfig, init, initWithPhonegap, readAsText, resOnSuccess, str, successCopy;
 
 window.Setting = '';
 
 dest = '';
 
 gFileSystem = {};
+
+str = '';
+
+data = {
+  "isProduction": "yes",
+  "firstPage": "Login",
+  "backend": "http://egcbsc.com:1337",
+  "imageServerURL": "http://creativesatwork.me:8080/upload",
+  "ScreenWidth": "1024",
+  "ScreenHeight": "768",
+  "OutletId": "101",
+  "BranchId": "1001",
+  "Brand": "NEWYORK",
+  "DeviceType": "IOS",
+  "AuthIp": "http://testsvr.eurogrp.com:8006",
+  "SecondaryHost": "http://testsvr.eurogrp.com:8006",
+  "SecondaryNasIp": "http://creativesatwork.me:8080/upload",
+  "Status": "OK"
+};
 
 require("./..\\..\\bower_components\\famous-polyfills\\index.js");
 
@@ -24414,12 +24433,19 @@ init = function() {
 };
 
 initWithPhonegap = function() {
+  var macId;
   Store.clear();
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
   } else {
     window.Camera = navigator.camera;
-    return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+    macId = "TEST";
+    if (data.status === "OK") {
+      str = data;
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFSConfig, failConfig);
+    } else {
+      return alert(data.Message);
+    }
   }
 };
 
@@ -24441,7 +24467,7 @@ readAsText = function(file) {
   var reader;
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    var json, jsonString, str;
+    var json, jsonString;
     str = evt.target.result;
     jsonString = str.replace(/'/g, '"');
     json = JSON.parse(jsonString);
@@ -24450,6 +24476,13 @@ readAsText = function(file) {
     window.backend = Conf.backend = json.backend;
     window.screenWidth = Conf.screenWidth = json.screenWidth;
     window.screenHeight = Conf.screenHeight = json.screenHeight;
+    window.OutletId = Conf.outletId = json.outletId;
+    window.branchId = Conf.branchId = json.branchId;
+    window.brand = Conf.brand = json.brand;
+    window.deviceType = Conf.deviceType = json.deviceType;
+    window.authIp = Conf.authIp = json.authIp;
+    window.secondaryHost = Conf.secondaryHost = json.secondaryHost;
+    window.secondaryNasIp = Conf.secondaryNasIp = json.secondaryNasIp;
     return init.call(this);
   };
   return reader.readAsText(file);
@@ -24498,6 +24531,39 @@ successCopy = function() {
 
 failCopy = function(error) {
   alert("error copy file from www -> document directory");
+};
+
+gotFSConfig = function(fileSystem) {
+  var spath;
+  spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  fileSystem.root.getFile("setting.txt", {
+    create: false,
+    exclusive: false
+  }, gotFileEntryConfig, failConfig);
+};
+
+gotFileEntryConfig = function(fileEntry) {
+  fileEntry.createWriter(gotFileConfig, failConfig);
+};
+
+gotFileConfig = function(writer) {
+  writer.onwriteend = function(evt) {
+    writer.onwriteend = function(evt) {};
+    writer.write(str);
+    return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+  };
+  return writer.truncate(0);
+};
+
+failConfig = function(error) {
+  alert("error occured");
+  if (error.code === FileError.NOT_FOUND_ERR) {
+    alert(error.code.toString() + ":config file not found");
+  } else if (error.code === FileError.SECURITY_ERR) {
+    alert("security error");
+  } else {
+    alert(error.code);
+  }
 };
 
 if (Conf.isProduction) {
@@ -25373,11 +25439,10 @@ module.exports = Client = (function() {
     promise = this.fetchFromBackend(clientId);
     promise.done((function(_this) {
       return function(data) {
-        var client, default_profile_pic;
+        var client, default_profile_pic, newclient;
         console.log('fetch for init');
         console.log(data);
         if (data.length !== 0) {
-          alert("get data" + data);
           client = data[0];
           _this.Id = client.Id;
           _this.name = client.name;
@@ -25444,65 +25509,69 @@ module.exports = Client = (function() {
             });
           }
         } else {
-          alert("invalid data ");
-          _this.Id = clientId;
-          _this.name = clientId;
-          _this.age = '';
-          _this.photos = [];
-          _this.sessions = [];
-          _this.matches = {};
-          _this.sessions.push({
-            date: Utils.getDate(),
-            treatment_improvement: null,
-            service: null
+          alert("First Visit ");
+          newclient = _this.GetClientDetails(clientId);
+          newclient.done(function(data) {
+            alert(data.Customer_Name);
+            this.Id = clientId;
+            this.name = data.Customer_Name;
+            this.age = data.Age;
+            this.photos = [];
+            this.sessions = [];
+            this.matches = {};
+            this.sessions.push({
+              date: Utils.getDate(),
+              treatment_improvement: null,
+              service: null
+            });
+            this.first_joined = data.Registered_Date;
+            this.profile_pic = {
+              temp: 'images/profile.png',
+              original: null,
+              sized: null,
+              square: null,
+              large: null,
+              date_taken: null,
+              timestamp: null
+            };
+            this.rating_pigmentation = null;
+            this.rating_sensitive = null;
+            this.rating_aging = null;
+            this.rating_acne = null;
+            this.desire_skin_brightening = false;
+            this.desire_skin_hydrates = false;
+            this.desire_eye_bags = false;
+            this.desire_dark_spots = false;
+            this.desire_pigmentation = false;
+            this.desire_acne = false;
+            this.desire_sensitive = false;
+            this.desire_aging = false;
+            this.desire_wrinkles = false;
+            this.desire_pimples = false;
+            this.desire_blackheads = false;
+            this.desire_coloration = false;
+            this.cl_lifestyle_opt1 = false;
+            this.cl_lifestyle_opt2 = false;
+            this.cl_lifestyle_opt3 = false;
+            this.cl_lifestyle_opt4 = false;
+            this.cl_result_rating = null;
+            this.cl_causes_opt1 = false;
+            this.cl_causes_opt2 = false;
+            this.cl_causes_opt3 = false;
+            this.cl_causes_opt4 = false;
+            this.cl_homecare_opt1 = false;
+            this.cl_homecare_opt2 = false;
+            this.cl_homecare_opt3 = false;
+            this.cl_homecare_opt4 = false;
+            this.cl_facial_opt1 = false;
+            this.cl_facial_opt2 = false;
+            this.cl_facial_opt3 = false;
+            this.cl_facial_opt4 = false;
+            this.cl_remarks_opt1 = false;
+            this.cl_remarks_opt2 = false;
+            this.cl_remarks_opt3 = false;
+            return this.cl_remarks_opt4 = false;
           });
-          _this.first_joined = 'FROM AES';
-          _this.profile_pic = {
-            temp: 'images/profile.png',
-            original: null,
-            sized: null,
-            square: null,
-            large: null,
-            date_taken: null,
-            timestamp: null
-          };
-          _this.rating_pigmentation = null;
-          _this.rating_sensitive = null;
-          _this.rating_aging = null;
-          _this.rating_acne = null;
-          _this.desire_skin_brightening = false;
-          _this.desire_skin_hydrates = false;
-          _this.desire_eye_bags = false;
-          _this.desire_dark_spots = false;
-          _this.desire_pigmentation = false;
-          _this.desire_acne = false;
-          _this.desire_sensitive = false;
-          _this.desire_aging = false;
-          _this.desire_wrinkles = false;
-          _this.desire_pimples = false;
-          _this.desire_blackheads = false;
-          _this.desire_coloration = false;
-          _this.cl_lifestyle_opt1 = false;
-          _this.cl_lifestyle_opt2 = false;
-          _this.cl_lifestyle_opt3 = false;
-          _this.cl_lifestyle_opt4 = false;
-          _this.cl_result_rating = null;
-          _this.cl_causes_opt1 = false;
-          _this.cl_causes_opt2 = false;
-          _this.cl_causes_opt3 = false;
-          _this.cl_causes_opt4 = false;
-          _this.cl_homecare_opt1 = false;
-          _this.cl_homecare_opt2 = false;
-          _this.cl_homecare_opt3 = false;
-          _this.cl_homecare_opt4 = false;
-          _this.cl_facial_opt1 = false;
-          _this.cl_facial_opt2 = false;
-          _this.cl_facial_opt3 = false;
-          _this.cl_facial_opt4 = false;
-          _this.cl_remarks_opt1 = false;
-          _this.cl_remarks_opt2 = false;
-          _this.cl_remarks_opt3 = false;
-          _this.cl_remarks_opt4 = false;
         }
         _this.session = _this.sessions.length;
         _this.reindex();
@@ -25991,6 +26060,38 @@ module.exports = Client = (function() {
     };
   };
 
+  Client.prototype.GetClientDetails = function(clientId) {
+    var deferred, promise;
+    deferred = $.Deferred();
+    promise = this.GetClientDetailsFromAES(clientId);
+    promise.done(function(data) {
+      return deferred.resolve(data);
+    });
+    promise.fail(function(jqXHR, textStatus, errorThrown) {
+      return alert("Error :" + jqXHR.status + " " + errorThrown);
+    });
+    return deferred;
+  };
+
+  Client.prototype.GetClientDetailsFromAES = function(clientId) {
+    var clients, fetchPromise;
+    clients = {
+      "CompanyID": "SG01",
+      "CustomerID": clientId
+    };
+    fetchPromise = $.ajax({
+      url: 'http://testsvr.eurogrp.com:8006/api/NYSS/Customer/fnGetCustomerDetails',
+      type: 'POST',
+      dataType: "json",
+      contentType: 'application/json',
+      crossDomain: true,
+      withCredentials: false,
+      useDefaultXhrHeader: false,
+      data: JSON.stringify(clients)
+    });
+    return fetchPromise;
+  };
+
   return Client;
 
 })();
@@ -26204,11 +26305,81 @@ FaceRating = Fa.Components.Checklist.face_rating;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = checklistPage = (function(_super) {
-  var createLeftPanel, createLeftPanelConsultantRatings, createLeftPanelCustomerRatings, createLeftPanelDesiredResultBox, createLeftPanelSaveResult, createQ1, createQ2, createQ3, createQ4, createQ5, createQ6, createQuestions, createRightPanel, init;
+  var causes, createLeftPanel, createLeftPanelConsultantRatings, createLeftPanelCustomerRatings, createLeftPanelDesiredResultBox, createLeftPanelSaveResult, createQ1, createQ2, createQ3, createQ4, createQ5, createQ6, createQuestions, createRightPanel, facial, homecare, init, lifestyle, remarks;
 
   __extends(checklistPage, _super);
 
   checklistPage.DEFAULT_OPTIONS = {};
+
+  checklistPage.opFacial = [];
+
+  checklistPage.opCauses = [];
+
+  checklistPage.opHomecare = [];
+
+  checklistPage.opLifestyle = [];
+
+  checklistPage.opRemarks = [];
+
+  facial = [
+    {
+      "op": "Facial Option1"
+    }, {
+      "op": "Facial Option2"
+    }, {
+      "op": "Facial Option3"
+    }, {
+      "op": "Facial Option4"
+    }
+  ];
+
+  causes = [
+    {
+      "op": "Causes Option1"
+    }, {
+      "op": "Causes Option2"
+    }, {
+      "op": "Causes Option3"
+    }, {
+      "op": "Causes Option4"
+    }
+  ];
+
+  homecare = [
+    {
+      "op": "Home Care Option1"
+    }, {
+      "op": "Home Care Option2"
+    }, {
+      "op": "Home Care  Option3"
+    }, {
+      "op": "Home Care  Option4"
+    }
+  ];
+
+  lifestyle = [
+    {
+      "op": "Life Style Option1"
+    }, {
+      "op": "Life Style Option2"
+    }, {
+      "op": "Life Style Option3"
+    }, {
+      "op": "Life Style Option4"
+    }
+  ];
+
+  remarks = [
+    {
+      "op": "Remarks Option1"
+    }, {
+      "op": "Remarks Option2"
+    }, {
+      "op": "Remarks Option3"
+    }, {
+      "op": "Remarks Option4"
+    }
+  ];
 
   function checklistPage(options) {
     var updateQ1Box, updateQ3Box, updateQ4Box, updateQ5Box, updateQ6Box, updateResultBox;
@@ -26258,87 +26429,147 @@ module.exports = checklistPage = (function(_super) {
       return this.desiredResultText.setContent(text);
     };
     updateQ1Box = function() {
-      var text;
+      var i, json, text, x, _i, _ref;
       text = '';
+      this.opLifestyle = (function() {
+        var _i, _ref, _results;
+        _results = [];
+        for (x = _i = 0, _ref = lifestyle.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+          _results.push(0);
+        }
+        return _results;
+      })();
+      for (i = _i = 0, _ref = lifestyle.length - 1; _i <= _ref; i = _i += 1) {
+        json = JSON.parse(JSON.stringify(lifestyle[i]));
+        this.opLifestyle[i] = json.op;
+      }
       if (Session.currentClient.cl_lifestyle_opt1) {
-        text += 'Travel Outstation 出外玻. ';
+        text = text + this.opLifestyle[0];
       }
       if (Session.currentClient.cl_lifestyle_opt2) {
-        text += 'Inadequate Sleep 睡眠不足. ';
+        text += this.opLifestyle[1];
       }
       if (Session.currentClient.cl_lifestyle_opt3) {
-        text += 'Outdoor 户外活动. ';
+        text += this.opLifestyle[2];
       }
       if (Session.currentClient.cl_lifestyle_opt4) {
-        text += 'Stressful 生活压力. ';
+        text += this.opLifestyle[3];
       }
       return this.answerTextQ1.setContent(text);
     };
     updateQ3Box = function() {
-      var text;
+      var i, json, text, x, _i, _ref;
       text = '';
+      this.opCauses = (function() {
+        var _i, _ref, _results;
+        _results = [];
+        for (x = _i = 0, _ref = causes.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+          _results.push(0);
+        }
+        return _results;
+      })();
+      for (i = _i = 0, _ref = causes.length - 1; _i <= _ref; i = _i += 1) {
+        json = JSON.parse(JSON.stringify(causes[i]));
+        this.opCauses[i] = json.op;
+      }
       if (Session.currentClient.cl_causes_opt1) {
-        text += 'Travel Outstation 出外玻. ';
+        text = text + this.opCauses[0];
       }
       if (Session.currentClient.cl_causes_opt2) {
-        text += 'Inadequate Sleep 睡眠不足. ';
+        text = text + this.opCauses[1];
       }
       if (Session.currentClient.cl_causes_opt3) {
-        text += 'Outdoor 户外活动. ';
+        text = text + this.opCauses[2];
       }
       if (Session.currentClient.cl_causes_opt4) {
-        text += 'Stressful 生活压力. ';
+        text = text + this.opCauses[3];
       }
       return this.answerTextQ3.setContent(text);
     };
     updateQ4Box = function() {
-      var text;
+      var i, json, text, x, _i, _ref;
       text = '';
+      this.opHomecare = (function() {
+        var _i, _ref, _results;
+        _results = [];
+        for (x = _i = 0, _ref = homecare.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+          _results.push(0);
+        }
+        return _results;
+      })();
+      for (i = _i = 0, _ref = homecare.length - 1; _i <= _ref; i = _i += 1) {
+        json = JSON.parse(JSON.stringify(homecare[i]));
+        this.opHomecare[i] = json.op;
+      }
       if (Session.currentClient.cl_homecare_opt1) {
-        text += 'Travel Outstation 出外玻. ';
+        text = text + this.opHomecare[0];
       }
       if (Session.currentClient.cl_homecare_opt2) {
-        text += 'Inadequate Sleep 睡眠不足. ';
+        text = text + this.opHomecare[0];
       }
       if (Session.currentClient.cl_homecare_opt3) {
-        text += 'Outdoor 户外活动. ';
+        text = text + this.opHomecare[0];
       }
       if (Session.currentClient.cl_homecare_opt4) {
-        text += 'Stressful 生活压力. ';
+        text = text + this.opHomecare[0];
       }
       return this.answerTextQ4.setContent(text);
     };
     updateQ5Box = function() {
-      var text;
+      var i, json, text, x, _i, _ref;
       text = '';
+      this.opFacial = (function() {
+        var _i, _ref, _results;
+        _results = [];
+        for (x = _i = 0, _ref = facial.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+          _results.push(0);
+        }
+        return _results;
+      })();
+      for (i = _i = 0, _ref = facial.length - 1; _i <= _ref; i = _i += 1) {
+        json = JSON.parse(JSON.stringify(facial[i]));
+        this.opFacial[i] = json.op;
+      }
       if (Session.currentClient.cl_facial_opt1) {
-        text += 'Travel Outstation 出外玻. ';
+        text = text + this.opFacial[0];
       }
       if (Session.currentClient.cl_facial_opt2) {
-        text += 'Inadequate Sleep 睡眠不足. ';
+        text = text + this.opFacial[1];
       }
       if (Session.currentClient.cl_facial_opt3) {
-        text += 'Outdoor 户外活动. ';
+        text = text + this.opFacial[2];
       }
       if (Session.currentClient.cl_facial_opt4) {
-        text += 'Stressful 生活压力. ';
+        text = text + this.opFacial[3];
       }
       return this.answerTextQ5.setContent(text);
     };
     updateQ6Box = function() {
-      var text;
+      var i, json, text, x, _i, _ref;
       text = '';
+      this.opRemarks = (function() {
+        var _i, _ref, _results;
+        _results = [];
+        for (x = _i = 0, _ref = remarks.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+          _results.push(0);
+        }
+        return _results;
+      })();
+      for (i = _i = 0, _ref = remarks.length - 1; _i <= _ref; i = _i += 1) {
+        json = JSON.parse(JSON.stringify(remarks[i]));
+        this.opRemarks[i] = json.op;
+      }
       if (Session.currentClient.cl_remarks_opt1) {
-        text += 'Travel Outstation 出外玻. ';
+        text = text + this.opRemarks[0];
       }
       if (Session.currentClient.cl_remarks_opt2) {
-        text += 'Inadequate Sleep 睡眠不足. ';
+        text = text + this.opRemarks[1];
       }
       if (Session.currentClient.cl_remarks_opt3) {
-        text += 'Outdoor 户外活动. ';
+        text = text + this.opRemarks[2];
       }
       if (Session.currentClient.cl_remarks_opt4) {
-        text += 'Stressful 生活压力. ';
+        text = text + this.opRemarks[3];
       }
       return this.answerTextQ6.setContent(text);
     };
@@ -27132,7 +27363,6 @@ module.exports = clientPage = (function(_super) {
           return alert('Please enter the client ID');
         }
       } else {
-        alert('checking client');
         client = new Models.Client(clientId);
         Session.setCurrentClient(client);
         return Dispatcher.emit('page_change', {
@@ -27692,13 +27922,15 @@ module.exports = loginPage = (function(_super) {
       username = this.username.getValue();
       password = this.password.getValue();
       authenticated = Stores.Consultant.login(username, password);
-      if (authenticated) {
-        return Dispatcher.emit('page_change', {
-          to: 'Client'
-        });
-      } else {
-        return alert('Invalid Username/Password');
-      }
+      return authenticated.done(function(val) {
+        if (val) {
+          return Dispatcher.emit('page_change', {
+            to: 'Client'
+          });
+        } else {
+          return alert('Invalid Username/Password');
+        }
+      });
     }).bind(this));
     this.container.add(Fa.translateBy(630, 337, 0)).add(loginText);
     return this.container.add(Fa.opaqueBy(0.3)).add(Fa.translateBy(630, 330, 0)).add(this.clickZone);
@@ -28354,7 +28586,7 @@ module.exports = settingPage = (function(_super) {
 
   gotFS1 = function(fileSystem) {
     var spath;
-    spath = fileSystem.root.toURL() + "/" + "setting1.txt";
+    spath = fileSystem.root.toURL() + "/" + "setting.txt";
     fileSystem.root.getFile("setting.txt", {
       create: false,
       exclusive: false
@@ -28799,15 +29031,17 @@ module.exports = ConsultantStore = (function() {
   function ConsultantStore() {}
 
   ConsultantStore.login = function(username, password) {
-    var promise;
+    var deferred, promise;
+    deferred = $.Deferred();
     promise = this.checkConsultant(username, password);
     promise.done(function(data) {
-      return data.isExists;
+      return deferred.resolve(data.isExist);
     });
-    return promise.fail(function(jqXHR, textStatus, errorThrown) {
+    promise.fail(function(jqXHR, textStatus, errorThrown) {
       alert("Error :" + jqXHR.status + " " + errorThrown);
       return false;
     });
+    return deferred;
   };
 
   ConsultantStore.checkConsultant = function(username, password) {
@@ -28838,6 +29072,82 @@ module.exports = ConsultantStore = (function() {
     str = str + "'screenWidth' :" + "'" + screenWidth + "',";
     str = str + "'screenHeight' :" + "'" + screenHeight + "',";
     str = str + "'imageServerURL' :" + "'" + imageServerURL + "'";
+    str = str + "}";
+    return str;
+  };
+
+  ConsultantStore.config = function(data) {
+    var str;
+    str = "{";
+    str = str + "'isProduction' :" + "'yes',";
+    str = str + "'firstPage' :" + "'Login',";
+    str = str + "'backend' :" + "'" + data.DataIp + "',";
+    str = str + "'imageServerURL' :" + "'" + data.PrimaryNasIp + "'";
+    str = str + "'ScreenWidth' :" + "'" + data.ScreenWidth + "',";
+    str = str + "'ScreenHeight' :" + "'" + data.ScreenHeight + "',";
+    str = str + "'OutletId' :" + "'" + data.OutletId + "',";
+    str = str + "'BranchId' :" + "'" + data.BranchId + "',";
+    str = str + "'Brand' :" + "'" + data.Brand + "',";
+    str = str + "'DeviceType' :" + "'" + data.DeviceType + "',";
+    str = str + "'AuthIp' :" + "'" + data.AuthIp + "',";
+    str = str + "'SecondaryHost' :" + "'" + data.SecondaryHost + "',";
+    str = str + "'SecondaryNasIp' :" + "'" + data.SecondaryNasIp + "'";
+    str = str + "}";
+    return str;
+  };
+
+  ConsultantStore.GetDeviceConfig = function(macId) {
+    var deferred, promise;
+    deferred = $.Deferred();
+    promise = this.GetConfig(macId);
+    promise.done(function(data) {
+      return deferred.resolve(data);
+    });
+    promise.fail(function(jqXHR, textStatus, errorThrown) {
+      alert("Error :" + jqXHR.status + " " + errorThrown);
+      return false;
+    });
+    return deferred;
+  };
+
+  ConsultantStore.GetConfig = function(macId) {
+    var deviceid, fetchPromise;
+    deviceid = {
+      "DeviceMacId": macId
+    };
+    fetchPromise = $.ajax({
+      url: 'http://testsvr.eurogrp.com:8006/api/Login',
+      type: 'POST',
+      dataType: "json",
+      contentType: 'application/json',
+      crossDomain: true,
+      withCredentials: false,
+      useDefaultXhrHeader: false,
+      data: JSON.stringify(deviceid)
+    });
+    return fetchPromise;
+  };
+
+  ConsultantStore.GetDeviceConfigTest = function(macId) {
+    return true;
+  };
+
+  ConsultantStore.configTest = function(data) {
+    var str;
+    str = "{";
+    str = str + "'isProduction' :" + "'yes',";
+    str = str + "'firstPage' :" + "'Login',";
+    str = str + "'backend' :" + "'http://egcbsc.com:1337',";
+    str = str + "'imageServerURL' :" + "'http://creativesatwork.me:8080/upload'";
+    str = str + "'ScreenWidth' :" + "'1024',";
+    str = str + "'ScreenHeight' :" + "'768',";
+    str = str + "'OutletId' :" + "'101',";
+    str = str + "'BranchId' :" + "'1001',";
+    str = str + "'Brand' :" + "'NEWYORK',";
+    str = str + "'DeviceType' :" + "'IOS',";
+    str = str + "'AuthIp' :" + "'http://testsvr.eurogrp.com:8006',";
+    str = str + "'SecondaryHost' :" + "'http://testsvr.eurogrp.com:8006',";
+    str = str + "'SecondaryNasIp' :" + "'http://creativesatwork.me:8080/upload'";
     str = str + "}";
     return str;
   };
@@ -31705,11 +32015,53 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = desiredOptions = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
 
   __extends(desiredOptions, _super);
 
   desiredOptions.DEFAULT_OPTIONS = {};
+
+  desiredOptions.op = [];
+
+  data = [
+    {
+      "sno": "0",
+      "desiredresult": "Test Brightening"
+    }, {
+      "sno": "1",
+      "desiredresult": "Skin Hydrates"
+    }, {
+      "sno": "2",
+      "desiredresult": "Eye Bags"
+    }, {
+      "sno": "3",
+      "desiredresult": "Dark Spots"
+    }, {
+      "sno": "4",
+      "desiredresult": "Pigmentation"
+    }, {
+      "sno": "5",
+      "desiredresult": "Acne"
+    }, {
+      "sno": "6",
+      "desiredresult": "Sensitive"
+    }, {
+      "sno": "7",
+      "desiredresult": "Aging"
+    }, {
+      "sno": "8",
+      "desiredresult": "Wrinkles"
+    }, {
+      "sno": "9",
+      "desiredresult": "Pimples"
+    }, {
+      "sno": "10",
+      "desiredresult": "Black Heads"
+    }, {
+      "sno": "11",
+      "desiredresult": "Coloration"
+    }
+  ];
 
   function desiredOptions(options) {
     desiredOptions.__super__.constructor.call(this, options);
@@ -31723,33 +32075,33 @@ module.exports = desiredOptions = (function(_super) {
   }
 
   desiredOptions.prototype.bindFromModel = function() {
-    this.opSkinBrightening.setActive(Session.currentClient.desire_skin_brightening);
-    this.opSkinHydrates.setActive(Session.currentClient.desire_skin_hydrates);
-    this.opEyeBags.setActive(Session.currentClient.desire_eye_bags);
-    this.opDarkSpots.setActive(Session.currentClient.desire_dark_spots);
-    this.opPigmentation.setActive(Session.currentClient.desire_pigmentation);
-    this.opAcne.setActive(Session.currentClient.desire_acne);
-    this.opSensitive.setActive(Session.currentClient.desire_sensitive);
-    this.opAging.setActive(Session.currentClient.desire_aging);
-    this.opWrinkles.setActive(Session.currentClient.desire_wrinkles);
-    this.opPimples.setActive(Session.currentClient.desire_pimples);
-    this.opBlackheads.setActive(Session.currentClient.desire_blackheads);
-    return this.opColoration.setActive(Session.currentClient.desire_coloration);
+    this.op[0].setActive(Session.currentClient.desire_skin_brightening);
+    this.op[1].setActive(Session.currentClient.desire_skin_hydrates);
+    this.op[2].setActive(Session.currentClient.desire_eye_bags);
+    this.op[3].setActive(Session.currentClient.desire_dark_spots);
+    this.op[4].setActive(Session.currentClient.desire_pigmentation);
+    this.op[5].setActive(Session.currentClient.desire_acne);
+    this.op[6].setActive(Session.currentClient.desire_sensitive);
+    this.op[7].setActive(Session.currentClient.desire_aging);
+    this.op[8].setActive(Session.currentClient.desire_wrinkles);
+    this.op[9].setActive(Session.currentClient.desire_pimples);
+    this.op[10].setActive(Session.currentClient.desire_blackheads);
+    return this.op[11].setActive(Session.currentClient.desire_coloration);
   };
 
   desiredOptions.prototype.bindToModel = function() {
-    Session.currentClient.desire_skin_brightening = this.opSkinBrightening.getIsActive();
-    Session.currentClient.desire_skin_hydrates = this.opSkinHydrates.getIsActive();
-    Session.currentClient.desire_eye_bags = this.opEyeBags.getIsActive();
-    Session.currentClient.desire_dark_spots = this.opDarkSpots.getIsActive();
-    Session.currentClient.desire_pigmentation = this.opPigmentation.getIsActive();
-    Session.currentClient.desire_acne = this.opAcne.getIsActive();
-    Session.currentClient.desire_sensitive = this.opSensitive.getIsActive();
-    Session.currentClient.desire_aging = this.opAging.getIsActive();
-    Session.currentClient.desire_wrinkles = this.opWrinkles.getIsActive();
-    Session.currentClient.desire_pimples = this.opPimples.getIsActive();
-    Session.currentClient.desire_blackheads = this.opBlackheads.getIsActive();
-    return Session.currentClient.desire_coloration = this.opColoration.getIsActive();
+    Session.currentClient.desire_skin_brightening = this.op[0].getIsActive();
+    Session.currentClient.desire_skin_hydrates = this.op[1].getIsActive();
+    Session.currentClient.desire_eye_bags = this.op[2].getIsActive();
+    Session.currentClient.desire_dark_spots = this.op[3].getIsActive();
+    Session.currentClient.desire_pigmentation = this.op[4].getIsActive();
+    Session.currentClient.desire_acne = this.op[5].getIsActive();
+    Session.currentClient.desire_sensitive = this.op[6].getIsActive();
+    Session.currentClient.desire_aging = this.op[7].getIsActive();
+    Session.currentClient.desire_wrinkles = this.op[8].getIsActive();
+    Session.currentClient.desire_pimples = this.op[9].getIsActive();
+    Session.currentClient.desire_blackheads = this.op[10].getIsActive();
+    return Session.currentClient.desire_coloration = this.op[11].getIsActive();
   };
 
   _createLayouts = function() {
@@ -31798,7 +32150,7 @@ module.exports = desiredOptions = (function(_super) {
   };
 
   createOptions = function() {
-    var cols, rows1, rows2, rows3;
+    var cols, i, json, rows1, rows2, rows3, x, _i, _ref;
     cols = new Fa.FlexibleLayout({
       direction: 0,
       ratios: [1, 1, 1]
@@ -31815,45 +32167,23 @@ module.exports = desiredOptions = (function(_super) {
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
-    this.opSkinBrightening = new Checker({
-      text: 'Skin Brightening'
-    });
-    this.opSkinHydrates = new Checker({
-      text: 'Skin Hydrates'
-    });
-    this.opEyeBags = new Checker({
-      text: 'Eye Bags'
-    });
-    this.opDarkSpots = new Checker({
-      text: 'Dark Spots'
-    });
-    this.opPigmentation = new Checker({
-      text: 'Pigmentation'
-    });
-    this.opAcne = new Checker({
-      text: 'Acne'
-    });
-    this.opSensitive = new Checker({
-      text: 'Sensitive'
-    });
-    this.opAging = new Checker({
-      text: 'Aging'
-    });
-    this.opWrinkles = new Checker({
-      text: 'Wrinkles'
-    });
-    this.opPimples = new Checker({
-      text: 'Pimples'
-    });
-    this.opBlackheads = new Checker({
-      text: 'Blackheads'
-    });
-    this.opColoration = new Checker({
-      text: 'Coloration'
-    });
-    rows1.sequenceFrom([this.opSkinBrightening, this.opSkinHydrates, this.opEyeBags, this.opDarkSpots]);
-    rows2.sequenceFrom([this.opPigmentation, this.opAcne, this.opSensitive, this.opAging]);
-    rows3.sequenceFrom([this.opWrinkles, this.opPimples, this.opBlackheads, this.opColoration]);
+    this.op = (function() {
+      var _i, _ref, _results;
+      _results = [];
+      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+        _results.push(0);
+      }
+      return _results;
+    })();
+    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
+      json = JSON.parse(JSON.stringify(data[i]));
+      this.op[i] = new Checker({
+        text: json.desiredresult
+      });
+    }
+    rows1.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
+    rows2.sequenceFrom([this.op[4], this.op[5], this.op[6], this.op[7]]);
+    rows3.sequenceFrom([this.op[8], this.op[9], this.op[10], this.op[11]]);
     cols.sequenceFrom([rows1, rows2, rows3]);
     return cols;
   };
@@ -32093,11 +32423,25 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qCauses = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
 
   __extends(qCauses, _super);
 
   qCauses.DEFAULT_OPTIONS = {};
+
+  qCauses.op = [];
+
+  data = [
+    {
+      "op": "Causes Option1"
+    }, {
+      "op": "Causes Option2"
+    }, {
+      "op": "Causes Option3"
+    }, {
+      "op": "Causes Option4"
+    }
+  ];
 
   function qCauses(options) {
     qCauses.__super__.constructor.call(this, options);
@@ -32111,17 +32455,17 @@ module.exports = qCauses = (function(_super) {
   }
 
   qCauses.prototype.bindFromModel = function() {
-    this.opt1.setActive(Session.currentClient.cl_causes_opt1);
-    this.opt2.setActive(Session.currentClient.cl_causes_opt2);
-    this.opt3.setActive(Session.currentClient.cl_causes_opt3);
-    return this.opt4.setActive(Session.currentClient.cl_causes_opt4);
+    this.op[0].setActive(Session.currentClient.cl_causes_opt1);
+    this.op[1].setActive(Session.currentClient.cl_causes_opt2);
+    this.op[2].setActive(Session.currentClient.cl_causes_opt3);
+    return this.op[3].setActive(Session.currentClient.cl_causes_opt4);
   };
 
   qCauses.prototype.bindToModel = function() {
-    Session.currentClient.cl_causes_opt1 = this.opt1.getIsActive();
-    Session.currentClient.cl_causes_opt2 = this.opt2.getIsActive();
-    Session.currentClient.cl_causes_opt3 = this.opt3.getIsActive();
-    return Session.currentClient.cl_causes_opt4 = this.opt4.getIsActive();
+    Session.currentClient.cl_causes_opt1 = this.op[0].getIsActive();
+    Session.currentClient.cl_causes_opt2 = this.op[1].getIsActive();
+    Session.currentClient.cl_causes_opt3 = this.op[2].getIsActive();
+    return Session.currentClient.cl_causes_opt4 = this.op[3].getIsActive();
   };
 
   _createLayouts = function() {
@@ -32170,11 +32514,26 @@ module.exports = qCauses = (function(_super) {
   };
 
   createOptions = function() {
-    var rows;
+    var i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    this.op = (function() {
+      var _i, _ref, _results;
+      _results = [];
+      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+        _results.push(0);
+      }
+      return _results;
+    })();
+    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
+      json = JSON.parse(JSON.stringify(data[i]));
+      this.op[i] = new Checker({
+        text: json.op,
+        size: [280, 40]
+      });
+    }
     this.opt1 = new Checker({
       text: 'Travel Outstation 出外玻',
       size: [280, 40]
@@ -32191,7 +32550,7 @@ module.exports = qCauses = (function(_super) {
       text: 'Stressful 生活压力',
       size: [280, 40]
     });
-    rows.sequenceFrom([this.opt1, this.opt2, this.opt3, this.opt4]);
+    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
 
@@ -32243,11 +32602,25 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qFacial = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
 
   __extends(qFacial, _super);
 
   qFacial.DEFAULT_OPTIONS = {};
+
+  qFacial.op = [];
+
+  data = [
+    {
+      "op": "Facial Option1"
+    }, {
+      "op": "Facial Option2"
+    }, {
+      "op": "Facial Option3"
+    }, {
+      "op": "Facial Option4"
+    }
+  ];
 
   function qFacial(options) {
     qFacial.__super__.constructor.call(this, options);
@@ -32261,17 +32634,17 @@ module.exports = qFacial = (function(_super) {
   }
 
   qFacial.prototype.bindFromModel = function() {
-    this.opt1.setActive(Session.currentClient.cl_facial_opt1);
-    this.opt2.setActive(Session.currentClient.cl_facial_opt2);
-    this.opt3.setActive(Session.currentClient.cl_facial_opt3);
-    return this.opt4.setActive(Session.currentClient.cl_facial_opt4);
+    this.op[0].setActive(Session.currentClient.cl_facial_opt1);
+    this.op[1].setActive(Session.currentClient.cl_facial_opt2);
+    this.op[2].setActive(Session.currentClient.cl_facial_opt3);
+    return this.op[3].setActive(Session.currentClient.cl_facial_opt4);
   };
 
   qFacial.prototype.bindToModel = function() {
-    Session.currentClient.cl_facial_opt1 = this.opt1.getIsActive();
-    Session.currentClient.cl_facial_opt2 = this.opt2.getIsActive();
-    Session.currentClient.cl_facial_opt3 = this.opt3.getIsActive();
-    return Session.currentClient.cl_facial_opt4 = this.opt4.getIsActive();
+    Session.currentClient.cl_facial_opt1 = this.op[0].getIsActive();
+    Session.currentClient.cl_facial_opt2 = this.op[1].getIsActive();
+    Session.currentClient.cl_facial_opt3 = this.op[2].getIsActive();
+    return Session.currentClient.cl_facial_opt4 = this.op[3].getIsActive();
   };
 
   _createLayouts = function() {
@@ -32320,11 +32693,26 @@ module.exports = qFacial = (function(_super) {
   };
 
   createOptions = function() {
-    var rows;
+    var i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    this.op = (function() {
+      var _i, _ref, _results;
+      _results = [];
+      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+        _results.push(0);
+      }
+      return _results;
+    })();
+    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
+      json = JSON.parse(JSON.stringify(data[i]));
+      this.op[i] = new Checker({
+        text: json.op,
+        size: [280, 40]
+      });
+    }
     this.opt1 = new Checker({
       text: 'Travel Outstation 出外玻',
       size: [280, 40]
@@ -32341,7 +32729,7 @@ module.exports = qFacial = (function(_super) {
       text: 'Stressful 生活压力',
       size: [280, 40]
     });
-    rows.sequenceFrom([this.opt1, this.opt2, this.opt3, this.opt4]);
+    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
 
@@ -32393,11 +32781,25 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qHomecare = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
 
   __extends(qHomecare, _super);
 
   qHomecare.DEFAULT_OPTIONS = {};
+
+  qHomecare.op = [];
+
+  data = [
+    {
+      "op": "Home Care Option1"
+    }, {
+      "op": "Home Care Option2"
+    }, {
+      "op": "Home Care  Option3"
+    }, {
+      "op": "Home Care  Option4"
+    }
+  ];
 
   function qHomecare(options) {
     qHomecare.__super__.constructor.call(this, options);
@@ -32411,17 +32813,17 @@ module.exports = qHomecare = (function(_super) {
   }
 
   qHomecare.prototype.bindFromModel = function() {
-    this.opt1.setActive(Session.currentClient.cl_homecare_opt1);
-    this.opt2.setActive(Session.currentClient.cl_homecare_opt2);
-    this.opt3.setActive(Session.currentClient.cl_homecare_opt3);
-    return this.opt4.setActive(Session.currentClient.cl_homecare_opt4);
+    this.op[0].setActive(Session.currentClient.cl_homecare_opt1);
+    this.op[1].setActive(Session.currentClient.cl_homecare_opt2);
+    this.op[2].setActive(Session.currentClient.cl_homecare_opt3);
+    return this.op[3].setActive(Session.currentClient.cl_homecare_opt4);
   };
 
   qHomecare.prototype.bindToModel = function() {
-    Session.currentClient.cl_homecare_opt1 = this.opt1.getIsActive();
-    Session.currentClient.cl_homecare_opt2 = this.opt2.getIsActive();
-    Session.currentClient.cl_homecare_opt3 = this.opt3.getIsActive();
-    return Session.currentClient.cl_homecare_opt4 = this.opt4.getIsActive();
+    Session.currentClient.cl_homecare_opt1 = this.op[0].getIsActive();
+    Session.currentClient.cl_homecare_opt2 = this.op[1].getIsActive();
+    Session.currentClient.cl_homecare_opt3 = this.op[2].getIsActive();
+    return Session.currentClient.cl_homecare_opt4 = this.op[3].getIsActive();
   };
 
   _createLayouts = function() {
@@ -32470,11 +32872,26 @@ module.exports = qHomecare = (function(_super) {
   };
 
   createOptions = function() {
-    var rows;
+    var i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    this.op = (function() {
+      var _i, _ref, _results;
+      _results = [];
+      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+        _results.push(0);
+      }
+      return _results;
+    })();
+    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
+      json = JSON.parse(JSON.stringify(data[i]));
+      this.op[i] = new Checker({
+        text: json.op,
+        size: [280, 40]
+      });
+    }
     this.opt1 = new Checker({
       text: 'Travel Outstation 出外玻',
       size: [280, 40]
@@ -32491,7 +32908,7 @@ module.exports = qHomecare = (function(_super) {
       text: 'Stressful 生活压力',
       size: [280, 40]
     });
-    rows.sequenceFrom([this.opt1, this.opt2, this.opt3, this.opt4]);
+    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
 
@@ -32543,11 +32960,25 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qLifeStyle = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
 
   __extends(qLifeStyle, _super);
 
   qLifeStyle.DEFAULT_OPTIONS = {};
+
+  qLifeStyle.op = [];
+
+  data = [
+    {
+      "op": "Life Style Option1"
+    }, {
+      "op": "Life Style Option2"
+    }, {
+      "op": "Life Style Option3"
+    }, {
+      "op": "Life Style Option4"
+    }
+  ];
 
   function qLifeStyle(options) {
     qLifeStyle.__super__.constructor.call(this, options);
@@ -32561,17 +32992,17 @@ module.exports = qLifeStyle = (function(_super) {
   }
 
   qLifeStyle.prototype.bindFromModel = function() {
-    this.opt1.setActive(Session.currentClient.cl_lifestyle_opt1);
-    this.opt2.setActive(Session.currentClient.cl_lifestyle_opt2);
-    this.opt3.setActive(Session.currentClient.cl_lifestyle_opt3);
-    return this.opt4.setActive(Session.currentClient.cl_lifestyle_opt4);
+    this.op[0].setActive(Session.currentClient.cl_lifestyle_opt1);
+    this.op[1].setActive(Session.currentClient.cl_lifestyle_opt2);
+    this.op[2].setActive(Session.currentClient.cl_lifestyle_opt3);
+    return this.op[3].setActive(Session.currentClient.cl_lifestyle_opt4);
   };
 
   qLifeStyle.prototype.bindToModel = function() {
-    Session.currentClient.cl_lifestyle_opt1 = this.opt1.getIsActive();
-    Session.currentClient.cl_lifestyle_opt2 = this.opt2.getIsActive();
-    Session.currentClient.cl_lifestyle_opt3 = this.opt3.getIsActive();
-    return Session.currentClient.cl_lifestyle_opt4 = this.opt4.getIsActive();
+    Session.currentClient.cl_lifestyle_opt1 = this.op[0].getIsActive();
+    Session.currentClient.cl_lifestyle_opt2 = this.op[1].getIsActive();
+    Session.currentClient.cl_lifestyle_opt3 = this.op[2].getIsActive();
+    return Session.currentClient.cl_lifestyle_opt4 = this.op[3].getIsActive();
   };
 
   _createLayouts = function() {
@@ -32620,11 +33051,26 @@ module.exports = qLifeStyle = (function(_super) {
   };
 
   createOptions = function() {
-    var rows;
+    var i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    this.op = (function() {
+      var _i, _ref, _results;
+      _results = [];
+      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+        _results.push(0);
+      }
+      return _results;
+    })();
+    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
+      json = JSON.parse(JSON.stringify(data[i]));
+      this.op[i] = new Checker({
+        text: json.op,
+        size: [280, 40]
+      });
+    }
     this.opt1 = new Checker({
       text: 'Travel Outstation 出外玻',
       size: [280, 40]
@@ -32641,7 +33087,7 @@ module.exports = qLifeStyle = (function(_super) {
       text: 'Stressful 生活压力',
       size: [280, 40]
     });
-    rows.sequenceFrom([this.opt1, this.opt2, this.opt3, this.opt4]);
+    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
 
@@ -32693,11 +33139,25 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qRemarks = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
 
   __extends(qRemarks, _super);
 
   qRemarks.DEFAULT_OPTIONS = {};
+
+  qRemarks.op = [];
+
+  data = [
+    {
+      "op": "Remarks Option1"
+    }, {
+      "op": "Remarks Option2"
+    }, {
+      "op": "Remarks Option3"
+    }, {
+      "op": "Remarks Option4"
+    }
+  ];
 
   function qRemarks(options) {
     qRemarks.__super__.constructor.call(this, options);
@@ -32711,17 +33171,17 @@ module.exports = qRemarks = (function(_super) {
   }
 
   qRemarks.prototype.bindFromModel = function() {
-    this.opt1.setActive(Session.currentClient.cl_remarks_opt1);
-    this.opt2.setActive(Session.currentClient.cl_remarks_opt2);
-    this.opt3.setActive(Session.currentClient.cl_remarks_opt3);
-    return this.opt4.setActive(Session.currentClient.cl_remarks_opt4);
+    this.op[0].setActive(Session.currentClient.cl_remarks_opt1);
+    this.op[1].setActive(Session.currentClient.cl_remarks_opt2);
+    this.op[2].setActive(Session.currentClient.cl_remarks_opt3);
+    return this.op[3].setActive(Session.currentClient.cl_remarks_opt4);
   };
 
   qRemarks.prototype.bindToModel = function() {
-    Session.currentClient.cl_remarks_opt1 = this.opt1.getIsActive();
-    Session.currentClient.cl_remarks_opt2 = this.opt2.getIsActive();
-    Session.currentClient.cl_remarks_opt3 = this.opt3.getIsActive();
-    return Session.currentClient.cl_remarks_opt4 = this.opt4.getIsActive();
+    Session.currentClient.cl_remarks_opt1 = this.op[0].getIsActive();
+    Session.currentClient.cl_remarks_opt2 = this.op[1].getIsActive();
+    Session.currentClient.cl_remarks_opt3 = this.op[2].getIsActive();
+    return Session.currentClient.cl_remarks_opt4 = this.op[3].getIsActive();
   };
 
   _createLayouts = function() {
@@ -32770,11 +33230,26 @@ module.exports = qRemarks = (function(_super) {
   };
 
   createOptions = function() {
-    var rows;
+    var i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    this.op = (function() {
+      var _i, _ref, _results;
+      _results = [];
+      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
+        _results.push(0);
+      }
+      return _results;
+    })();
+    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
+      json = JSON.parse(JSON.stringify(data[i]));
+      this.op[i] = new Checker({
+        text: json.op,
+        size: [280, 40]
+      });
+    }
     this.opt1 = new Checker({
       text: 'Travel Outstation 出外玻',
       size: [280, 40]
@@ -32791,7 +33266,7 @@ module.exports = qRemarks = (function(_super) {
       text: 'Stressful 生活压力',
       size: [280, 40]
     });
-    rows.sequenceFrom([this.opt1, this.opt2, this.opt3, this.opt4]);
+    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
     return rows;
   };
 
@@ -33459,7 +33934,7 @@ module.exports = sideMenuView = (function(_super) {
       matches: _createMenuItem.call(this, 'ion-clipboard', 'Matches', 'Matches'),
       checklist: _createMenuItem.call(this, 'ion-compose', 'Checklist', 'Checklist'),
       "switch": _createMenuItem.call(this, 'ion-arrow-swap', 'Switch', 'Client'),
-      exit: _createMenuItem.call(this, 'ion-log-out', 'Exit', 'Splash'),
+      exit: _createMenuItem.call(this, 'ion-log-out', 'Exit', 'Login'),
       experi: _createMenuItem.call(this, 'ion-flask', 'Experiment', 'Experi'),
       canvas: _createMenuItem.call(this, 'ion-beer', 'Developer', 'Canvas'),
       setting: _createMenuItem.call(this, 'ion-camera', 'Setting', 'Setting')
@@ -35917,7 +36392,7 @@ Components = {
   Checklist: {
     result_header: require('./c.checklist.result_header.coffee'),
     tristar: require('./c.checklist.tristar.coffee'),
-    desired_options: require('./c.checklist.desired_options.coffee'),
+    desired_options: require('./c.checklist.desired_optionsNew.coffee'),
     q_lifestyle: require('./c.checklist.q_lifestyle.coffee'),
     q_causes: require('./c.checklist.q_causes.coffee'),
     q_homecare: require('./c.checklist.q_homecare.coffee'),
@@ -35930,7 +36405,7 @@ Components = {
 module.exports = Components;
 
 
-},{"./c.checklist.desired_options.coffee":102,"./c.checklist.face_rating.coffee":103,"./c.checklist.q_causes.coffee":104,"./c.checklist.q_facial.coffee":105,"./c.checklist.q_homecare.coffee":106,"./c.checklist.q_lifestyle.coffee":107,"./c.checklist.q_remarks.coffee":108,"./c.checklist.result_header.coffee":109,"./c.checklist.tristar.coffee":110,"./c.common.session_numpad.coffee":111,"./c.common.side_menu.coffee":112,"./c.compare.frame_numpad.coffee":113,"./c.compare.match_browser.coffee":114,"./c.compare.match_browser_content.coffee":115,"./c.compare.sel_snap_micro.coffee":116,"./c.compare.selector_section.coffee":117,"./c.dashboard.action_buttons.coffee":118,"./c.dashboard.first_visit.coffee":119,"./c.dashboard.last_treatment.coffee":120,"./c.result.client_filter.coffee":121,"./c.result.client_header.coffee":122,"./c.result.matchview.coffee":123,"./c.result.session_box.coffee":124,"./c.result.session_row.coffee":125,"./c.snap.browser.coffee":126,"./c.snap.browser_content.coffee":127,"./c.snap.fullview.coffee":128,"./c.snap.quick_links.coffee":129,"./c.snap.sel_before_after.coffee":130,"./c.snap.selector_section.coffee":131}],133:[function(require,module,exports){
+},{"./c.checklist.desired_optionsNew.coffee":102,"./c.checklist.face_rating.coffee":103,"./c.checklist.q_causes.coffee":104,"./c.checklist.q_facial.coffee":105,"./c.checklist.q_homecare.coffee":106,"./c.checklist.q_lifestyle.coffee":107,"./c.checklist.q_remarks.coffee":108,"./c.checklist.result_header.coffee":109,"./c.checklist.tristar.coffee":110,"./c.common.session_numpad.coffee":111,"./c.common.side_menu.coffee":112,"./c.compare.frame_numpad.coffee":113,"./c.compare.match_browser.coffee":114,"./c.compare.match_browser_content.coffee":115,"./c.compare.sel_snap_micro.coffee":116,"./c.compare.selector_section.coffee":117,"./c.dashboard.action_buttons.coffee":118,"./c.dashboard.first_visit.coffee":119,"./c.dashboard.last_treatment.coffee":120,"./c.result.client_filter.coffee":121,"./c.result.client_header.coffee":122,"./c.result.matchview.coffee":123,"./c.result.session_box.coffee":124,"./c.result.session_row.coffee":125,"./c.snap.browser.coffee":126,"./c.snap.browser_content.coffee":127,"./c.snap.fullview.coffee":128,"./c.snap.quick_links.coffee":129,"./c.snap.sel_before_after.coffee":130,"./c.snap.selector_section.coffee":131}],133:[function(require,module,exports){
 var ElChecklistCancelBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
