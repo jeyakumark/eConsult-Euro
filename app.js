@@ -36272,7 +36272,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     var client;
     alert("client profile");
     client = Session.currentClient;
-    return this.picture.setContent(client.profilePic());
+    this.picture.setContent(client.profilePic());
   };
 
   createHamburger = function() {
