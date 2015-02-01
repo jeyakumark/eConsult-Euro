@@ -33975,6 +33975,7 @@ module.exports = sideMenuView = (function(_super) {
   };
 
   sideMenuView.prototype.showMenu = function() {
+    alert("show menu");
     Dispatcher.emit('show_backdrop', {
       "for": 'side_menu'
     });
@@ -33982,6 +33983,7 @@ module.exports = sideMenuView = (function(_super) {
   };
 
   sideMenuView.prototype.hideMenu = function() {
+    alert("hide menu");
     this.lightbox.hide(this.menu);
     return Dispatcher.emit('hide_backdrop');
   };
