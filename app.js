@@ -28799,46 +28799,25 @@ module.exports = ConsultantStore = (function() {
   function ConsultantStore() {}
 
   ConsultantStore.login = function(username, password) {
-    var promise;
+    var apiurl;
     alert("fetch data" + username + password);
-    promise = this.checkConsultant(username, password);
-    promise.done(function(data) {
-      var consult, isExists;
-      alert("inside promise done");
-      isExists = false;
-      if (data.length !== 0) {
-        alert("get data" + data);
-        consult = data[0];
-        isExists = consult.isExists;
-        if (isExists) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        alert("invalid data");
-      }
-    });
-    return promise.fail()(function() {
-      alert("fail");
-    });
-  };
-
-  ConsultantStore.prototype.checkConsultant = function(username, password) {
-    var apiurl, fetchPromise;
-    alert(username + "," + password);
     apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
-    fetchPromise = $.ajax({
-      url: "" + apiurl,
+    return $.ajax({
+      url: apiurl,
       type: 'POST',
       dataType: "json",
       async: false,
       data: JSON.stringify({
         userid: username,
         password: password
-      })
+      }),
+      success: function(data) {
+        return alert("success");
+      },
+      error: function(error) {
+        return alert("fail");
+      }
     });
-    return fetchPromise;
   };
 
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
