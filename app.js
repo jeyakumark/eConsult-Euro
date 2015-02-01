@@ -24605,7 +24605,7 @@ if (Conf.isProduction) {
 
 },{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":95,"./views/app_view.coffee":99,"./views/behaviors":102,"./views/components":134,"./views/elements":154,"./views/mixins":165,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":96,"panzoom":97,"store":67,"zoom":98}],69:[function(require,module,exports){
 module.exports = {
-  isProduction: false,
+  isProduction: true,
   firstPage: 'Login',
   backend: 'http://localhost:1337',
   screenWidth: '1024',
