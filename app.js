@@ -32021,53 +32021,11 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = desiredOptions = (function(_super) {
-  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
 
   __extends(desiredOptions, _super);
 
   desiredOptions.DEFAULT_OPTIONS = {};
-
-  desiredOptions.op = [];
-
-  data = [
-    {
-      "sno": "0",
-      "desiredresult": "Test Brightening"
-    }, {
-      "sno": "1",
-      "desiredresult": "Skin Hydrates"
-    }, {
-      "sno": "2",
-      "desiredresult": "Eye Bags"
-    }, {
-      "sno": "3",
-      "desiredresult": "Dark Spots"
-    }, {
-      "sno": "4",
-      "desiredresult": "Pigmentation"
-    }, {
-      "sno": "5",
-      "desiredresult": "Acne"
-    }, {
-      "sno": "6",
-      "desiredresult": "Sensitive"
-    }, {
-      "sno": "7",
-      "desiredresult": "Aging"
-    }, {
-      "sno": "8",
-      "desiredresult": "Wrinkles"
-    }, {
-      "sno": "9",
-      "desiredresult": "Pimples"
-    }, {
-      "sno": "10",
-      "desiredresult": "Black Heads"
-    }, {
-      "sno": "11",
-      "desiredresult": "Coloration"
-    }
-  ];
 
   function desiredOptions(options) {
     desiredOptions.__super__.constructor.call(this, options);
@@ -32081,33 +32039,33 @@ module.exports = desiredOptions = (function(_super) {
   }
 
   desiredOptions.prototype.bindFromModel = function() {
-    this.op[0].setActive(Session.currentClient.desire_skin_brightening);
-    this.op[1].setActive(Session.currentClient.desire_skin_hydrates);
-    this.op[2].setActive(Session.currentClient.desire_eye_bags);
-    this.op[3].setActive(Session.currentClient.desire_dark_spots);
-    this.op[4].setActive(Session.currentClient.desire_pigmentation);
-    this.op[5].setActive(Session.currentClient.desire_acne);
-    this.op[6].setActive(Session.currentClient.desire_sensitive);
-    this.op[7].setActive(Session.currentClient.desire_aging);
-    this.op[8].setActive(Session.currentClient.desire_wrinkles);
-    this.op[9].setActive(Session.currentClient.desire_pimples);
-    this.op[10].setActive(Session.currentClient.desire_blackheads);
-    return this.op[11].setActive(Session.currentClient.desire_coloration);
+    this.opSkinBrightening.setActive(Session.currentClient.desire_skin_brightening);
+    this.opSkinHydrates.setActive(Session.currentClient.desire_skin_hydrates);
+    this.opEyeBags.setActive(Session.currentClient.desire_eye_bags);
+    this.opDarkSpots.setActive(Session.currentClient.desire_dark_spots);
+    this.opPigmentation.setActive(Session.currentClient.desire_pigmentation);
+    this.opAcne.setActive(Session.currentClient.desire_acne);
+    this.opSensitive.setActive(Session.currentClient.desire_sensitive);
+    this.opAging.setActive(Session.currentClient.desire_aging);
+    this.opWrinkles.setActive(Session.currentClient.desire_wrinkles);
+    this.opPimples.setActive(Session.currentClient.desire_pimples);
+    this.opBlackheads.setActive(Session.currentClient.desire_blackheads);
+    return this.opColoration.setActive(Session.currentClient.desire_coloration);
   };
 
   desiredOptions.prototype.bindToModel = function() {
-    Session.currentClient.desire_skin_brightening = this.op[0].getIsActive();
-    Session.currentClient.desire_skin_hydrates = this.op[1].getIsActive();
-    Session.currentClient.desire_eye_bags = this.op[2].getIsActive();
-    Session.currentClient.desire_dark_spots = this.op[3].getIsActive();
-    Session.currentClient.desire_pigmentation = this.op[4].getIsActive();
-    Session.currentClient.desire_acne = this.op[5].getIsActive();
-    Session.currentClient.desire_sensitive = this.op[6].getIsActive();
-    Session.currentClient.desire_aging = this.op[7].getIsActive();
-    Session.currentClient.desire_wrinkles = this.op[8].getIsActive();
-    Session.currentClient.desire_pimples = this.op[9].getIsActive();
-    Session.currentClient.desire_blackheads = this.op[10].getIsActive();
-    return Session.currentClient.desire_coloration = this.op[11].getIsActive();
+    Session.currentClient.desire_skin_brightening = this.opSkinBrightening.getIsActive();
+    Session.currentClient.desire_skin_hydrates = this.opSkinHydrates.getIsActive();
+    Session.currentClient.desire_eye_bags = this.opEyeBags.getIsActive();
+    Session.currentClient.desire_dark_spots = this.opDarkSpots.getIsActive();
+    Session.currentClient.desire_pigmentation = this.opPigmentation.getIsActive();
+    Session.currentClient.desire_acne = this.opAcne.getIsActive();
+    Session.currentClient.desire_sensitive = this.opSensitive.getIsActive();
+    Session.currentClient.desire_aging = this.opAging.getIsActive();
+    Session.currentClient.desire_wrinkles = this.opWrinkles.getIsActive();
+    Session.currentClient.desire_pimples = this.opPimples.getIsActive();
+    Session.currentClient.desire_blackheads = this.opBlackheads.getIsActive();
+    return Session.currentClient.desire_coloration = this.opColoration.getIsActive();
   };
 
   _createLayouts = function() {
@@ -32156,7 +32114,7 @@ module.exports = desiredOptions = (function(_super) {
   };
 
   createOptions = function() {
-    var cols, i, json, rows1, rows2, rows3, x, _i, _ref;
+    var cols, rows1, rows2, rows3;
     cols = new Fa.FlexibleLayout({
       direction: 0,
       ratios: [1, 1, 1]
@@ -32173,23 +32131,45 @@ module.exports = desiredOptions = (function(_super) {
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
-    this.op = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-        _results.push(0);
-      }
-      return _results;
-    })();
-    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
-      json = JSON.parse(JSON.stringify(data[i]));
-      this.op[i] = new Checker({
-        text: json.desiredresult
-      });
-    }
-    rows1.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
-    rows2.sequenceFrom([this.op[4], this.op[5], this.op[6], this.op[7]]);
-    rows3.sequenceFrom([this.op[8], this.op[9], this.op[10], this.op[11]]);
+    this.opSkinBrightening = new Checker({
+      text: 'Skin Brightening'
+    });
+    this.opSkinHydrates = new Checker({
+      text: 'Skin Hydrates'
+    });
+    this.opEyeBags = new Checker({
+      text: 'Eye Bags'
+    });
+    this.opDarkSpots = new Checker({
+      text: 'Dark Spots'
+    });
+    this.opPigmentation = new Checker({
+      text: 'Pigmentation'
+    });
+    this.opAcne = new Checker({
+      text: 'Acne'
+    });
+    this.opSensitive = new Checker({
+      text: 'Sensitive'
+    });
+    this.opAging = new Checker({
+      text: 'Aging'
+    });
+    this.opWrinkles = new Checker({
+      text: 'Wrinkles'
+    });
+    this.opPimples = new Checker({
+      text: 'Pimples'
+    });
+    this.opBlackheads = new Checker({
+      text: 'Blackheads'
+    });
+    this.opColoration = new Checker({
+      text: 'Coloration'
+    });
+    rows1.sequenceFrom([this.opSkinBrightening, this.opSkinHydrates, this.opEyeBags, this.opDarkSpots]);
+    rows2.sequenceFrom([this.opPigmentation, this.opAcne, this.opSensitive, this.opAging]);
+    rows3.sequenceFrom([this.opWrinkles, this.opPimples, this.opBlackheads, this.opColoration]);
     cols.sequenceFrom([rows1, rows2, rows3]);
     return cols;
   };
@@ -36398,7 +36378,7 @@ Components = {
   Checklist: {
     result_header: require('./c.checklist.result_header.coffee'),
     tristar: require('./c.checklist.tristar.coffee'),
-    desired_options: require('./c.checklist.desired_optionsNew.coffee'),
+    desired_options: require('./c.checklist.desired_options.coffee'),
     q_lifestyle: require('./c.checklist.q_lifestyle.coffee'),
     q_causes: require('./c.checklist.q_causes.coffee'),
     q_homecare: require('./c.checklist.q_homecare.coffee'),
@@ -36411,7 +36391,7 @@ Components = {
 module.exports = Components;
 
 
-},{"./c.checklist.desired_optionsNew.coffee":102,"./c.checklist.face_rating.coffee":103,"./c.checklist.q_causes.coffee":104,"./c.checklist.q_facial.coffee":105,"./c.checklist.q_homecare.coffee":106,"./c.checklist.q_lifestyle.coffee":107,"./c.checklist.q_remarks.coffee":108,"./c.checklist.result_header.coffee":109,"./c.checklist.tristar.coffee":110,"./c.common.session_numpad.coffee":111,"./c.common.side_menu.coffee":112,"./c.compare.frame_numpad.coffee":113,"./c.compare.match_browser.coffee":114,"./c.compare.match_browser_content.coffee":115,"./c.compare.sel_snap_micro.coffee":116,"./c.compare.selector_section.coffee":117,"./c.dashboard.action_buttons.coffee":118,"./c.dashboard.first_visit.coffee":119,"./c.dashboard.last_treatment.coffee":120,"./c.result.client_filter.coffee":121,"./c.result.client_header.coffee":122,"./c.result.matchview.coffee":123,"./c.result.session_box.coffee":124,"./c.result.session_row.coffee":125,"./c.snap.browser.coffee":126,"./c.snap.browser_content.coffee":127,"./c.snap.fullview.coffee":128,"./c.snap.quick_links.coffee":129,"./c.snap.sel_before_after.coffee":130,"./c.snap.selector_section.coffee":131}],133:[function(require,module,exports){
+},{"./c.checklist.desired_options.coffee":102,"./c.checklist.face_rating.coffee":103,"./c.checklist.q_causes.coffee":104,"./c.checklist.q_facial.coffee":105,"./c.checklist.q_homecare.coffee":106,"./c.checklist.q_lifestyle.coffee":107,"./c.checklist.q_remarks.coffee":108,"./c.checklist.result_header.coffee":109,"./c.checklist.tristar.coffee":110,"./c.common.session_numpad.coffee":111,"./c.common.side_menu.coffee":112,"./c.compare.frame_numpad.coffee":113,"./c.compare.match_browser.coffee":114,"./c.compare.match_browser_content.coffee":115,"./c.compare.sel_snap_micro.coffee":116,"./c.compare.selector_section.coffee":117,"./c.dashboard.action_buttons.coffee":118,"./c.dashboard.first_visit.coffee":119,"./c.dashboard.last_treatment.coffee":120,"./c.result.client_filter.coffee":121,"./c.result.client_header.coffee":122,"./c.result.matchview.coffee":123,"./c.result.session_box.coffee":124,"./c.result.session_row.coffee":125,"./c.snap.browser.coffee":126,"./c.snap.browser_content.coffee":127,"./c.snap.fullview.coffee":128,"./c.snap.quick_links.coffee":129,"./c.snap.sel_before_after.coffee":130,"./c.snap.selector_section.coffee":131}],133:[function(require,module,exports){
 var ElChecklistCancelBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
