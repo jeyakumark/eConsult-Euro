@@ -24440,11 +24440,8 @@ initWithPhonegap = function() {
   } else {
     window.Camera = navigator.camera;
     macId = "TEST";
-    alert(data.Status);
     if (data.Status === "OK") {
-      alert("success");
       str = Stores.Consultant.configTest(data);
-      alert(str);
       return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFSConfig, failConfig);
     } else {
       return alert(data.Message);
@@ -24541,7 +24538,7 @@ gotFSConfig = function(fileSystem) {
   spath = fileSystem.root.toURL() + "/" + "setting.txt";
   alert(spath);
   fileSystem.root.getFile("setting.txt", {
-    create: false,
+    create: true,
     exclusive: false
   }, gotFileEntryConfig, failConfig);
 };
