@@ -28805,9 +28805,10 @@ module.exports = ConsultantStore = (function() {
       alert(data);
       return data.message;
     });
-    return promise.fail(function(err) {
+    promise.fail(function(err) {
       return false;
     });
+    return alert('done');
   };
 
   ConsultantStore.prototype.checkConsultant = function(username, password) {
