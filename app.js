@@ -26739,7 +26739,7 @@ module.exports = clientPage = (function(_super) {
                 });
               });
               return backpromise.fail(function(jqXHR, textStatus, errorThrown) {
-                return alert("Error Connecting Mongo Server status:" + textStatus + " " + errorThrown);
+                return alert("Error Connecting Mongo Server status:" + jqXHR.status + " " + errorThrown);
               });
             } else {
               return alert("client not registered in AES");
@@ -28617,7 +28617,6 @@ module.exports = ConsultantStore = (function() {
       return deferred.resolve(data);
     });
     promise.fail(function(jqXHR, textStatus, errorThrown) {
-      alert("Error connect backend :" + jqXHR.status + " " + errorThrown);
       deferred.reject(jqXHR, textStatus, errorThrown);
       return deferred;
     });
