@@ -28799,8 +28799,19 @@ module.exports = ConsultantStore = (function() {
   function ConsultantStore() {}
 
   ConsultantStore.login = function(username, password) {
-    var consultant, isExists;
-    isExists = false;
+    var promise;
+    promise = checkConsultant(username, password);
+    promise.success(function(data) {
+      alert(data);
+      return data.message;
+    });
+    return promise.fail(function(err) {
+      return false;
+    });
+  };
+
+  ConsultantStore.prototype.checkConsultant = function(username, password) {
+    var consultant;
     consultant = {
       "UserId": username,
       "Password": password
@@ -28813,19 +28824,7 @@ module.exports = ConsultantStore = (function() {
       crossDomain: true,
       withCredentials: false,
       useDefaultXhrHeader: false,
-      data: JSON.stringify(consultant),
-      success: function(data) {
-        alert(data.message);
-        if (data.message === true) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        alert("Error :" + jqXHR.status + " " + errorThrown);
-        return false;
-      }
+      data: JSON.stringify(consultant)
     });
   };
 
