@@ -24453,6 +24453,7 @@ init = function() {
     Checklist = Stores.Consultant.getCheckList(macId);
     return Checklist.done(function(data) {
       var appView;
+      alert("get data for all");
       window.Causes = Conf.Causes = data.causes;
       window.Facial = Conf.Facial = data.facial;
       window.Homecare = Conf.Homecare = data.homecare;
