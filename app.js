@@ -25546,7 +25546,6 @@ module.exports = Client = (function() {
             this.age = 0;
             if (data.length !== 0) {
               this.age = data.Age;
-              alert(this.age);
             }
             this.photos = [];
             this.sessions = [];
@@ -25559,7 +25558,6 @@ module.exports = Client = (function() {
             this.first_joined = null;
             if (data.length !== 0) {
               this.first_joined = data.Registered_Date;
-              alert(this.first_joined);
             }
             this.profile_pic = {
               temp: 'images/profile.png',
@@ -25606,7 +25604,8 @@ module.exports = Client = (function() {
             this.cl_remarks_opt1 = false;
             this.cl_remarks_opt2 = false;
             this.cl_remarks_opt3 = false;
-            return this.cl_remarks_opt4 = false;
+            this.cl_remarks_opt4 = false;
+            return alert("new client saved");
           });
         }
         _this.session = _this.sessions.length;
