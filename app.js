@@ -36252,7 +36252,6 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     var client;
     client = Session.currentClient;
     this.picture.setContent(client.profilePic());
-    alert("setclient");
     this.clientName.surface.setContent(client.name);
     this.clientAge.surface.setContent("Age:&nbsp;<strong>" + client.age + " years old</strong>");
     return this.clientDateJoined.surface.setContent("Date Joined:&nbsp;<strong>" + (client.firstVisit()) + "</strong>");
@@ -36289,33 +36288,35 @@ module.exports = ElDashboardProfilePic = (function(_super) {
         cursor: 'pointer'
       }
     });
-    upload = function(imageURI, timestamp) {
-      var ft, options, serverURL;
-      serverURL = Conf.imageServerURL + '/upload';
-      ft = new FileTransfer();
-      options = new FileUploadOptions();
-      options.fileKey = "file";
-      options.fileName = "filename.jpg";
-      options.mimeType = "image/jpeg";
-      options.chunkedMode = false;
-      options.params = {
-        timestamp: timestamp,
-        client_id: Session.currentClient.Id
+    upload = (function(_this) {
+      return function(imageURI, timestamp) {
+        var ft, options, serverURL;
+        serverURL = Conf.imageServerURL + '/upload';
+        ft = new FileTransfer();
+        options = new FileUploadOptions();
+        options.fileKey = "file";
+        options.fileName = "filename.jpg";
+        options.mimeType = "image/jpeg";
+        options.chunkedMode = false;
+        options.params = {
+          timestamp: timestamp,
+          client_id: Session.currentClient.Id
+        };
+        ft.upload(imageURI, serverURL, (function(response) {
+          var client, large_picture, original_picture, sized_picture, square_picture;
+          original_picture = JSON.parse(response.response)['original'];
+          sized_picture = JSON.parse(response.response)['sized'];
+          square_picture = JSON.parse(response.response)['square'];
+          large_picture = JSON.parse(response.response)['large'];
+          Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
+          client = Session.currentClient;
+          return this.picture.setContent(client.profilePic());
+        }), (function(error) {
+          alert("Upload failed");
+          return console.log(error);
+        }), options);
       };
-      ft.upload(imageURI, serverURL, (function(response) {
-        var large_picture, original_picture, sized_picture, square_picture;
-        original_picture = JSON.parse(response.response)['original'];
-        sized_picture = JSON.parse(response.response)['sized'];
-        square_picture = JSON.parse(response.response)['square'];
-        large_picture = JSON.parse(response.response)['large'];
-        Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
-        Dispatcher.pipe(this._eventInput);
-        return this._eventInput.on('session_changed:current_session', setClient.bind(this));
-      }), (function(error) {
-        alert("Upload failed");
-        return console.log(error);
-      }), options);
-    };
+    })(this);
     this.addButton.on('click', (function(_this) {
       return function() {
         var onFail, onSuccess;
