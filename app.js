@@ -24537,10 +24537,10 @@ gotFSConfig = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/Data/" + "setting.txt";
   alert(spath);
-  fileSystem.root.getFile("setting.txt", {
+  fileSystem.root.getFile(spath({
     create: true,
     exclusive: false
-  }, gotFileEntryConfig, failConfig);
+  }, gotFileEntryConfig, failConfig));
 };
 
 gotFileEntryConfig = function(fileEntry) {
@@ -24551,6 +24551,7 @@ gotFileEntryConfig = function(fileEntry) {
 gotFileConfig = function(writer) {
   writer.onwriteend = function(evt) {
     writer.onwriteend = function(evt) {
+      alert(str);
       return alert("Saved successfully");
     };
     writer.write(str);
