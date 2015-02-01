@@ -24409,9 +24409,9 @@ init = function() {
   deviceAuthenticated.done(function(data) {
     if (data.message.Status === "OK") {
       str = Stores.Consultant.config(data);
-      window.imageServerURL = Conf.imageServerURL = 'http://localhost:8080';
+      window.imageServerURL = Conf.imageServerURL = data.config.PrimaryNasIp;
       window.firstPage = Conf.firstPage = "Login";
-      window.backend = Conf.backend = 'http://localhost:1337';
+      window.backend = Conf.backend = data.config.DataIp;
       window.OutletId = Conf.outletId = data.config.OutletId;
       window.branchId = Conf.branchId = data.config.BranchId;
       window.brand = Conf.brand = data.config.Brand;
