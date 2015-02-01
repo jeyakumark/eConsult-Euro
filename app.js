@@ -28811,6 +28811,7 @@ module.exports = ConsultantStore = (function() {
         password: password
       }),
       success: function(data) {
+        alert(data.message);
         if (data.message === true) {
           return true;
         } else {
