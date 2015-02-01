@@ -33518,7 +33518,11 @@ module.exports = CDashboardActionButtons = (function(_super) {
       ratios: [1, 1]
     });
     this.cameraBtn = new AsLink(new CameraBtn(), 'Snap');
-    this.microBtn = new AsLink(new MicroBtn(), void 0);
+    if (Conf.isProduction) {
+      this.microBtn = new AsLink(new MicroBtn(), void 0);
+    } else {
+      this.microBtn = new AsLink(new MicroBtn(), 'Micro');
+    }
     this.compareBtn = new AsLink(new CompareBtn(), 'Compare');
     this.resultBtn = new AsLink(new ResultBtn(), 'Result');
     this.sectionARows.sequenceFrom([this.cameraBtn.item, this.microBtn.item]);
@@ -36168,7 +36172,9 @@ module.exports = ElDashboardMicroBtn = (function(_super) {
     });
     this.button.on('click', (function(_this) {
       return function() {
-        return alert("It is for Windows Version");
+        if (Conf.isProduction) {
+          return alert("It is for Windows Version");
+        }
       };
     })(this));
     flex = new Fa.FlexibleLayout({
