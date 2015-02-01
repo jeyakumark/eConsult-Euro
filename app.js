@@ -24451,7 +24451,7 @@ initWithPhonegap = function() {
 
 gotFS = function(fileSystem) {
   var spath;
-  spath = fileSystem.root.toURL() + "/Data/" + "setting.txt";
+  spath = fileSystem.root.toURL() + "/setting.txt";
   window.resolveLocalFileSystemURI(spath, gotFileEntry, fail);
 };
 
@@ -24471,6 +24471,7 @@ readAsText = function(file) {
     str = evt.target.result;
     jsonString = str.replace(/'/g, '"');
     json = JSON.parse(jsonString);
+    alert(jsonString);
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
     window.firstPage = Conf.firstPage = json.firstPage;
     window.backend = Conf.backend = json.backend;
@@ -24537,10 +24538,10 @@ gotFSConfig = function(fileSystem) {
   var spath;
   spath = fileSystem.root.toURL() + "/Data/" + "setting.txt";
   alert(spath);
-  fileSystem.root.getFile(spath({
+  fileSystem.root.getFile("setting.txt", {
     create: true,
     exclusive: false
-  }, gotFileEntryConfig, failConfig));
+  }, gotFileEntryConfig, failConfig);
 };
 
 gotFileEntryConfig = function(fileEntry) {
