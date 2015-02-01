@@ -33518,7 +33518,7 @@ module.exports = CDashboardActionButtons = (function(_super) {
       ratios: [1, 1]
     });
     this.cameraBtn = new AsLink(new CameraBtn(), 'Snap');
-    this.microBtn = new AsLink(new MicroBtn(), 'Micro');
+    this.microBtn = new AsLink(new MicroBtn(), 'undefined');
     this.compareBtn = new AsLink(new CompareBtn(), 'Compare');
     this.resultBtn = new AsLink(new ResultBtn(), 'Result');
     this.sectionARows.sequenceFrom([this.cameraBtn.item, this.microBtn.item]);
@@ -36189,7 +36189,12 @@ module.exports = ElDashboardMicroBtn = (function(_super) {
     });
     flex.sequenceFrom([Fa.EmptyView(), this.icon, Fa.EmptyView(), this.text]);
     this.button.addToCenter(flex);
-    return this.container.add(this.button);
+    this.container.add(this.button);
+    return this.addButton.on('click', (function(_this) {
+      return function() {
+        return alert("Only for Desktop");
+      };
+    })(this));
   };
 
   return ElDashboardMicroBtn;
@@ -36308,10 +36313,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
         square_picture = JSON.parse(response.response)['square'];
         large_picture = JSON.parse(response.response)['large'];
         Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
-        Dispatcher.emit('session_changed:current_session');
-        return Dispatcher.emit('page_change', {
-          to: 'Dashboard'
-        });
+        return Dispatcher.emit('session_changed:current_session');
       }), (function(error) {
         alert("Upload failed");
         return console.log(error);
