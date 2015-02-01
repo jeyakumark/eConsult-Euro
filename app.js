@@ -24411,11 +24411,9 @@ init = function() {
     size: [Conf.screenWidth, Conf.screenHeight]
   });
   appCtx.add(appView);
-  alert("init");
 };
 
 initWithPhonegap = function() {
-  alert("call deviceready");
   Store.clear();
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
@@ -24441,14 +24439,12 @@ gotFile = function(file) {
 
 readAsText = function(file) {
   var reader;
-  alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
     var json, jsonString, str;
     str = evt.target.result;
     jsonString = str.replace(/'/g, '"');
     json = JSON.parse(jsonString);
-    alert(jsonString);
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
     window.firstPage = Conf.firstPage = json.firstPage;
     window.backend = Conf.backend = json.backend;
@@ -24490,29 +24486,21 @@ resOnSuccess = function(entry) {
 
 gotCopyFileEntry = function(fileEntry) {
   var parent, parentEntry, parentName;
-  alert("entry");
   parent = dest.substring(0, dest.lastIndexOf('/') - 1);
   parentName = parent.substring(parent.lastIndexOf('/') + 1);
-  alert(parent);
-  alert(parentName);
   parentEntry = new DirectoryEntry(parentName, parent);
-  alert("ok");
   fileEntry.copyTo(parent, "setting.txt", successCopy, failCopy);
-  alert("copied");
 };
 
 successCopy = function() {
-  alert("Copy successful.Please restart the application");
   window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
 };
 
 failCopy = function(error) {
   alert("error copy file from www -> document directory");
-  alert(error.code);
 };
 
 if (Conf.isProduction) {
-  alert("yes");
   document.addEventListener('deviceready', initWithPhonegap.bind(this), false);
 } else {
   init();
@@ -28813,7 +28801,7 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.login = function(username, password) {
     var promise;
     alert("fetch data" + username + password);
-    promise = this.fetchFromBackend(username, password);
+    promise = this.checkConsultant(username, password);
     promise.done(function(data) {
       var consult, isExists;
       alert("inside promise dont");
@@ -28836,7 +28824,7 @@ module.exports = ConsultantStore = (function() {
     });
   };
 
-  ConsultantStore.prototype.fetchFromBackend = function(username, password) {
+  ConsultantStore.prototype.checkConsultant = function(username, password) {
     var apiurl, fetchPromise;
     alert(username + "," + password);
     apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
