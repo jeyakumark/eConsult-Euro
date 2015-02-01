@@ -28802,13 +28802,13 @@ module.exports = ConsultantStore = (function() {
     var promise;
     promise = this.checkConsultant(username, password);
     promise.done(function(data) {
+      alert(data.message);
       return data.message;
     });
-    promise.fail(function(jqXHR, textStatus, errorThrown) {
+    return promise.fail(function(jqXHR, textStatus, errorThrown) {
       alert("Error :" + jqXHR.status + " " + errorThrown);
       return false;
     });
-    return alert('done');
   };
 
   ConsultantStore.checkConsultant = function(username, password) {
