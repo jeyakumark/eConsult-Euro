@@ -36302,13 +36302,14 @@ module.exports = ElDashboardProfilePic = (function(_super) {
         client_id: Session.currentClient.Id
       };
       ft.upload(imageURI, serverURL, (function(response) {
-        var large_picture, original_picture, sized_picture, square_picture;
+        var client, large_picture, original_picture, sized_picture, square_picture;
         original_picture = JSON.parse(response.response)['original'];
         sized_picture = JSON.parse(response.response)['sized'];
         square_picture = JSON.parse(response.response)['square'];
         large_picture = JSON.parse(response.response)['large'];
-        alert(large_picture);
-        return Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
+        Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
+        client = Session.currentClient;
+        return this.picture.setContent(client.profilePic());
       }), (function(error) {
         alert("Upload failed");
         return console.log(error);
@@ -36317,7 +36318,6 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     this.addButton.on('click', (function(_this) {
       return function() {
         var onFail, onSuccess;
-        alert("on click button");
         onSuccess = function(imageURI) {
           var photo;
           photo = Session.currentClient.setProfilePicTemp(imageURI);
