@@ -24442,7 +24442,7 @@ initWithPhonegap = function() {
     macId = "TEST";
     alert(data.Status);
     if (data.status === "OK") {
-      str = data;
+      str = Stores.Consultant.configTest(data);
       alert(str);
       return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFSConfig, failConfig);
     } else {
