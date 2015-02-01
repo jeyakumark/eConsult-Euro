@@ -26726,6 +26726,7 @@ module.exports = clientPage = (function(_super) {
               window.clientdetails = Conf.clientdetails = clientdata;
               this.age = clientdata.client.Age;
               this.registerDate = clientdata.client.Registered_Date;
+              alert(Conf.backend);
               backpromise = Stores.Consultant.fetchFromBackend(clientId);
               backpromise.done(function(data) {
                 var client;
@@ -26738,7 +26739,7 @@ module.exports = clientPage = (function(_super) {
                 });
               });
               return backpromise.fail(function(jqXHR, textStatus, errorThrown) {
-                return alert("Error Connecting Mongo Server " + errorThrown);
+                return alert("Error Connecting Mongo Server status:" + textStatus + " " + errorThrown);
               });
             } else {
               return alert("client not registered in AES");
