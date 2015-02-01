@@ -24443,15 +24443,6 @@ init = function() {
       window.authIp = Conf.authIp = data.AuthIp;
       window.secondaryHost = Conf.secondaryHost = data.SecondaryHost;
       window.secondaryNasIp = Conf.secondaryNasIp = data.SecondaryNasIp;
-      alert(data.PrimaryNasIp);
-      alert(data.DataIp);
-      alert(data.OutletId);
-      alert(data.BranchId);
-      alert(data.Brand);
-      alert(data.DeviceType);
-      alert(data.AuthIp);
-      alert(data.SecondaryHost);
-      alert(data.SecondaryNasIp);
     } else {
       alert("error getting config");
     }
@@ -24459,18 +24450,22 @@ init = function() {
     return Checklist.done(function(data) {
       var appView;
       alert("success get checklist");
-      window.Causes = Conf.Causes = data.causes;
-      window.Facial = Conf.Facial = data.facial;
-      window.Homecare = Conf.Homecare = data.homecare;
-      window.Remarks = Conf.Remarks = data.remarks;
-      window.lifestyle = Conf.lifestyle = data.lifestyle;
-      alert(data.causes[0]);
-      alert("done get checklist");
-      Store.clear();
-      appView = new AppView({
-        size: [Conf.screenWidth, Conf.screenHeight]
-      });
-      appCtx.add(appView);
+      if (data.length !== 0) {
+        window.Causes = Conf.Causes = data.causes;
+        window.Facial = Conf.Facial = data.facial;
+        window.Homecare = Conf.Homecare = data.homecare;
+        window.Remarks = Conf.Remarks = data.remarks;
+        window.lifestyle = Conf.lifestyle = data.lifestyle;
+        alert(data.causes[0]);
+        alert("done get checklist");
+        Store.clear();
+        appView = new AppView({
+          size: [Conf.screenWidth, Conf.screenHeight]
+        });
+        appCtx.add(appView);
+      } else {
+        alert("Checklist not amended");
+      }
     });
   });
 };
