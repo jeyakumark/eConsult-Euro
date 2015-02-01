@@ -25543,10 +25543,12 @@ module.exports = Client = (function() {
           alert("First Visit?");
           newclient = _this.GetClientDetails(clientId);
           newclient.done(function(data) {
-            alert(data.Customer_Name);
             this.Id = clientId;
-            this.name = data.Customer_Name;
-            this.age = data.Age;
+            this.name = clientId;
+            this.age = 0;
+            if (data.length !== 0) {
+              this.age = data.Age;
+            }
             this.photos = [];
             this.sessions = [];
             this.matches = {};
@@ -25555,7 +25557,10 @@ module.exports = Client = (function() {
               treatment_improvement: null,
               service: null
             });
-            this.first_joined = data.Registered_Date;
+            this.first_joined = null;
+            if (data.length !== 0) {
+              this.first_joined = data.Registered_Date;
+            }
             this.profile_pic = {
               temp: 'images/profile.png',
               original: null,
@@ -26099,7 +26104,7 @@ module.exports = Client = (function() {
       return deferred.resolve(data);
     });
     promise.fail(function(jqXHR, textStatus, errorThrown) {
-      return alert("Error :" + jqXHR.status + " " + errorThrown);
+      return alert("Error get customer details:" + jqXHR.status + " " + errorThrown);
     });
     return deferred;
   };
