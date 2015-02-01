@@ -28802,8 +28802,7 @@ module.exports = ConsultantStore = (function() {
     var promise;
     promise = this.checkConsultant(username, password);
     promise.done(function(data) {
-      alert(data.message);
-      return data.message;
+      return data.isExists;
     });
     return promise.fail(function(jqXHR, textStatus, errorThrown) {
       alert("Error :" + jqXHR.status + " " + errorThrown);
