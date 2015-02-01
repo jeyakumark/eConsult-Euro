@@ -29216,11 +29216,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class=\"panzoomable\">\r\n  <div class=\"rotate-90-degrees\">\r\n    <img onload=\"triggerPanzoom()\" onclick=\"Dispatcher.emit('hide_frontdrop', {for: 'show_full_picture'})\" style=\"height: 987px; width: 768px;\" src=\"";
+  buffer += "<!--\r\n<div class=\"panzoomable\">\r\n  <div class=\"rotate-90-degrees\">\r\n    <img onload=\"triggerPanzoom()\" onclick=\"Dispatcher.emit('hide_frontdrop', {for: 'show_full_picture'})\" style=\"height: 987px; width: 768px;\" src=\"";
   if (helper = helpers.picture) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.picture); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" class=\"\" />\r\n  </div>\r\n</div>";
+    + "\" class=\"\" />\r\n  </div>\r\n</div>\r\n-->\r\n<iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\" width=\"1024\" height=\"768\"></iframe>";
   return buffer;
   });
 
