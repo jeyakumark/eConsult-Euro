@@ -28811,10 +28811,15 @@ module.exports = ConsultantStore = (function() {
         password: password
       }),
       success: function(data) {
-        return alert("success");
+        if (data.message === true) {
+          return true;
+        } else {
+          return false;
+        }
       },
       error: function(jqXHR, textStatus, errorThrown) {
-        return alert("Error :" + jqXHR.status + " " + errorThrown);
+        alert("Error :" + jqXHR.status + " " + errorThrown);
+        return false;
       }
     });
   };
