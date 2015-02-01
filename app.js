@@ -24441,7 +24441,7 @@ initWithPhonegap = function() {
     window.Camera = navigator.camera;
     macId = "TEST";
     alert(data.Status);
-    if (data.status === "OK") {
+    if (data.Status === "OK") {
       alert("success");
       str = Stores.Consultant.configTest(data);
       alert(str);
