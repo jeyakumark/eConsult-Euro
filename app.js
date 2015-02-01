@@ -24535,7 +24535,7 @@ failCopy = function(error) {
 
 gotFSConfig = function(fileSystem) {
   var spath;
-  spath = fileSystem.root.toURL() + "/" + "setting.txt";
+  spath = fileSystem.root.toURL() + "/Data/" + "setting.txt";
   alert(spath);
   fileSystem.root.getFile("setting.txt", {
     create: true,
@@ -29142,7 +29142,7 @@ module.exports = ConsultantStore = (function() {
     str = str + "'isProduction' :" + "'yes',";
     str = str + "'firstPage' :" + "'Login',";
     str = str + "'backend' :" + "'http://egcbsc.com:1337',";
-    str = str + "'imageServerURL' :" + "'http://creativesatwork.me:8080/upload'";
+    str = str + "'imageServerURL' :" + "'http://creativesatwork.me:8080/upload',";
     str = str + "'ScreenWidth' :" + "'1024',";
     str = str + "'ScreenHeight' :" + "'768',";
     str = str + "'OutletId' :" + "'101',";
