@@ -29138,7 +29138,6 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.GetConfig = function(macId) {
     var deviceid, fetchPromise;
-    alert("Getting Configuration from:" + "http://testsvr.eurogrp.com:8016/api/Config/PostDeviceConfigDetails");
     deviceid = {
       "DeviceMacId": macId
     };
@@ -29193,7 +29192,6 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.checkListFromDb = function(macId) {
     var fetchPromise;
-    alert("Get checklist from:" + ("" + Conf.backend + "/checklists/getOptions"));
     fetchPromise = $.ajax({
       url: "" + Conf.backend + "/checklists/getOptions",
       dataType: "json",
@@ -29220,7 +29218,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.picture) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.picture); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" class=\"\" />\r\n  </div>\r\n</div>\r\n-->\r\n<iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\"></iframe>";
+    + "\" class=\"\" />\r\n  </div>\r\n</div>\r\n-->\r\n\r\n\r\n<iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\" width=\"1024\" height=\"768\"></iframe>";
   return buffer;
   });
 
