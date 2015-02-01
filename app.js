@@ -36272,7 +36272,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     var client;
     alert("client profile");
     client = Session.currentClient;
-    ElDashboardProfilePic.picture.setContent(client.profilePic());
+    this.pictureContainer.picture.setContent(client.profilePic());
     return alert("after set profile pic");
   };
 
