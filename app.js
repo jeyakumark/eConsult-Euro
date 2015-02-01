@@ -28804,7 +28804,7 @@ module.exports = ConsultantStore = (function() {
     promise = this.checkConsultant(username, password);
     promise.done(function(data) {
       var consult, isExists;
-      alert("inside promise dont");
+      alert("inside promise done");
       isExists = false;
       if (data.length !== 0) {
         alert("get data" + data);
@@ -28816,11 +28816,11 @@ module.exports = ConsultantStore = (function() {
           return false;
         }
       } else {
-        return alert("invalid data");
+        alert("invalid data");
       }
     });
     return promise.fail()(function() {
-      return alert("fail");
+      alert("fail");
     });
   };
 
@@ -28830,13 +28830,13 @@ module.exports = ConsultantStore = (function() {
     apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
     fetchPromise = $.ajax({
       url: "" + apiurl,
+      type: 'POST',
       dataType: "json",
       async: false,
       data: JSON.stringify({
         userid: username,
         password: password
-      }),
-      type: 'POST'
+      })
     });
     return fetchPromise;
   };
