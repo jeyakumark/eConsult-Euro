@@ -28842,10 +28842,10 @@ module.exports = ConsultantStore = (function() {
       url: "" + apiurl,
       dataType: "json",
       async: false,
-      data: {
+      data: JSON.stringify({
         userid: username,
         password: password
-      },
+      }),
       type: 'POST'
     });
     return fetchPromise;
