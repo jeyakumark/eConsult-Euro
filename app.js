@@ -28822,11 +28822,13 @@ module.exports = ConsultantStore = (function() {
           alert("get data" + data);
           consult = data[0];
           isExists = consult.isExists;
-        }
-        if (isExists) {
-          return true;
+          if (isExists) {
+            return true;
+          } else {
+            return false;
+          }
         } else {
-          return false;
+          return alert("invalid data");
         }
       };
     })(this));
@@ -28835,12 +28837,13 @@ module.exports = ConsultantStore = (function() {
   ConsultantStore.prototype.fetchFromBackend = function(username, password) {
     var apiurl, fetchPromise;
     apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
+    alert(username + "," + password);
     fetchPromise = $.ajax({
       url: "" + apiurl,
       dataType: "json",
       async: false,
       data: {
-        username: username,
+        userid: username,
         password: password
       },
       type: 'POST'
