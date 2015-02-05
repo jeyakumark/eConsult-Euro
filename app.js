@@ -28811,11 +28811,41 @@ module.exports = ConsultantStore = (function() {
   function ConsultantStore() {}
 
   ConsultantStore.login = function(username, password) {
-    if (username === 'Admin' && password === 'pass1234') {
-      return true;
-    } else {
-      return false;
-    }
+    var promise;
+    alert("fetch data");
+    promise = this.fetchFromBackend(username, password);
+    return promise.done((function(_this) {
+      return function(data) {
+        var consult, isExists;
+        isExists = false;
+        if (data.length !== 0) {
+          alert("get data" + data);
+          consult = data[0];
+          isExists = consult.isExists;
+        }
+        if (isExists) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+    })(this));
+  };
+
+  ConsultantStore.prototype.fetchFromBackend = function(username, password) {
+    var apiurl, fetchPromise;
+    apiurl = 'http://testsvr.eurogrp.com:8006/api/Login';
+    fetchPromise = $.ajax({
+      url: "" + apiurl,
+      dataType: "json",
+      async: false,
+      data: {
+        username: username,
+        password: password
+      },
+      type: 'POST'
+    });
+    return fetchPromise;
   };
 
   ConsultantStore.setting = function(backend, screenWidth, screenHeight, imageServerURL) {
