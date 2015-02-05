@@ -28814,7 +28814,6 @@ module.exports = ConsultantStore = (function() {
     var promise;
     alert("fetch data" + username + password);
     promise = this.fetchFromBackend(username, password);
-    alert("promise");
     promise.done((function(_this) {
       return function(data) {
         var consult, isExists;
@@ -28834,7 +28833,7 @@ module.exports = ConsultantStore = (function() {
         }
       };
     })(this));
-    return promose.fail(err)((function(_this) {
+    return promise.fail(err)((function(_this) {
       return function() {
         return alert("fail");
       };
