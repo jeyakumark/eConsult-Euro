@@ -24411,9 +24411,11 @@ init = function() {
     size: [Conf.screenWidth, Conf.screenHeight]
   });
   appCtx.add(appView);
+  alert("init");
 };
 
 initWithPhonegap = function() {
+  alert("call deviceready");
   Store.clear();
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
@@ -24439,12 +24441,14 @@ gotFile = function(file) {
 
 readAsText = function(file) {
   var reader;
+  alert("reading file");
   reader = new FileReader();
   reader.onloadend = function(evt) {
     var json, jsonString, str;
     str = evt.target.result;
     jsonString = str.replace(/'/g, '"');
     json = JSON.parse(jsonString);
+    alert(jsonString);
     window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
     window.firstPage = Conf.firstPage = json.firstPage;
     window.backend = Conf.backend = json.backend;
@@ -24457,7 +24461,6 @@ readAsText = function(file) {
 
 fail = function(error) {
   if (error.code === FileError.NOT_FOUND_ERR) {
-    alert(error.code.toString() + ":config file not found.copy from www folder");
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, failCopy);
   } else if (error.code === FileError.SECURITY_ERR) {
     alert("security error");
@@ -24470,7 +24473,6 @@ copyFS = function(fileSystem) {
   var spath;
   spath = cordova.file.applicationDirectory + "/www" + "/" + "setting.txt";
   dest = fileSystem.root.toURL();
-  alert(dest);
   window.resolveLocalFileSystemURI(spath, resOnSuccess, failCopy);
 };
 
@@ -24510,6 +24512,7 @@ failCopy = function(error) {
 };
 
 if (Conf.isProduction) {
+  alert("yes");
   document.addEventListener('deviceready', initWithPhonegap.bind(this), false);
 } else {
   init();
@@ -24519,7 +24522,11 @@ if (Conf.isProduction) {
 },{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":94,"./views/app_view.coffee":98,"./views/behaviors":101,"./views/components":132,"./views/elements":152,"./views/mixins":163,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":95,"panzoom":96,"store":67,"zoom":97}],69:[function(require,module,exports){
 module.exports = {
   isProduction: true,
-  firstPage: 'Client'
+  firstPage: 'Client',
+  backend: 'http://egcbsc.com:1337',
+  screenWidth: '1024',
+  screenHeight: '768',
+  imageServerURL: 'http://creativesatwork.me:8080/upload'
 };
 
 
@@ -25379,7 +25386,6 @@ module.exports = Client = (function() {
     promise.done((function(_this) {
       return function(data) {
         var client, default_profile_pic;
-        alert("fetch data");
         console.log('fetch for init');
         console.log(data);
         if (data.length !== 0) {
@@ -25931,23 +25937,13 @@ module.exports = Client = (function() {
     username = "EURO\doreenchan";
     password = "eurogrp!12345";
     fetchPromise = $.ajax({
-      url: "" + Conf.backend + "/api/login",
-      dataType: "jsonp",
+      url: "" + Conf.backend + "/clients",
+      dataType: "json",
       async: false,
       data: {
-        username: "TP184",
-        password: "123456"
+        client_name: clientId
       },
-      type: "GET",
-      beforeSend: function(xhr) {
-        var base64, bytes;
-        bytes = Crypto.charenc.Binary.stringToBytes(username + ":" + password);
-        base64 = Crypto.util.bytesToBase64(bytes);
-        return xhr.setRequestHeader("Authorization", "Basic " + base64);
-      },
-      xhrFields: {
-        withCredentials: true
-      }
+      type: 'GET'
     });
     return fetchPromise;
   };
