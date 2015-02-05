@@ -28812,11 +28812,13 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.login = function(username, password) {
     var promise;
-    alert("fetch data");
+    alert("fetch data" + username + password);
     promise = this.fetchFromBackend(username, password);
-    return promise.done((function(_this) {
+    alert("promise");
+    promise.done((function(_this) {
       return function(data) {
         var consult, isExists;
+        alert("inside promise dont");
         isExists = false;
         if (data.length !== 0) {
           alert("get data" + data);
@@ -28830,6 +28832,11 @@ module.exports = ConsultantStore = (function() {
         } else {
           return alert("invalid data");
         }
+      };
+    })(this));
+    return promose.fail(err)((function(_this) {
+      return function() {
+        return alert("fail");
       };
     })(this));
   };
