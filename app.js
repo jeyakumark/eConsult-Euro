@@ -24581,7 +24581,7 @@ if (Conf.isProduction) {
 
 },{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":86,"./utils.coffee":93,"./views/app_view.coffee":97,"./views/behaviors":100,"./views/components":131,"./views/elements":151,"./views/mixins":162,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":94,"panzoom":95,"store":67,"zoom":96}],69:[function(require,module,exports){
 module.exports = {
-  isProduction: true,
+  isProduction: false,
   firstPage: 'Client',
   backend: 'http://egcbsc.com:1337',
   screenWidth: '1024',
@@ -33001,8 +33001,7 @@ module.exports = sideMenuView = (function(_super) {
     Dispatcher.emit('show_backdrop', {
       "for": 'side_menu'
     });
-    this.lightbox.show(this.menu);
-    return alert(this.menu);
+    return this.lightbox.show(this.menu);
   };
 
   sideMenuView.prototype.hideMenu = function() {
