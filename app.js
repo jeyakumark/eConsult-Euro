@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, data, dest, fail, failConfig, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFSConfig, gotFile, gotFileConfig, gotFileEntry, gotFileEntryConfig, init, initWithPhonegap, readAsText, resOnSuccess, str, successCopy;
+var AppView, Conf, FastClick, copyFS, data, dest, fail, failConfig, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFSConfig, gotFile, gotFileConfig, gotFileEntry, gotFileEntryConfig, init, initWithPhonegap, macId, readAsText, resOnSuccess, str, successCopy;
 
 window.Setting = '';
 
@@ -24329,6 +24329,10 @@ dest = '';
 gFileSystem = {};
 
 str = '';
+
+macId = "TEST";
+
+window.checkList = "";
 
 data = {
   "isProduction": "yes",
@@ -24424,28 +24428,51 @@ window.appCtx = Fa.MainContext;
 appCtx.setPerspective(1000);
 
 init = function() {
-  var appView;
-  Store.clear();
-  appView = new AppView({
-    size: [Conf.screenWidth, Conf.screenHeight]
+  var deviceAuthenticated;
+  deviceAuthenticated = Stores.Consultant.GetDeviceConfig(macId);
+  return deviceAuthenticated.done(function(data) {
+    var Checklist, json, jsonString;
+    if (data.Status === "OK") {
+      str = Stores.Consultant.configTest(data);
+      jsonString = str.replace(/'/g, '"');
+      json = JSON.parse(jsonString);
+      alert(jsonString);
+      window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
+      window.firstPage = Conf.firstPage = json.firstPage;
+      window.backend = Conf.backend = json.backend;
+      window.OutletId = Conf.outletId = json.outletId;
+      window.branchId = Conf.branchId = json.branchId;
+      window.brand = Conf.brand = json.brand;
+      window.deviceType = Conf.deviceType = json.deviceType;
+      window.authIp = Conf.authIp = json.authIp;
+      window.secondaryHost = Conf.secondaryHost = json.secondaryHost;
+      window.secondaryNasIp = Conf.secondaryNasIp = json.secondaryNasIp;
+    } else {
+      alert("error getting config");
+    }
+    Checklist = Stores.Consultant.getCheckList(macId);
+    return Checklist.done(function(data) {
+      var appView;
+      window.Causes = Conf.Causes = data.causes;
+      window.Facial = Conf.Facial = data.facial;
+      window.Homecare = Conf.Homecare = data.homecare;
+      window.Remarks = Conf.Remarks = data.remarks;
+      window.lifestyle = Conf.lifestyle = data.lifestyle;
+      Store.clear();
+      appView = new AppView({
+        size: [Conf.screenWidth, Conf.screenHeight]
+      });
+      appCtx.add(appView);
+    });
   });
-  appCtx.add(appView);
 };
 
 initWithPhonegap = function() {
-  var macId;
   Store.clear();
   if (navigator === void 0) {
     return alert("Phonegap is not loaded. Fatal error.");
   } else {
-    window.Camera = navigator.camera;
-    macId = "TEST";
-    if (data.Status === "OK") {
-      str = Stores.Consultant.configTest(data);
-      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFSConfig, failConfig);
-    } else {
-      return alert(data.Message);
-    }
+    return window.Camera = navigator.camera;
   }
 };
 
@@ -24576,14 +24603,14 @@ if (Conf.isProduction) {
 }
 
 
-},{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":94,"./views/app_view.coffee":98,"./views/behaviors":101,"./views/components":132,"./views/elements":152,"./views/mixins":163,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":95,"panzoom":96,"store":67,"zoom":97}],69:[function(require,module,exports){
+},{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":95,"./views/app_view.coffee":99,"./views/behaviors":102,"./views/components":134,"./views/elements":154,"./views/mixins":165,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":96,"panzoom":97,"store":67,"zoom":98}],69:[function(require,module,exports){
 module.exports = {
   isProduction: false,
-  firstPage: 'Client',
-  backend: 'http://egcbsc.com:1337',
+  firstPage: 'Login',
+  backend: 'http://localhost:1337',
   screenWidth: '1024',
   screenHeight: '768',
-  imageServerURL: 'http://creativesatwork.me:8080/upload'
+  imageServerURL: 'http://localhost:8080/upload'
 };
 
 
@@ -25436,7 +25463,7 @@ module.exports = Models;
 var Client;
 
 module.exports = Client = (function() {
-  function Client(clientId) {
+  function Client(clientId, age) {
     var promise;
     clientId = clientId.toUpperCase().trim();
     promise = this.fetchFromBackend(clientId);
@@ -25449,7 +25476,7 @@ module.exports = Client = (function() {
           client = data[0];
           _this.Id = client.Id;
           _this.name = client.name;
-          _this.age = client.age;
+          _this.age = age;
           _this.photos = client.photos;
           _this.sessions = client.sessions;
           _this.matches = client.matches || {};
@@ -25510,9 +25537,10 @@ module.exports = Client = (function() {
               treatment_improvement: null,
               service: null
             });
+            alert("done");
           }
         } else {
-          alert("First Visit ");
+          alert("First Visit?");
           newclient = _this.GetClientDetails(clientId);
           newclient.done(function(data) {
             alert(data.Customer_Name);
@@ -26078,12 +26106,13 @@ module.exports = Client = (function() {
 
   Client.prototype.GetClientDetailsFromAES = function(clientId) {
     var clients, fetchPromise;
+    alert("checking....");
     clients = {
       "CompanyID": "SG01",
       "CustomerID": clientId
     };
     fetchPromise = $.ajax({
-      url: 'http://testsvr.eurogrp.com:8006/api/NYSS/Customer/fnGetCustomerDetails',
+      url: "" + Conf.authIp + "/api/NYSS/Customer/fnGetCustomerDetails",
       type: 'POST',
       dataType: "json",
       contentType: 'application/json',
@@ -26324,71 +26353,26 @@ module.exports = checklistPage = (function(_super) {
 
   checklistPage.opRemarks = [];
 
-  facial = [
-    {
-      "op": "Facial Option1"
-    }, {
-      "op": "Facial Option2"
-    }, {
-      "op": "Facial Option3"
-    }, {
-      "op": "Facial Option4"
-    }
-  ];
+  facial = "";
 
-  causes = [
-    {
-      "op": "Causes Option1"
-    }, {
-      "op": "Causes Option2"
-    }, {
-      "op": "Causes Option3"
-    }, {
-      "op": "Causes Option4"
-    }
-  ];
+  causes = "";
 
-  homecare = [
-    {
-      "op": "Home Care Option1"
-    }, {
-      "op": "Home Care Option2"
-    }, {
-      "op": "Home Care  Option3"
-    }, {
-      "op": "Home Care  Option4"
-    }
-  ];
+  homecare = "";
 
-  lifestyle = [
-    {
-      "op": "Life Style Option1"
-    }, {
-      "op": "Life Style Option2"
-    }, {
-      "op": "Life Style Option3"
-    }, {
-      "op": "Life Style Option4"
-    }
-  ];
+  lifestyle = "";
 
-  remarks = [
-    {
-      "op": "Remarks Option1"
-    }, {
-      "op": "Remarks Option2"
-    }, {
-      "op": "Remarks Option3"
-    }, {
-      "op": "Remarks Option4"
-    }
-  ];
+  remarks = "";
 
   function checklistPage(options) {
     var updateQ1Box, updateQ3Box, updateQ4Box, updateQ5Box, updateQ6Box, updateResultBox;
     checklistPage.__super__.constructor.call(this, options);
     this.container = new Fa.CContainer();
     init.call(this);
+    facial = Conf.Facial;
+    causes = Conf.Causes;
+    homecare = Conf.Homecare;
+    lifestyle = Conf.lifestyle;
+    remarks = Conf.Remarks;
     Dispatcher.pipe(this._eventInput);
     updateResultBox = function() {
       var text;
@@ -26508,13 +26492,13 @@ module.exports = checklistPage = (function(_super) {
         text = text + this.opHomecare[0];
       }
       if (Session.currentClient.cl_homecare_opt2) {
-        text = text + this.opHomecare[0];
+        text = text + this.opHomecare[1];
       }
       if (Session.currentClient.cl_homecare_opt3) {
-        text = text + this.opHomecare[0];
+        text = text + this.opHomecare[2];
       }
       if (Session.currentClient.cl_homecare_opt4) {
-        text = text + this.opHomecare[0];
+        text = text + this.opHomecare[3];
       }
       return this.answerTextQ4.setContent(text);
     };
@@ -27357,7 +27341,7 @@ module.exports = clientPage = (function(_super) {
       };
     })(this);
     new AsLink(this.clickZone, void 0, (function() {
-      var client, clientId;
+      var clientId, promise;
       clientId = this.clientId.getValue();
       if (clientId === void 0 || clientId === '') {
         if (Conf.isProduction) {
@@ -27366,10 +27350,15 @@ module.exports = clientPage = (function(_super) {
           return alert('Please enter the client ID');
         }
       } else {
-        client = new Models.Client(clientId);
-        Session.setCurrentClient(client);
-        return Dispatcher.emit('page_change', {
-          to: 'Dashboard'
+        promise = this.GetClientDetails(clientId);
+        return promise.done(function(data) {
+          var age, client;
+          age = data.Age;
+          client = new Models.Client(clientId, age);
+          Session.setCurrentClient(client);
+          return Dispatcher.emit('page_change', {
+            to: 'Dashboard'
+          });
         });
       }
     }).bind(this));
@@ -27403,6 +27392,38 @@ module.exports = clientPage = (function(_super) {
     this.container.add(Fa.translateBy(630, 344, 0)).add(cancelText);
     this.container.add(Fa.opaqueBy(0.5)).add(Fa.translateBy(630, 298, 0)).add(this.clickZone);
     return this.container.add(Fa.opaqueBy(0.5)).add(Fa.translateBy(630, 338, 0)).add(this.cancelZone);
+  };
+
+  clientPage.prototype.GetClientDetails = function(clientId) {
+    var deferred, promise;
+    deferred = $.Deferred();
+    promise = this.GetClientDetailsFromAES(clientId);
+    promise.done(function(data) {
+      return deferred.resolve(data);
+    });
+    promise.fail(function(jqXHR, textStatus, errorThrown) {
+      return alert("Error :" + jqXHR.status + " " + errorThrown);
+    });
+    return deferred;
+  };
+
+  clientPage.prototype.GetClientDetailsFromAES = function(clientId) {
+    var clients, fetchPromise;
+    clients = {
+      "CompanyID": "SG01",
+      "CustomerID": clientId
+    };
+    fetchPromise = $.ajax({
+      url: "" + Conf.authIp + "/api/NYSS/Customer/fnGetCustomerDetails",
+      type: 'POST',
+      dataType: "json",
+      contentType: 'application/json',
+      crossDomain: true,
+      withCredentials: false,
+      useDefaultXhrHeader: false,
+      data: JSON.stringify(clients)
+    });
+    return fetchPromise;
   };
 
   return clientPage;
@@ -28685,7 +28706,8 @@ module.exports = snapPage = (function(_super) {
         if (Session.currentPhoto) {
           id = Session.currentPhoto.getUniqId();
           if (id === _this.doubleTapBuffer) {
-            return Dispatcher.emit('show_full_picture');
+            alert("call paint");
+            return Dispatcher.emit('show_paint');
           }
         }
       };
@@ -29052,7 +29074,7 @@ module.exports = ConsultantStore = (function() {
       "Password": password
     };
     fetchPromise = $.ajax({
-      url: 'http://testsvr.eurogrp.com:8006/api/Login',
+      url: "" + Conf.authIp + "/api/Login",
       type: 'POST',
       dataType: "json",
       contentType: 'application/json',
@@ -29105,19 +29127,19 @@ module.exports = ConsultantStore = (function() {
       return deferred.resolve(data);
     });
     promise.fail(function(jqXHR, textStatus, errorThrown) {
-      alert("Error :" + jqXHR.status + " " + errorThrown);
-      return false;
+      return alert("Error :" + jqXHR.status + " " + errorThrown);
     });
     return deferred;
   };
 
   ConsultantStore.GetConfig = function(macId) {
     var deviceid, fetchPromise;
+    alert("checking....");
     deviceid = {
       "DeviceMacId": macId
     };
     fetchPromise = $.ajax({
-      url: 'http://testsvr.eurogrp.com:8006/api/Login',
+      url: 'http://testsvr.eurogrp.com:8016/api/Config/PostDeviceConfigDetails',
       type: 'POST',
       dataType: "json",
       contentType: 'application/json',
@@ -29137,20 +29159,42 @@ module.exports = ConsultantStore = (function() {
     var str;
     str = "{";
     str = str + "'isProduction' :" + "'yes',";
-    str = str + "'firstPage' :" + "'Login',";
-    str = str + "'backend' :" + "'http://egcbsc.com:1337',";
-    str = str + "'imageServerURL' :" + "'http://creativesatwork.me:8080/upload',";
-    str = str + "'ScreenWidth' :" + "'1024',";
-    str = str + "'ScreenHeight' :" + "'768',";
-    str = str + "'OutletId' :" + "'101',";
-    str = str + "'BranchId' :" + "'1001',";
-    str = str + "'Brand' :" + "'NEWYORK',";
-    str = str + "'DeviceType' :" + "'IOS',";
-    str = str + "'AuthIp' :" + "'http://testsvr.eurogrp.com:8006',";
-    str = str + "'SecondaryHost' :" + "'http://testsvr.eurogrp.com:8006',";
-    str = str + "'SecondaryNasIp' :" + "'http://creativesatwork.me:8080/upload'";
+    str = str + "'firstPage' :" + "'Client',";
+    str = str + "'backend' :" + "'http://localhost:1337',";
+    str = str + "'imageServerURL' :" + "'http://localhost:8080/upload',";
+    str = str + "'outletId' :" + "'101',";
+    str = str + "'branchId' :" + "'1001',";
+    str = str + "'brand' :" + "'NEWYORK',";
+    str = str + "'deviceType' :" + "'IOS',";
+    str = str + "'authIp' :" + "'http://testsvr.eurogrp.com:8006',";
+    str = str + "'secondaryHost' :" + "'http://testsvr.eurogrp.com:8006',";
+    str = str + "'secondaryNasIp' :" + "'http://localhost:8080/upload'";
     str = str + "}";
     return str;
+  };
+
+  ConsultantStore.getCheckList = function(macId) {
+    var deferred, promise;
+    deferred = $.Deferred();
+    promise = this.checkListFromDb(macId);
+    promise.done(function(data) {
+      return deferred.resolve(data);
+    });
+    promise.fail(function(jqXHR, textStatus, errorThrown) {
+      alert("Error :" + jqXHR.status + " " + errorThrown);
+      return alert(Conf.backend);
+    });
+    return deferred;
+  };
+
+  ConsultantStore.checkListFromDb = function(macId) {
+    var fetchPromise;
+    fetchPromise = $.ajax({
+      url: "" + Conf.backend + "/checklists/getOptions",
+      dataType: "json",
+      type: 'GET'
+    });
+    return fetchPromise;
   };
 
   return ConsultantStore;
@@ -29197,6 +29241,18 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   });
 
 },{"hbsfy/runtime":64}],91:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var Handlebars = require('hbsfy/runtime');
+module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  
+
+
+  return "\r\n <div>\r\n   <center><h1>paint</h1></center>\r\n </div>\r\n\r\n";
+  });
+
+},{"hbsfy/runtime":64}],92:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29277,7 +29333,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],92:[function(require,module,exports){
+},{"hbsfy/runtime":64}],93:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29350,7 +29406,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],93:[function(require,module,exports){
+},{"hbsfy/runtime":64}],94:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29371,7 +29427,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],94:[function(require,module,exports){
+},{"hbsfy/runtime":64}],95:[function(require,module,exports){
 var Utils;
 
 module.exports = Utils = (function() {
@@ -29449,7 +29505,7 @@ module.exports = Utils = (function() {
 })();
 
 
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -30163,7 +30219,7 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],96:[function(require,module,exports){
+},{"jquery":65}],97:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -31405,7 +31461,7 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],97:[function(require,module,exports){
+},{"jquery":65}],98:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -31646,8 +31702,8 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],98:[function(require,module,exports){
-var AppView, Backdrop, Browser, ClientFilter, DesiredOptions, Fa, Fullview, MatchBrowser, Matchview, PageRegisters, QCauses, QFacial, QHomecare, QLifestyle, QRemarks, SideMenu,
+},{"jquery":65}],99:[function(require,module,exports){
+var AppView, Backdrop, Browser, ClientFilter, DesiredOptions, Fa, Fullview, MatchBrowser, Matchview, PageRegisters, Paintview, QCauses, QFacial, QHomecare, QLifestyle, QRemarks, SideMenu,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -31664,6 +31720,8 @@ Browser = Fa.Components.Snap.browser;
 MatchBrowser = Fa.Components.Compare.match_browser;
 
 Fullview = Fa.Components.Snap.fullview;
+
+Paintview = Fa.Components.Snap.paintview;
 
 Matchview = Fa.Components.Result.matchview;
 
@@ -31713,6 +31771,7 @@ module.exports = AppView = (function(_super) {
       size: [Conf.width, Conf.height]
     });
     this.fullPicture = new Fullview;
+    this.paint = new Paintview;
     this.matchPicture = new Matchview;
     this.desiredOpts = new DesiredOptions;
     this.qLifestyle = new QLifestyle;
@@ -31862,6 +31921,24 @@ module.exports = AppView = (function(_super) {
         return _this.renderer.show(_this.currentPage);
       };
     })(this));
+    this._eventInput.on('show_paint', (function(_this) {
+      return function() {
+        Dispatcher.emit('show_backdrop', {
+          "for": 'show_paint'
+        });
+        _this.frontRenderer.show(_this.paint, void 0, function() {
+          return console.log('showing next');
+        });
+        return _this.fullPicture.show();
+      };
+    })(this));
+    this._eventInput.on('show_match_picture', (function(_this) {
+      return function() {
+        return Dispatcher.emit('show_backdrop', {
+          "for": 'show_paint'
+        });
+      };
+    })(this));
   }
 
   return AppView;
@@ -31869,7 +31946,7 @@ module.exports = AppView = (function(_super) {
 })(Fa.View);
 
 
-},{"../famous.coffee":71,"../pages":75}],99:[function(require,module,exports){
+},{"../famous.coffee":71,"../pages":75}],100:[function(require,module,exports){
 
 /*
 Description: apply this to a single element, this element will behave as link
@@ -31910,7 +31987,7 @@ module.exports = BhCommonAsLink = (function() {
 })();
 
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 var BhCommonSelectGroup;
 
 module.exports = BhCommonSelectGroup = (function() {
@@ -31991,7 +32068,7 @@ module.exports = BhCommonSelectGroup = (function() {
 })();
 
 
-},{}],101:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 var Behaviors;
 
 Behaviors = {
@@ -32002,7 +32079,7 @@ Behaviors = {
 module.exports = Behaviors;
 
 
-},{"./bh.common.as_link.coffee":99,"./bh.common.select_group.coffee":100}],102:[function(require,module,exports){
+},{"./bh.common.as_link.coffee":100,"./bh.common.select_group.coffee":101}],103:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, desiredOptions,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32203,7 +32280,7 @@ module.exports = desiredOptions = (function(_super) {
 })(Fa.View);
 
 
-},{}],103:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 var CChecklistFaceRating,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32390,7 +32467,7 @@ module.exports = CChecklistFaceRating = (function(_super) {
 })(Fa.CView);
 
 
-},{}],104:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qCauses,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32404,25 +32481,13 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qCauses = (function(_super) {
-  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
 
   __extends(qCauses, _super);
 
   qCauses.DEFAULT_OPTIONS = {};
 
   qCauses.op = [];
-
-  data = [
-    {
-      "op": "Causes Option1"
-    }, {
-      "op": "Causes Option2"
-    }, {
-      "op": "Causes Option3"
-    }, {
-      "op": "Causes Option4"
-    }
-  ];
 
   function qCauses(options) {
     qCauses.__super__.constructor.call(this, options);
@@ -32495,11 +32560,12 @@ module.exports = qCauses = (function(_super) {
   };
 
   createOptions = function() {
-    var i, json, rows, x, _i, _ref;
+    var data, i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    data = Conf.Causes;
     this.op = (function() {
       var _i, _ref, _results;
       _results = [];
@@ -32553,7 +32619,7 @@ module.exports = qCauses = (function(_super) {
 })(Fa.View);
 
 
-},{}],105:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qFacial,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32567,25 +32633,13 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qFacial = (function(_super) {
-  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
 
   __extends(qFacial, _super);
 
   qFacial.DEFAULT_OPTIONS = {};
 
   qFacial.op = [];
-
-  data = [
-    {
-      "op": "Facial Option1"
-    }, {
-      "op": "Facial Option2"
-    }, {
-      "op": "Facial Option3"
-    }, {
-      "op": "Facial Option4"
-    }
-  ];
 
   function qFacial(options) {
     qFacial.__super__.constructor.call(this, options);
@@ -32658,11 +32712,12 @@ module.exports = qFacial = (function(_super) {
   };
 
   createOptions = function() {
-    var i, json, rows, x, _i, _ref;
+    var data, i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    data = Conf.Facial;
     this.op = (function() {
       var _i, _ref, _results;
       _results = [];
@@ -32716,7 +32771,7 @@ module.exports = qFacial = (function(_super) {
 })(Fa.View);
 
 
-},{}],106:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qHomecare,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32826,6 +32881,7 @@ module.exports = qHomecare = (function(_super) {
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    data = Conf.Homecare;
     this.op = (function() {
       var _i, _ref, _results;
       _results = [];
@@ -32879,7 +32935,7 @@ module.exports = qHomecare = (function(_super) {
 })(Fa.View);
 
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qLifeStyle,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32893,25 +32949,13 @@ CancelBtn = Fa.Elements.Checklist.cancel_btn;
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = qLifeStyle = (function(_super) {
-  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
+  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
 
   __extends(qLifeStyle, _super);
 
   qLifeStyle.DEFAULT_OPTIONS = {};
 
   qLifeStyle.op = [];
-
-  data = [
-    {
-      "op": "Life Style Option1"
-    }, {
-      "op": "Life Style Option2"
-    }, {
-      "op": "Life Style Option3"
-    }, {
-      "op": "Life Style Option4"
-    }
-  ];
 
   function qLifeStyle(options) {
     qLifeStyle.__super__.constructor.call(this, options);
@@ -32984,11 +33028,12 @@ module.exports = qLifeStyle = (function(_super) {
   };
 
   createOptions = function() {
-    var i, json, rows, x, _i, _ref;
+    var data, i, json, rows, x, _i, _ref;
     rows = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    data = Conf.lifestyle;
     this.op = (function() {
       var _i, _ref, _results;
       _results = [];
@@ -33042,7 +33087,7 @@ module.exports = qLifeStyle = (function(_super) {
 })(Fa.View);
 
 
-},{}],108:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, qRemarks,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33152,6 +33197,7 @@ module.exports = qRemarks = (function(_super) {
       direction: 1,
       ratios: [1, 1, 1, 1]
     });
+    data = Conf.Remarks;
     this.op = (function() {
       var _i, _ref, _results;
       _results = [];
@@ -33205,7 +33251,7 @@ module.exports = qRemarks = (function(_super) {
 })(Fa.View);
 
 
-},{}],109:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 var CChecklistResultHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33273,7 +33319,7 @@ module.exports = CChecklistResultHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],110:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 var CChecklistTristar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33427,7 +33473,7 @@ module.exports = CChecklistTristar = (function(_super) {
 })(Fa.CView);
 
 
-},{}],111:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 var Button, SessionNumpad,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33749,7 +33795,7 @@ module.exports = SessionNumpad = (function(_super) {
 })(Fa.CView);
 
 
-},{}],112:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 var sideMenuView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33905,7 +33951,7 @@ module.exports = sideMenuView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/side_menu.menu_btn.hbs":93}],113:[function(require,module,exports){
+},{"../../templates/side_menu.menu_btn.hbs":94}],114:[function(require,module,exports){
 var Button, FrameNumpad,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34221,7 +34267,7 @@ module.exports = FrameNumpad = (function(_super) {
 })(Fa.CView);
 
 
-},{}],114:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 var BrowserContent, matchBrowserView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34336,7 +34382,7 @@ module.exports = matchBrowserView = (function(_super) {
 })(Fa.View);
 
 
-},{"./c.compare.match_browser_content.coffee":115}],115:[function(require,module,exports){
+},{"./c.compare.match_browser_content.coffee":116}],116:[function(require,module,exports){
 var MatchBrowserContent,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34536,7 +34582,7 @@ module.exports = MatchBrowserContent = (function(_super) {
 })(Fa.CView);
 
 
-},{}],116:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 var AsLink, CCompareSelSnapMicro, CameraBtn, MicroBtn, SelGroup,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34593,7 +34639,7 @@ module.exports = CCompareSelSnapMicro = (function(_super) {
 })(Fa.CView);
 
 
-},{}],117:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 var AsLink, CCompareSelectorSection, ClearBtn, FavBtn, MatchBtn, Radio, SelGroup, SetProfileBtn, UpdateBtn, ViewBtn, ViewMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34738,7 +34784,7 @@ module.exports = CCompareSelectorSection = (function(_super) {
 })(Fa.CView);
 
 
-},{}],118:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 var AsLink, CDashboardActionButtons, CameraBtn, CompareBtn, MicroBtn, ResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34818,7 +34864,7 @@ module.exports = CDashboardActionButtons = (function(_super) {
 })(Fa.CView);
 
 
-},{}],119:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 var CDashboardFirstVisit, Calendar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34906,7 +34952,7 @@ module.exports = CDashboardFirstVisit = (function(_super) {
 })(Fa.CView);
 
 
-},{}],120:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 var CDashboardLastTreatment, Calendar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34994,7 +35040,7 @@ module.exports = CDashboardLastTreatment = (function(_super) {
 })(Fa.CView);
 
 
-},{}],121:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, SelectInput, clientFilter,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35182,7 +35228,7 @@ module.exports = clientFilter = (function(_super) {
 })(Fa.View);
 
 
-},{}],122:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 var CResultClientHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35250,7 +35296,7 @@ module.exports = CResultClientHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],123:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 var matchviewView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35338,7 +35384,7 @@ module.exports = matchviewView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/matchview.hbs":90}],124:[function(require,module,exports){
+},{"../../templates/matchview.hbs":90}],125:[function(require,module,exports){
 var CResultSessionBox,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35413,7 +35459,7 @@ module.exports = CResultSessionBox = (function(_super) {
 })(Fa.CView);
 
 
-},{"../../templates/result_box.hbs":91,"../../templates/result_box_fav.hbs":92}],125:[function(require,module,exports){
+},{"../../templates/result_box.hbs":92,"../../templates/result_box_fav.hbs":93}],126:[function(require,module,exports){
 var CResultSessionRowView, SessionBox,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35561,7 +35607,7 @@ module.exports = CResultSessionRowView = (function(_super) {
 })(Fa.CView);
 
 
-},{"./c.result.session_box.coffee":124}],126:[function(require,module,exports){
+},{"./c.result.session_box.coffee":125}],127:[function(require,module,exports){
 var BrowserContent, browserView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35685,7 +35731,7 @@ module.exports = browserView = (function(_super) {
 })(Fa.View);
 
 
-},{"./c.snap.browser_content.coffee":127}],127:[function(require,module,exports){
+},{"./c.snap.browser_content.coffee":128}],128:[function(require,module,exports){
 var CSnapBrowserContent,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35769,7 +35815,7 @@ module.exports = CSnapBrowserContent = (function(_super) {
 })(Fa.CView);
 
 
-},{}],128:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 var fullviewView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35855,7 +35901,94 @@ module.exports = fullviewView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/fullview.hbs":89}],129:[function(require,module,exports){
+},{"../../templates/fullview.hbs":89}],130:[function(require,module,exports){
+var paintviewView,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+module.exports = paintviewView = (function(_super) {
+  var hideFunc, _createContent, _createLayouts, _createLightbox;
+
+  __extends(paintviewView, _super);
+
+  paintviewView.DEFAULT_OPTIONS = {};
+
+  function paintviewView(options) {
+    paintviewView.__super__.constructor.call(this, options);
+    _createLayouts.call(this);
+    Dispatcher.pipe(this._eventInput);
+    this._eventInput.on('session_changed:current_photo', (function(_this) {
+      return function() {
+        if (Session.currentPhoto) {
+          _this.pictureUrl = Session.currentPhoto.largePic();
+        }
+        return _createContent.call(_this);
+      };
+    })(this));
+    this._eventInput.on('hide_frontdrop', (function(_this) {
+      return function(params) {
+        if (params && params["for"] === 'show_paint') {
+          alert("call paint done");
+          return _this.hide();
+        }
+      };
+    })(this));
+  }
+
+  _createLayouts = function() {
+    _createLightbox.call(this);
+    return _createContent.call(this);
+  };
+
+  hideFunc = function() {
+    return Dispatcher.emit('hide_frontdrop', {
+      "for": 'show_match_picture'
+    });
+  };
+
+  _createLightbox = function() {
+    var lightboxContainer;
+    lightboxContainer = new Fa.ContainerSurf({
+      size: [void 0, void 0],
+      properties: {
+        pointerEvents: 'none'
+      }
+    });
+    this.lightbox = new Fa.RenderCtrl({
+      overlap: true
+    });
+    lightboxContainer.add(this.lightbox);
+    return this.add(Fa.Pos.center).add(lightboxContainer);
+  };
+
+  _createContent = function() {
+    var html;
+    html = require('../../templates/paint.hbs')({
+      picture: this.pictureUrl
+    });
+    return this.content = new Fa.Surface({
+      content: html,
+      size: [void 0, void 0]
+    });
+  };
+
+  paintviewView.prototype.show = function() {
+    Dispatcher.emit('hide_appfront');
+    return this.lightbox.show(this.content);
+  };
+
+  paintviewView.prototype.hide = function() {
+    this.lightbox.hide();
+    Dispatcher.emit('reopen_appfront');
+    return Dispatcher.emit('hide_backdrop');
+  };
+
+  return paintviewView;
+
+})(Fa.View);
+
+
+},{"../../templates/paint.hbs":91}],131:[function(require,module,exports){
 var AsLink, CSnapSelBeforeAfter, CompareBtn, ResultBtn, SnapBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35916,7 +36049,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
 })(Fa.CView);
 
 
-},{}],130:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 var AfterBtn, AsLink, BeforeBtn, CSnapSelBeforeAfter, SelGroup,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36046,7 +36179,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
 })(Fa.CView);
 
 
-},{}],131:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var AsLink, CSnapSelectorSection, ClearBtn, Radio, SelGroup, SetProfileBtn, UpdateBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36255,7 +36388,7 @@ module.exports = CSnapSelectorSection = (function(_super) {
 })(Fa.CView);
 
 
-},{}],132:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 var Components;
 
 Components = {
@@ -36274,7 +36407,8 @@ Components = {
     selector_section: require('./c.snap.selector_section.coffee'),
     browser: require('./c.snap.browser.coffee'),
     browser_content: require('./c.snap.browser_content.coffee'),
-    fullview: require('./c.snap.fullview.coffee')
+    fullview: require('./c.snap.fullview.coffee'),
+    paintview: require('./c.snap.paintview.coffee')
   },
   Compare: {
     sel_snap_micro: require('./c.compare.sel_snap_micro.coffee'),
@@ -36306,7 +36440,7 @@ Components = {
 module.exports = Components;
 
 
-},{"./c.checklist.desired_options.coffee":102,"./c.checklist.face_rating.coffee":103,"./c.checklist.q_causes.coffee":104,"./c.checklist.q_facial.coffee":105,"./c.checklist.q_homecare.coffee":106,"./c.checklist.q_lifestyle.coffee":107,"./c.checklist.q_remarks.coffee":108,"./c.checklist.result_header.coffee":109,"./c.checklist.tristar.coffee":110,"./c.common.session_numpad.coffee":111,"./c.common.side_menu.coffee":112,"./c.compare.frame_numpad.coffee":113,"./c.compare.match_browser.coffee":114,"./c.compare.match_browser_content.coffee":115,"./c.compare.sel_snap_micro.coffee":116,"./c.compare.selector_section.coffee":117,"./c.dashboard.action_buttons.coffee":118,"./c.dashboard.first_visit.coffee":119,"./c.dashboard.last_treatment.coffee":120,"./c.result.client_filter.coffee":121,"./c.result.client_header.coffee":122,"./c.result.matchview.coffee":123,"./c.result.session_box.coffee":124,"./c.result.session_row.coffee":125,"./c.snap.browser.coffee":126,"./c.snap.browser_content.coffee":127,"./c.snap.fullview.coffee":128,"./c.snap.quick_links.coffee":129,"./c.snap.sel_before_after.coffee":130,"./c.snap.selector_section.coffee":131}],133:[function(require,module,exports){
+},{"./c.checklist.desired_options.coffee":103,"./c.checklist.face_rating.coffee":104,"./c.checklist.q_causes.coffee":105,"./c.checklist.q_facial.coffee":106,"./c.checklist.q_homecare.coffee":107,"./c.checklist.q_lifestyle.coffee":108,"./c.checklist.q_remarks.coffee":109,"./c.checklist.result_header.coffee":110,"./c.checklist.tristar.coffee":111,"./c.common.session_numpad.coffee":112,"./c.common.side_menu.coffee":113,"./c.compare.frame_numpad.coffee":114,"./c.compare.match_browser.coffee":115,"./c.compare.match_browser_content.coffee":116,"./c.compare.sel_snap_micro.coffee":117,"./c.compare.selector_section.coffee":118,"./c.dashboard.action_buttons.coffee":119,"./c.dashboard.first_visit.coffee":120,"./c.dashboard.last_treatment.coffee":121,"./c.result.client_filter.coffee":122,"./c.result.client_header.coffee":123,"./c.result.matchview.coffee":124,"./c.result.session_box.coffee":125,"./c.result.session_row.coffee":126,"./c.snap.browser.coffee":127,"./c.snap.browser_content.coffee":128,"./c.snap.fullview.coffee":129,"./c.snap.paintview.coffee":130,"./c.snap.quick_links.coffee":131,"./c.snap.sel_before_after.coffee":132,"./c.snap.selector_section.coffee":133}],135:[function(require,module,exports){
 var ElChecklistCancelBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36379,7 +36513,7 @@ module.exports = ElChecklistCancelBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],134:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 var ElChecker,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36477,7 +36611,7 @@ module.exports = ElChecker = (function(_super) {
 })(Fa.CView);
 
 
-},{}],135:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 var ElChecklistConfirmBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36550,7 +36684,7 @@ module.exports = ElChecklistConfirmBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],136:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 var ElCommonBackdrop,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36646,7 +36780,7 @@ module.exports = ElCommonBackdrop = (function(_super) {
 })(Fa.CView);
 
 
-},{}],137:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 var ElCommonHamburger,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36695,7 +36829,7 @@ module.exports = ElCommonHamburger = (function(_super) {
 })(Fa.CView);
 
 
-},{}],138:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 var ElCommonHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36748,7 +36882,7 @@ module.exports = ElCommonHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],139:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 var ElCommonHorizontalRule,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36794,7 +36928,7 @@ module.exports = ElCommonHorizontalRule = (function(_super) {
 })(Fa.CView);
 
 
-},{}],140:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 var ElCommonSelectInput,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36854,7 +36988,7 @@ module.exports = ElCommonSelectInput = (function(_super) {
 })(Fa.CView);
 
 
-},{}],141:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 var ElCompareActiveNumpadBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36915,7 +37049,7 @@ module.exports = ElCompareActiveNumpadBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],142:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 var ElFavMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36975,7 +37109,7 @@ module.exports = ElFavMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],143:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 var ElCompareMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37035,7 +37169,7 @@ module.exports = ElCompareMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],144:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 var ElCompareViewMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37095,7 +37229,7 @@ module.exports = ElCompareViewMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],145:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 var ElDashboardCameraBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37171,7 +37305,7 @@ module.exports = ElDashboardCameraBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],146:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 var ElDashboardResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37247,7 +37381,7 @@ module.exports = ElDashboardResultBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],147:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 var ElDashboardFirstVisitCal,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37302,7 +37436,7 @@ module.exports = ElDashboardFirstVisitCal = (function(_super) {
 })(Fa.CView);
 
 
-},{}],148:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 var ElDashboardLastVisitCal,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37357,7 +37491,7 @@ module.exports = ElDashboardLastVisitCal = (function(_super) {
 })(Fa.CView);
 
 
-},{}],149:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 var ElDashboardMicroBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37433,7 +37567,7 @@ module.exports = ElDashboardMicroBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],150:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 var ElDashboardProfilePic, HRule, Hamburger,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37640,7 +37774,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
 })(Fa.CView);
 
 
-},{"../common/el.common.hamburger.coffee":137,"../common/el.common.horizontal_rule.coffee":139}],151:[function(require,module,exports){
+},{"../common/el.common.hamburger.coffee":139,"../common/el.common.horizontal_rule.coffee":141}],153:[function(require,module,exports){
 var ElDashboardResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37716,7 +37850,7 @@ module.exports = ElDashboardResultBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],152:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 var Elements;
 
 Elements = {
@@ -37764,7 +37898,7 @@ Elements = {
 module.exports = Elements;
 
 
-},{"./checklist/el.checklist.cancel_btn.coffee":133,"./checklist/el.checklist.checker.coffee":134,"./checklist/el.checklist.confirm_btn.coffee":135,"./common/el.common.backdrop.coffee":136,"./common/el.common.hamburger.coffee":137,"./common/el.common.header.coffee":138,"./common/el.common.horizontal_rule.coffee":139,"./common/el.common.select_input.coffee":140,"./compare/el.compare.active_numpad_btn.coffee":141,"./compare/el.compare.fav_btn.coffee":142,"./compare/el.compare.match_btn.coffee":143,"./compare/el.compare.view_match_btn.coffee":144,"./dashboard/el.dashboard.camera_btn.coffee":145,"./dashboard/el.dashboard.compare_btn.coffee":146,"./dashboard/el.dashboard.first_visit_cal.coffee":147,"./dashboard/el.dashboard.last_visit_cal.coffee":148,"./dashboard/el.dashboard.micro_btn.coffee":149,"./dashboard/el.dashboard.profile_section.coffee":150,"./dashboard/el.dashboard.result_btn.coffee":151,"./snap/el.snap.after_btn.coffee":153,"./snap/el.snap.before_btn.coffee":154,"./snap/el.snap.browse_header.coffee":155,"./snap/el.snap.clear_btn.coffee":156,"./snap/el.snap.picture_frame.coffee":157,"./snap/el.snap.selector_radio.coffee":158,"./snap/el.snap.set_profile_btn.coffee":159,"./snap/el.snap.update_btn.coffee":160,"./snap/el.snap.view_btn.coffee":161,"./snap/el.snap.visit_info.coffee":162}],153:[function(require,module,exports){
+},{"./checklist/el.checklist.cancel_btn.coffee":135,"./checklist/el.checklist.checker.coffee":136,"./checklist/el.checklist.confirm_btn.coffee":137,"./common/el.common.backdrop.coffee":138,"./common/el.common.hamburger.coffee":139,"./common/el.common.header.coffee":140,"./common/el.common.horizontal_rule.coffee":141,"./common/el.common.select_input.coffee":142,"./compare/el.compare.active_numpad_btn.coffee":143,"./compare/el.compare.fav_btn.coffee":144,"./compare/el.compare.match_btn.coffee":145,"./compare/el.compare.view_match_btn.coffee":146,"./dashboard/el.dashboard.camera_btn.coffee":147,"./dashboard/el.dashboard.compare_btn.coffee":148,"./dashboard/el.dashboard.first_visit_cal.coffee":149,"./dashboard/el.dashboard.last_visit_cal.coffee":150,"./dashboard/el.dashboard.micro_btn.coffee":151,"./dashboard/el.dashboard.profile_section.coffee":152,"./dashboard/el.dashboard.result_btn.coffee":153,"./snap/el.snap.after_btn.coffee":155,"./snap/el.snap.before_btn.coffee":156,"./snap/el.snap.browse_header.coffee":157,"./snap/el.snap.clear_btn.coffee":158,"./snap/el.snap.picture_frame.coffee":159,"./snap/el.snap.selector_radio.coffee":160,"./snap/el.snap.set_profile_btn.coffee":161,"./snap/el.snap.update_btn.coffee":162,"./snap/el.snap.view_btn.coffee":163,"./snap/el.snap.visit_info.coffee":164}],155:[function(require,module,exports){
 var ElSnapAfterBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37842,7 +37976,7 @@ module.exports = ElSnapAfterBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],154:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 var ElSnapBeforeBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37920,7 +38054,7 @@ module.exports = ElSnapBeforeBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],155:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 var ElBrowseHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37988,7 +38122,7 @@ module.exports = ElBrowseHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],156:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 var ElSnapClearBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38064,7 +38198,7 @@ module.exports = ElSnapClearBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],157:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 var ElSnapPictureFrame,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38217,7 +38351,7 @@ module.exports = ElSnapPictureFrame = (function(_super) {
 })(Fa.CView);
 
 
-},{}],158:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 var ElSnapSelectorRadio,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38306,7 +38440,7 @@ module.exports = ElSnapSelectorRadio = (function(_super) {
 })(Fa.CView);
 
 
-},{}],159:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 var ElSnapSetProfileBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38382,7 +38516,7 @@ module.exports = ElSnapSetProfileBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],160:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 var ElSnapUpdateBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38458,7 +38592,7 @@ module.exports = ElSnapUpdateBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],161:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 var ElSnapViewBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38534,7 +38668,7 @@ module.exports = ElSnapViewBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],162:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 var ElSnapVisitInfo,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38590,7 +38724,7 @@ module.exports = ElSnapVisitInfo = (function(_super) {
 })(Fa.CView);
 
 
-},{}],163:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 var Mixins;
 
 Mixins = {
@@ -38600,7 +38734,7 @@ Mixins = {
 module.exports = Mixins;
 
 
-},{"./toggleable.coffee":164}],164:[function(require,module,exports){
+},{"./toggleable.coffee":166}],166:[function(require,module,exports){
 var Toggleable;
 
 module.exports = Toggleable = (function() {
