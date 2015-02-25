@@ -24431,30 +24431,24 @@ init = function() {
   var deviceAuthenticated;
   deviceAuthenticated = Stores.Consultant.GetDeviceConfig(macId);
   return deviceAuthenticated.done(function(data) {
-    var Checklist, json, jsonString;
+    var Checklist;
     if (data.Status === "OK") {
-      alert("success getting Config");
-      str = Stores.Consultant.configTest(data);
-      jsonString = str.replace(/'/g, '"');
-      json = JSON.parse(jsonString);
-      alert(jsonString);
-      window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
-      window.firstPage = Conf.firstPage = json.firstPage;
-      window.backend = Conf.backend = json.backend;
-      window.OutletId = Conf.outletId = json.outletId;
-      window.branchId = Conf.branchId = json.branchId;
-      window.brand = Conf.brand = json.brand;
-      window.deviceType = Conf.deviceType = json.deviceType;
-      window.authIp = Conf.authIp = json.authIp;
-      window.secondaryHost = Conf.secondaryHost = json.secondaryHost;
-      window.secondaryNasIp = Conf.secondaryNasIp = json.secondaryNasIp;
+      window.imageServerURL = Conf.imageServerURL = data.PrimaryNasIp;
+      window.firstPage = Conf.firstPage = "Login";
+      window.backend = Conf.backend = data.DataIp;
+      window.OutletId = Conf.outletId = data.OutletId;
+      window.branchId = Conf.branchId = data.BranchId;
+      window.brand = Conf.brand = data.Brand;
+      window.deviceType = Conf.deviceType = data.DeviceType;
+      window.authIp = Conf.authIp = data.AuthIp;
+      window.secondaryHost = Conf.secondaryHost = data.SecondaryHost;
+      window.secondaryNasIp = Conf.secondaryNasIp = data.SecondaryNasIp;
     } else {
       alert("error getting config");
     }
     Checklist = Stores.Consultant.getCheckList(macId);
     return Checklist.done(function(data) {
       var appView;
-      alert("get data for all");
       window.Causes = Conf.Causes = data.causes;
       window.Facial = Conf.Facial = data.facial;
       window.Homecare = Conf.Homecare = data.homecare;
@@ -29135,7 +29129,7 @@ module.exports = ConsultantStore = (function() {
 
   ConsultantStore.GetConfig = function(macId) {
     var deviceid, fetchPromise;
-    alert("Getting Configuration");
+    alert("Getting Configuration from:" + "http://testsvr.eurogrp.com:8016/api/Config/PostDeviceConfigDetails");
     deviceid = {
       "DeviceMacId": macId
     };
@@ -29182,7 +29176,7 @@ module.exports = ConsultantStore = (function() {
       return deferred.resolve(data);
     });
     promise.fail(function(jqXHR, textStatus, errorThrown) {
-      alert("Error :" + jqXHR.status + " " + errorThrown);
+      alert("Error get checklist:" + jqXHR.status + " " + errorThrown);
       return alert(Conf.backend);
     });
     return deferred;
