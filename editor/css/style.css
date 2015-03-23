@@ -1,0 +1,121 @@
+@font-face {
+    font-family: 'Glyphter';
+    src: url('../fonts/Glyphter.eot');
+    src: url('../fonts/Glyphter?#iefix') format('embedded-opentype'),
+         url('../fonts/Glyphter.woff') format('woff'),
+         url('../fonts/Glyphter.ttf') format('truetype'),
+         url('../fonts/Glyphter.svg#Glyphter') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+[class^='icon-']:before{
+	display: inline-block;
+   font-family: 'Glyphter';
+   font-style: normal;
+   font-weight: normal;
+   line-height: 1;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale
+}
+.icon-Exit:before{content:'\0041';}
+.icon-Rotate-anti-clockwise:before{content:'\0043';}
+.icon-Rotate-clockwise:before{content:'\0042';}
+.icon-Save:before{content:'\0044';}
+.icon-Text:before{content:'\0045';}
+.icon-Triangle:before{content:'\0046';}
+.icon-Undo:before{content:'\0047';}
+.icon-Cancel2:before{content:'\0048';}
+.icon-Circle:before{content:'\0049';}
+.icon-diamond:before{content:'\004A';}
+.icon-Draw:before{content:'\004B';}
+.icon-Edit:before{content:'\004C';}
+
+/***********Style******************/
+
+body{
+    margin:0;
+    padding:0;
+}
+#wrapper{
+    width:1024px;
+    height:700px;
+    margin: 0;
+    padding: 0;
+}
+#image_container{
+    width:95%;
+    margin: 0 auto;
+}
+button {
+    -webkit-appearance: none;
+    height: 50px;
+    width:50px;
+    background-color:#FFF;
+    color:#666;
+    font-weight:bold;
+    border: solid #666 1px;
+    font-size: 14px;
+    margin-bottom:8px;
+}
+.left{
+    float:left;
+}
+.clsCanvas{
+    width:1024;
+}
+.divButton, .divEditButton{
+	-webkit-transform-origin: 50% 50% 0px; 
+	-webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 88, 0, 0, 1); 
+	background-color:rgba(0,0,0,0.2);
+	opacity: 0.999999; 		
+	min-width: 595px; 
+	height:130px;
+	transform-style: preserve-3d;
+	backface-visibility: visible;
+	bottom:50px;
+	border-radius: 15px 15px 15px 15px;
+	-moz-border-radius: 15px 15px 15px 15px;
+	-webkit-border-radius: 15px 15px 15px 15px;
+	border: 0px solid #000000;
+}
+.divRound{
+   background-color:#3E6279;
+   color:#fff;   
+   float:left;
+   opacity: 0.8;   
+   -webkit-transform-origin: 50% 50% 0px;
+  -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 15, 17, 0, 1);
+	border-radius: 200px 200px 200px 200px;
+	-moz-border-radius: 200px 200px 200px 200px;
+	-webkit-border-radius: 200px 200px 200px 200px;
+	border: 0px solid #000000;
+	width: 80px;
+	height: 85px;
+	padding-top:15px;
+	margin-left:10px;
+	padding-left:20px;
+}
+.divButton{    
+	font-size:60px;
+	position: absolute;
+	z-index: 3;	
+}
+.divEditButton {
+    display:none;
+	font-size:45px;
+	position: absolute;
+	z-index: 3;	
+	-webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 25, 0, 0, 1); 
+	width:700px;
+}
+.divEditButton  > .divRound{
+	width:65px;
+	height: 70px;
+	padding-top:15px;
+}
+.active{
+	background-color:rgba(178,177,179,0.8);
+}
+.divRound:active{
+	background-color:#FB9C05;
+}

@@ -1,0 +1,436 @@
+<!DOCTYPE html>   
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Editor</title>
+        <script src="js/jquery-2.1.3.min.js"></script> 
+        <script src ="js/fabric.js"></script>
+        <link href="css/style.css" type="text/css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="wrapper">
+            <div>
+                <canvas id="c"></canvas>
+            </div>	
+            <div class="divButton">
+                <div class="divRound" id="rotateImageClockwise">
+                    <i class="icon-Rotate-clockwise"></i>
+                </div>
+                <div class="divRound" id="rotateImageAntiClockwise">
+                    <i class="icon-Rotate-anti-clockwise"></i>
+                </div>
+                <div class="divRound" id="edit">
+                    <i class="icon-Edit"></i>
+                </div>
+                <div class="divRound" id="save">
+                    <i class="icon-Save"></i>
+                </div>
+                <div class="divRound" id="bck">
+                    <i class="icon-Cancel2"></i>
+                </div>
+            </div>
+            <div class="divEditButton">
+                <div class="divRound" id="addrect">
+                    <i class="icon-diamond"></i>
+                </div>
+                <div class="divRound" id="addcir">
+                    <i class="icon-Circle"></i>
+                </div>
+                <div class="divRound" id="addtri">
+                    <i class="icon-Triangle"></i>
+                </div>
+                <div class="divRound" id="addtext">
+                    <i class="icon-Text"></i>
+                </div>
+                <div class="divRound" id="draw">
+                    <i class="icon-Draw"></i>
+                </div>
+                <div class="divRound" id="delete">
+                    <i class="icon-Undo"></i>
+                </div>
+                <div class="divRound" id="done">
+                    <i class="icon-Exit"></i>
+                </div>
+            </div>                    
+        </div>		
+
+        <script type="text/javascript">
+            $(function () {
+                document.addEventListener("touchstart", function() {},false);
+                parent.appView.rotatePortrait();
+                var url = document.URL.split('?')[1];
+                var params = url.split('&');
+                var imgUrl = params[0].replace('img=', '');
+                var canvas = new fabric.Canvas('c');
+
+                canvas.stateful = true;
+                canvas.setHeight(1024);
+                canvas.setWidth(768);
+                canvas.calcOffset();
+
+                var current;
+                var list = [];
+                var state = [];
+                var index = 0;
+                var index2 = 0;
+                var action = false;
+                var refresh = true;
+                
+                var isEdit = false;
+
+                drawtype = "none";
+
+                //Load Image
+                fabric.Image.fromURL(imgUrl, function (oImg) {
+                    oImg.scale(0.6).set({
+                        centeredScaling: true,
+                        hasBorders: false,
+                        lockUniScaling: true,
+                        meetOrSlice: "slice",
+                        minScaleLimit: 0.6,
+                        lockRotation: true
+                    });
+                    oImg.hasRotatingPoint = false;
+                    canvas.add(oImg);
+                    oImg.center().setCoords();
+                }, {crossOrigin: ''});
+
+                //Back Button
+                document.getElementById('bck').addEventListener('click', function (e) {
+                    parent.Dispatcher.emit('hide_frontdrop', {for : 'show_full_picture'});
+                });
+
+                //Edit
+                document.getElementById('edit').addEventListener('click', function (e) {
+                    isEdit = true;
+                    $(".divEditButton").show();
+                    $(".divButton").hide();
+                   
+                    //Disable moving of image
+                    canvas.forEachObject(function (obj) {
+                        if (obj.get('type') === "image")
+                        {
+                            obj.hasControls = false;
+                            obj.hasBorders = false;
+                            obj.lockMovementX = true;
+                            obj.lockMovementY = true;
+                            obj.lockScalingX = true;
+                            obj.lockScalingY = true;
+                        } 
+                    });
+                });
+
+                document.getElementById('done').addEventListener('click', function (e) {
+                    isEdit = false;
+                    canvas.isDrawingMode = false;
+                    drawtype = "";
+                    $(".divEditButton").hide();
+                    $(".divButton").show();                
+                   
+                    canvas.deactivateAllWithDispatch();
+                    var dataURL = canvas.toDataURL();
+                    canvas.clear(); 
+                    fabric.Image.fromURL(dataURL, function (oImg) {
+                        oImg.scale(1).set({
+                            centeredScaling: true,
+                            hasBorders: false,
+                            lockUniScaling: true,
+                            meetOrSlice: "slice",
+                            minScaleLimit: 1,
+                            lockRotation: true
+                        });
+                        oImg.hasRotatingPoint = false;
+                        canvas.add(oImg);
+                        oImg.center().setCoords();
+                    }, {crossOrigin: ''});
+                });
+
+                //Text
+                document.getElementById('addtext').addEventListener('click', function (e) {
+                    drawtype = "text";
+                    removeAllActiveClass();
+                    $(this).addClass('active');
+                });
+
+                //Shapes
+                document.getElementById('addrect').addEventListener('click', function (e) {
+                    drawtype = "rect";
+                    removeAllActiveClass();
+                    $(this).addClass('active');
+                });
+
+                document.getElementById('addtri').addEventListener('click', function (e) {
+                    drawtype = "tri";
+                    removeAllActiveClass();
+                    $(this).addClass('active');
+                });
+
+                document.getElementById('addcir').addEventListener('click', function (e) {
+                    drawtype = "cir";
+                    removeAllActiveClass();
+                    $(this).addClass('active');
+                });
+
+                //Rotation               
+                document.getElementById('rotateImageClockwise').addEventListener('click', function (e) {
+                    canvas.forEachObject(function (obj) {
+                        obj.setAngle(obj.getAngle() + 90).setCoords();
+                        if (obj.get('type') === "image")
+                            obj.center().setCoords();                        
+                    });
+                });
+
+                document.getElementById('rotateImageAntiClockwise').addEventListener('click', function (e) {
+                    canvas.forEachObject(function (obj) {
+                        obj.setAngle(obj.getAngle() - 90).setCoords();
+                        if (obj.get('type') === "image")
+                            obj.center().setCoords();                        
+                    });
+                });
+
+                //Draw
+                document.getElementById('draw').addEventListener('click', function (e) {
+                    drawtype = "draw";
+                    removeAllActiveClass();
+                    canvas.isDrawingMode = !canvas.isDrawingMode;
+                    canvas.freeDrawingBrush = new fabric['PencilBrush'](canvas);
+                    canvas.freeDrawingBrush.color = "Red";
+                    canvas.freeDrawingBrush.width = 2;
+                    if (canvas.isDrawingMode)
+                        $('#draw').addClass('active');
+                    else
+                        $('#draw').removeClass('active');
+                });
+
+                //Save
+                document.getElementById('save').addEventListener('click', function (e) {
+                    if (confirm("Are you sure you want to save?")) {
+                        var strDataURI = canvas.toDataURL({format: 'jpeg', quality: 0.9});
+
+                        var clientimage = {
+                            'source': strDataURI,
+                            'scale': '1',
+                            'angle': '0',
+                            'h': '768',
+                            'w': '1024',
+                            'x': '0',
+                            'y': '0'
+                        };
+                        parent.Dispatcher.emit('process_as_new_image', JSON.stringify(clientimage));
+                    }
+                });
+
+                //Delete
+                document.getElementById('delete').addEventListener('click', function (e) {
+                    var activeObject = canvas.getActiveObject();
+                    if(activeObject.get('type') !== 'image') { canvas.remove(activeObject); }
+                });
+
+                //Canvas's events
+                canvas.on({
+                    'mouse:down': function (o){
+                        var pointer = canvas.getPointer(o.e);
+                        drawingMode(pointer);
+                        if (drawtype !== 'draw')
+                            $('.divRound').removeClass('active');
+                    },
+                    'object:scaling': function(){
+                         if(!isEdit)
+                            movingInCanvas(canvas.getActiveObject());
+                    },
+                    'object:moving': function(){
+                         if(!isEdit)
+                            movingInCanvas(canvas.getActiveObject());
+                    },
+                    'touch:gesture': function(){
+                        if(!isEdit)
+                            movingInCanvas(canvas.getActiveObject());
+                    },
+                    'touch:drag': function(){
+                        if(!isEdit)
+                            movingInCanvas(canvas.getActiveObject());
+                    }
+                });
+
+                //Move within the canvas only
+                function movingInCanvas(obj) {  
+                    var angle = obj.get('angle');
+                    var scaleX = obj.getScaleX();
+                    
+                    if(angle < 0) //Anti-Clockwise
+                        angle = 360 + angle;
+                    
+                    var factor = (angle/90) % 4;
+                    
+                    topLeft(obj, factor, scaleX);
+                    bottomRight(obj, factor, scaleX); 
+                }
+                
+                function topLeft(obj, factor, scaleX){
+                    var moveLeft = obj.getPointByOrigin('left', 'top');
+                    switch(parseInt(factor)){
+                        case 0:
+                            if (moveLeft.x > 0 && moveLeft.y > 0)
+                                obj.setPositionByOrigin(new fabric.Point(0, 0), 'left', 'top');
+                            else if (moveLeft.x > 0)
+                                obj.setPositionByOrigin(new fabric.Point(0, moveLeft.y), 'left', 'top');
+                            else if (moveLeft.y > 0)
+                                obj.setPositionByOrigin(new fabric.Point(moveLeft.x, 0), 'left', 'top');
+                            break;
+                        case 1:
+                            if(scaleX > 0.73){
+                                if (moveLeft.x < 768 && moveLeft.y > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(768, 0), 'left', 'top');
+                                else if (moveLeft.x < 768)
+                                    obj.setPositionByOrigin(new fabric.Point(768, moveLeft.y), 'left', 'top');
+                                else if (moveLeft.y > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(moveLeft.x, 0), 'left', 'top');
+                            }else{
+                                if (moveLeft.x < 768 && moveLeft.y < 0)
+                                    obj.setPositionByOrigin(new fabric.Point(768, 0), 'left', 'top');
+                                else if (moveLeft.x < 768)
+                                    obj.setPositionByOrigin(new fabric.Point(768, moveLeft.y), 'left', 'top');
+                                else if (moveLeft.y < 0)
+                                    obj.setPositionByOrigin(new fabric.Point(moveLeft.x, 0), 'left', 'top');
+                            }
+                            break;
+                        case 2:
+                            if (moveLeft.x < 768 && moveLeft.y < 1024)
+                                obj.setPositionByOrigin(new fabric.Point(768, 1024), 'left', 'top');
+                            else if (moveLeft.x < 768)
+                                obj.setPositionByOrigin(new fabric.Point(768, moveLeft.y), 'left', 'top');
+                            else if (moveLeft.y < 1024)
+                                obj.setPositionByOrigin(new fabric.Point(moveLeft.x, 1024), 'left', 'top');
+                            break;
+                        case 3:
+                            if(scaleX > 0.73){
+                                if (moveLeft.x > 0  && moveLeft.y < 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(0, 1024), 'left', 'top');
+                                else if (moveLeft.x > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(0, moveLeft.y), 'left', 'top');
+                                else if (moveLeft.y < 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(moveLeft.x, 1024), 'left', 'top');
+                            }else{
+                                if (moveLeft.x > 0 && moveLeft.y > 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(0, 1024), 'left', 'top');
+                                else if (moveLeft.x > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(0, moveLeft.y), 'left', 'top');
+                                else if (moveLeft.y > 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(moveLeft.x, 1024), 'left', 'top');
+                            }
+                            break;
+                    }
+                }
+                
+                function bottomRight(obj, factor, scaleX){
+                    var moveRight = obj.getPointByOrigin('right', 'bottom');
+                    
+                    switch(parseInt(factor))
+                    {
+                        case 0:
+                            if (moveRight.x < 768 && moveRight.y < 1024)
+                                obj.setPositionByOrigin(new fabric.Point(768, 1024), 'right', 'bottom');
+                            else if (moveRight.x < 768)
+                                obj.setPositionByOrigin(new fabric.Point(768, moveRight.y), 'right', 'bottom');
+                            else if (moveRight.y < 1024)
+                                obj.setPositionByOrigin(new fabric.Point(moveRight.x, 1024), 'right', 'bottom');
+                            break;
+                        case 1:
+                            if(scaleX > 0.73){
+                                if (moveRight.x > 0 && moveRight.y < 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(0, 1024), 'right', 'bottom');
+                                else if (moveRight.x > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(0, moveRight.y), 'right', 'bottom');
+                                else if (moveRight.y < 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(moveRight.x, 1024), 'right', 'bottom');
+                            }else{
+                                if (moveRight.x > 0 && moveRight.y > 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(0, 1024), 'right', 'bottom');
+                                else if (moveRight.x > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(0, moveRight.y), 'right', 'bottom');
+                                else if (moveRight.y > 1024)
+                                    obj.setPositionByOrigin(new fabric.Point(moveRight.x, 1024), 'right', 'bottom');
+                            }
+                            break;
+                        case 2:
+                            if (moveRight.x > 0 && moveRight.y > 0)
+                                obj.setPositionByOrigin(new fabric.Point(0, 0), 'right', 'bottom');
+                            else if (moveRight.x > 0)
+                                obj.setPositionByOrigin(new fabric.Point(0, moveRight.y), 'right', 'bottom');
+                            else if (moveRight.y > 0)
+                                obj.setPositionByOrigin(new fabric.Point(moveRight.x, 0), 'right', 'bottom');
+                            break;
+                        case 3:
+                             if(scaleX > 0.73){
+                                if (moveRight.x < 768 && moveRight.y > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(768, 0), 'right', 'bottom');
+                                else if (moveRight.x < 768)
+                                    obj.setPositionByOrigin(new fabric.Point(768, moveRight.y), 'right', 'bottom');
+                                else if (moveRight.y > 0)
+                                    obj.setPositionByOrigin(new fabric.Point(moveRight.x, 0), 'right', 'bottom');
+                            }else{
+                                if (moveRight.x < 768 && moveRight.y < 0)
+                                    obj.setPositionByOrigin(new fabric.Point(768, 0), 'right', 'bottom');
+                                else if (moveRight.x < 768)
+                                    obj.setPositionByOrigin(new fabric.Point(768, moveRight.y), 'right', 'bottom');
+                                else if (moveRight.y < 0)
+                                    obj.setPositionByOrigin(new fabric.Point(moveRight.x, 0), 'right', 'bottom');
+                            }
+                            break;
+                    }                    
+                }
+
+                //Drawing Mode
+                function drawingMode(pointer) {
+                    switch (drawtype) {
+                        case "text":
+                            var txt = new fabric.IText('Text', {left: pointer.x, top: pointer.y, stroke: 'black', strokeWidth: 1,
+                                fontSize: 30, fontWeight: 'normal', fontFamily: 'Arial'});
+
+                            fabric.util.setStyle({position: 'fixed'});
+
+                            txt.hasRotatingPoint = true;
+                            canvas.add(txt);
+                            canvas.renderAll();
+                            drawtype = "";
+                            break;
+                        case "cir":
+                            var cir = new fabric.Circle({radius: 30, left: pointer.x, top: pointer.y, fill: 'transparent'});
+                            cir.set({strokeWidth: 2, stroke: 'red'});
+                            cir.hasRotatingPoint = true;
+                            canvas.add(cir);
+                            canvas.renderAll();
+                            drawtype = "";
+                            break;
+                        case "tri":
+                            var tri = new fabric.Triangle({width: 50, height: 50, left: pointer.x, top: pointer.y, fill: 'transparent'});
+                            tri.set({strokeWidth: 2, stroke: 'red'});
+                            tri.hasRotatingPoint = true;
+                            canvas.add(tri);
+                            canvas.renderAll();
+                            drawtype = "none";
+                            break;
+                        case "rect":
+                            var rect = new fabric.Rect({width: 50, height: 50, left: pointer.x, top: pointer.y, fill: 'transparent'});
+                            rect.set({strokeWidth: 2, stroke: 'red'});
+                            rect.setAngle(45);
+                            rect.hasRotatingPoint = true;
+
+                            canvas.add(rect);
+                            canvas.renderAll();
+                            drawtype = "";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                function removeAllActiveClass() {
+                    canvas.isDrawingMode = false;
+                    $('.divRound').removeClass('active');
+                }
+            });
+        </script>
+    </body>
+</html>
+

@@ -24320,7 +24320,7 @@ return jQuery;
 
 },{}],68:[function(require,module,exports){
 'use strict';
-var AppView, Conf, FastClick, copyFS, data, dest, fail, failConfig, failCopy, gFileSystem, gotCopyFileEntry, gotFS, gotFSConfig, gotFile, gotFileConfig, gotFileEntry, gotFileEntryConfig, init, initWithPhonegap, macId, readAsText, resOnSuccess, str, successCopy;
+var AppView, Conf, FastClick, copyFS, dest, fail, failConfig, failCopy, failsaveConfig, gFileSystem, gotCopyFileEntry, gotFS, gotFile, gotFileEntry, gotFileEntrySaveConfig, gotFileSaveConfig, init, initWithPhonegap, macId, readAsText, resOnSuccess, saveConfig, str, successCopy;
 
 window.Setting = '';
 
@@ -24331,25 +24331,6 @@ gFileSystem = {};
 str = '';
 
 macId = "TEST";
-
-window.checkList = "";
-
-data = {
-  "isProduction": "yes",
-  "firstPage": "Login",
-  "backend": "http://egcbsc.com:1337",
-  "imageServerURL": "http://creativesatwork.me:8080/upload",
-  "ScreenWidth": "1024",
-  "ScreenHeight": "768",
-  "OutletId": "101",
-  "BranchId": "1001",
-  "Brand": "NEWYORK",
-  "DeviceType": "IOS",
-  "AuthIp": "http://testsvr.eurogrp.com:8006",
-  "SecondaryHost": "http://testsvr.eurogrp.com:8006",
-  "SecondaryNasIp": "http://creativesatwork.me:8080/upload",
-  "Status": "OK"
-};
 
 require("./..\\..\\bower_components\\famous-polyfills\\index.js");
 
@@ -24394,6 +24375,8 @@ window.Session = new Models.Session();
 
 Session.initFromStores(Stores);
 
+window.Checklist = new Stores.Checklist;
+
 
 /*
   If you're using Browserify or another CommonJS-style module system, the FastClick.attach function will be returned when you call require('fastclick'). As a result, the easiest way to use FastClick with these loaders is as follows:
@@ -24402,13 +24385,6 @@ Session.initFromStores(Stores);
 FastClick = require('fastclick');
 
 FastClick(document.body);
-
-window.triggerPanzoom = function() {
-  return $('.panzoomable').panzoom({
-    minScale: 1,
-    disablePan: true
-  });
-};
 
 window.imageCache = {};
 
@@ -24430,40 +24406,38 @@ appCtx.setPerspective(1000);
 init = function() {
   var deviceAuthenticated;
   deviceAuthenticated = Stores.Consultant.GetDeviceConfig(macId);
-  return deviceAuthenticated.done(function(data) {
-    var Checklist;
-    if (data.Status === "OK") {
-      window.imageServerURL = Conf.imageServerURL = data.PrimaryNasIp;
+  deviceAuthenticated.done(function(data) {
+    if (data.message.Status === "OK") {
+      str = Stores.Consultant.config(data);
+      window.imageServerURL = Conf.imageServerURL = data.config.PrimaryNasIp;
       window.firstPage = Conf.firstPage = "Login";
-      window.backend = Conf.backend = data.DataIp;
-      window.OutletId = Conf.outletId = data.OutletId;
-      window.branchId = Conf.branchId = data.BranchId;
-      window.brand = Conf.brand = data.Brand;
-      window.deviceType = Conf.deviceType = data.DeviceType;
-      window.authIp = Conf.authIp = data.AuthIp;
-      window.secondaryHost = Conf.secondaryHost = data.SecondaryHost;
-      window.secondaryNasIp = Conf.secondaryNasIp = data.SecondaryNasIp;
-    } else {
-      alert("error getting config");
-    }
-    Checklist = Stores.Consultant.getCheckList(macId);
-    return Checklist.done(function(data) {
-      var appView;
-      if (data.length !== 0) {
-        window.Causes = Conf.Causes = data.causes;
-        window.Facial = Conf.Facial = data.facial;
-        window.Homecare = Conf.Homecare = data.homecare;
-        window.Remarks = Conf.Remarks = data.remarks;
-        window.lifestyle = Conf.lifestyle = data.lifestyle;
-        Store.clear();
-        appView = new AppView({
-          size: [Conf.screenWidth, Conf.screenHeight]
-        });
-        appCtx.add(appView);
-      } else {
-        alert("Checklist not amended");
+      window.backend = Conf.backend = data.config.DataIp;
+      window.OutletId = Conf.outletId = data.config.OutletId;
+      window.branchId = Conf.branchId = data.config.BranchId;
+      window.brand = Conf.brand = data.config.Brand;
+      window.deviceType = Conf.deviceType = data.config.DeviceType;
+      window.authIp = Conf.authIp = data.config.AuthIp;
+      window.secondaryHost = Conf.secondaryHost = data.config.SecondaryHost;
+      window.secondaryNasIp = Conf.secondaryNasIp = data.config.SecondaryNasIp;
+      if (Conf.isProduction) {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveConfig, failsaveConfig);
       }
-    });
+      Store.clear();
+      window.appView = new AppView({
+        size: [Conf.screenWidth, Conf.screenHeight]
+      });
+      return appCtx.add(appView);
+    } else {
+      alert("Error:" + data.message.Message);
+    }
+  });
+  return deviceAuthenticated.fail(function(jqXHR, textStatus, errorThrown) {
+    alert("Error:Cannot connect to Configuration Server :" + errorThrown);
+    if (Conf.isProduction) {
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+    } else {
+      alert("Connectin failed to get config");
+    }
   });
 };
 
@@ -24495,36 +24469,31 @@ readAsText = function(file) {
   var reader;
   reader = new FileReader();
   reader.onloadend = function(evt) {
-    var json, jsonString;
+    var appView, json, jsonString;
     str = evt.target.result;
     jsonString = str.replace(/'/g, '"');
     json = JSON.parse(jsonString);
-    alert(jsonString);
-    window.imageServerURL = Conf.imageServerURL = json.imageServerURL;
-    window.firstPage = Conf.firstPage = json.firstPage;
-    window.backend = Conf.backend = json.backend;
-    window.screenWidth = Conf.screenWidth = json.screenWidth;
-    window.screenHeight = Conf.screenHeight = json.screenHeight;
-    window.OutletId = Conf.outletId = json.outletId;
-    window.branchId = Conf.branchId = json.branchId;
-    window.brand = Conf.brand = json.brand;
-    window.deviceType = Conf.deviceType = json.deviceType;
-    window.authIp = Conf.authIp = json.authIp;
-    window.secondaryHost = Conf.secondaryHost = json.secondaryHost;
-    window.secondaryNasIp = Conf.secondaryNasIp = json.secondaryNasIp;
-    return init.call(this);
+    window.imageServerURL = Conf.imageServerURL = json.PrimaryNasIp;
+    window.firstPage = Conf.firstPage = json.FirstPage;
+    window.backend = Conf.backend = json.DataIp;
+    window.OutletId = Conf.outletId = json.OutletId;
+    window.branchId = Conf.branchId = json.BranchId;
+    window.brand = Conf.brand = json.Brand;
+    window.deviceType = Conf.deviceType = json.DeviceType;
+    window.authIp = Conf.authIp = json.AuthIp;
+    window.secondaryHost = Conf.secondaryHost = json.SecondaryHost;
+    window.secondaryNasIp = Conf.secondaryNasIp = json.SecondaryNasIp;
+    Store.clear();
+    appView = new AppView({
+      size: [Conf.screenWidth, Conf.screenHeight]
+    });
+    return appCtx.add(appView);
   };
   return reader.readAsText(file);
 };
 
 fail = function(error) {
-  if (error.code === FileError.NOT_FOUND_ERR) {
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, copyFS, failCopy);
-  } else if (error.code === FileError.SECURITY_ERR) {
-    alert("security error");
-  } else {
-    alert(error.code);
-  }
+  alert("error getting setting file");
 };
 
 copyFS = function(fileSystem) {
@@ -24562,26 +24531,27 @@ failCopy = function(error) {
   alert("error copy file from www -> document directory");
 };
 
-gotFSConfig = function(fileSystem) {
+saveConfig = function(fileSystem) {
   var spath;
-  spath = fileSystem.root.toURL() + "/Data/" + "setting.txt";
+  spath = fileSystem.root.toURL() + "/" + "setting.txt";
   fileSystem.root.getFile("setting.txt", {
     create: true,
     exclusive: false
-  }, gotFileEntryConfig, failConfig);
+  }, gotFileEntrySaveConfig, failConfig);
 };
 
-gotFileEntryConfig = function(fileEntry) {
-  fileEntry.createWriter(gotFileConfig, failConfig);
+failsaveConfig = function(error) {
+  alert("Fail save config to the device");
 };
 
-gotFileConfig = function(writer) {
+gotFileEntrySaveConfig = function(fileEntry) {
+  fileEntry.createWriter(gotFileSaveConfig, failConfig);
+};
+
+gotFileSaveConfig = function(writer) {
   writer.onwriteend = function(evt) {
-    writer.onwriteend = function(evt) {
-      return alert("Saved successfully");
-    };
-    writer.write(str);
-    return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+    writer.onwriteend = function(evt) {};
+    return writer.write(str);
   };
   return writer.truncate(0);
 };
@@ -24589,11 +24559,11 @@ gotFileConfig = function(writer) {
 failConfig = function(error) {
   alert("error occured");
   if (error.code === FileError.NOT_FOUND_ERR) {
-    alert(error.code.toString() + ":config file not found");
+    alert(error.code.toString() + ":Copy config to local file failed");
   } else if (error.code === FileError.SECURITY_ERR) {
-    alert("security error");
+    alert("Copy config to local file failed");
   } else {
-    alert(error.code);
+    alert("Copy config to local file failed:" + error.code);
   }
 };
 
@@ -24604,12 +24574,14 @@ if (Conf.isProduction) {
 }
 
 
-},{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":95,"./views/app_view.coffee":99,"./views/behaviors":102,"./views/components":134,"./views/elements":154,"./views/mixins":165,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":96,"panzoom":97,"store":67,"zoom":98}],69:[function(require,module,exports){
+},{"./..\\..\\bower_components\\famous-polyfills\\index.js":4,"./config.coffee":69,"./dispatcher.coffee":70,"./famous.coffee":71,"./models":72,"./stores":87,"./utils.coffee":97,"./views/app_view.coffee":101,"./views/behaviors":104,"./views/components":130,"./views/elements":150,"./views/mixins":161,"fastclick":56,"jquery":65,"lodash":66,"nailthumb":98,"panzoom":99,"store":67,"zoom":100}],69:[function(require,module,exports){
 module.exports = {
-  isProduction: true,
+  isProduction: false,
   firstPage: 'Login',
+  backend: 'http://172.0.6.168:1337',
   screenWidth: '1024',
-  screenHeight: '768'
+  screenHeight: '768',
+  settingUrl: 'http://testsvr.eurogrp.com:8016'
 };
 
 
@@ -25462,158 +25434,112 @@ module.exports = Models;
 var Client;
 
 module.exports = Client = (function() {
-  function Client(clientId, age) {
-    var promise;
+  function Client(clientId, clientAge, clientRegisterDate, clientdb) {
+    var client, default_profile_pic;
     clientId = clientId.toUpperCase().trim();
-    promise = this.fetchFromBackend(clientId);
-    promise.done((function(_this) {
-      return function(data) {
-        var client, default_profile_pic, newclient;
-        console.log('fetch for init');
-        console.log(data);
-        if (data.length !== 0) {
-          client = data[0];
-          _this.Id = client.Id;
-          _this.name = client.name;
-          _this.age = age;
-          _this.photos = client.photos;
-          _this.sessions = client.sessions;
-          _this.matches = client.matches || {};
-          _.each(_this.matches, function(match) {
-            return match.favourite = match.favourite === 'true';
-          });
-          default_profile_pic = {
-            temp: 'images/profile.png',
-            original: null,
-            sized: null,
-            square: null,
-            large: null,
-            date_taken: null,
-            timestamp: null
-          };
-          _this.profile_pic = client.profile_pic || default_profile_pic;
-          _this.first_joined = client.first_joined;
-          _this.rating_pigmentation = client.rating_pigmentation;
-          _this.rating_sensitive = client.rating_sensitive;
-          _this.rating_aging = client.rating_aging;
-          _this.rating_acne = client.rating_acne;
-          _this.desire_skin_brightening = client.desire_skin_brightening === 'true';
-          _this.desire_skin_hydrates = client.desire_skin_hydrates === 'true';
-          _this.desire_eye_bags = client.desire_eye_bags === 'true';
-          _this.desire_dark_spots = client.desire_dark_spots === 'true';
-          _this.desire_pigmentation = client.desire_pigmentation === 'true';
-          _this.desire_acne = client.desire_acne === 'true';
-          _this.desire_sensitive = client.desire_sensitive === 'true';
-          _this.desire_aging = client.desire_aging === 'true';
-          _this.desire_wrinkles = client.desire_wrinkles === 'true';
-          _this.desire_pimples = client.desire_pimples === 'true';
-          _this.desire_blackheads = client.desire_blackheads === 'true';
-          _this.desire_coloration = client.desire_coloration === 'true';
-          _this.cl_lifestyle_opt1 = client.cl_lifestyle_opt1 === 'true';
-          _this.cl_lifestyle_opt2 = client.cl_lifestyle_opt2 === 'true';
-          _this.cl_lifestyle_opt3 = client.cl_lifestyle_opt3 === 'true';
-          _this.cl_lifestyle_opt4 = client.cl_lifestyle_opt4 === 'true';
-          _this.cl_result_rating = client.cl_result_rating;
-          _this.cl_causes_opt1 = client.cl_causes_opt1 === 'true';
-          _this.cl_causes_opt2 = client.cl_causes_opt2 === 'true';
-          _this.cl_causes_opt3 = client.cl_causes_opt3 === 'true';
-          _this.cl_causes_opt4 = client.cl_causes_opt4 === 'true';
-          _this.cl_homecare_opt1 = client.cl_homecare_opt1 === 'true';
-          _this.cl_homecare_opt2 = client.cl_homecare_opt2 === 'true';
-          _this.cl_homecare_opt3 = client.cl_homecare_opt3 === 'true';
-          _this.cl_homecare_opt4 = client.cl_homecare_opt4 === 'true';
-          _this.cl_facial_opt1 = client.cl_facial_opt1 === 'true';
-          _this.cl_facial_opt2 = client.cl_facial_opt2 === 'true';
-          _this.cl_facial_opt3 = client.cl_facial_opt3 === 'true';
-          _this.cl_facial_opt4 = client.cl_facial_opt4 === 'true';
-          _this.cl_remarks_opt1 = client.cl_remarks_opt1 === 'true';
-          _this.cl_remarks_opt2 = client.cl_remarks_opt2 === 'true';
-          _this.cl_remarks_opt3 = client.cl_remarks_opt3 === 'true';
-          _this.cl_remarks_opt4 = client.cl_remarks_opt4 === 'true';
-          if (Utils.getDate() !== client.sessions[client.sessions.length - 1].date) {
-            _this.sessions.push({
-              date: Utils.getDate(),
-              treatment_improvement: null,
-              service: null
-            });
-          }
-        } else {
-          alert("First Visit?");
-          newclient = _this.GetClientDetails(clientId);
-          newclient.done(function(data) {
-            this.Id = clientId;
-            this.name = clientId;
-            this.age = 0;
-            if (data.length !== 0) {
-              this.age = data.Age;
-            }
-            this.photos = [];
-            this.sessions = [];
-            this.matches = {};
-            this.sessions.push({
-              date: Utils.getDate(),
-              treatment_improvement: null,
-              service: null
-            });
-            this.first_joined = null;
-            if (data.length !== 0) {
-              this.first_joined = data.Registered_Date;
-            }
-            this.profile_pic = {
-              temp: 'images/profile.png',
-              original: null,
-              sized: null,
-              square: null,
-              large: null,
-              date_taken: null,
-              timestamp: null
-            };
-            this.rating_pigmentation = null;
-            this.rating_sensitive = null;
-            this.rating_aging = null;
-            this.rating_acne = null;
-            this.desire_skin_brightening = false;
-            this.desire_skin_hydrates = false;
-            this.desire_eye_bags = false;
-            this.desire_dark_spots = false;
-            this.desire_pigmentation = false;
-            this.desire_acne = false;
-            this.desire_sensitive = false;
-            this.desire_aging = false;
-            this.desire_wrinkles = false;
-            this.desire_pimples = false;
-            this.desire_blackheads = false;
-            this.desire_coloration = false;
-            this.cl_lifestyle_opt1 = false;
-            this.cl_lifestyle_opt2 = false;
-            this.cl_lifestyle_opt3 = false;
-            this.cl_lifestyle_opt4 = false;
-            this.cl_result_rating = null;
-            this.cl_causes_opt1 = false;
-            this.cl_causes_opt2 = false;
-            this.cl_causes_opt3 = false;
-            this.cl_causes_opt4 = false;
-            this.cl_homecare_opt1 = false;
-            this.cl_homecare_opt2 = false;
-            this.cl_homecare_opt3 = false;
-            this.cl_homecare_opt4 = false;
-            this.cl_facial_opt1 = false;
-            this.cl_facial_opt2 = false;
-            this.cl_facial_opt3 = false;
-            this.cl_facial_opt4 = false;
-            this.cl_remarks_opt1 = false;
-            this.cl_remarks_opt2 = false;
-            this.cl_remarks_opt3 = false;
-            this.cl_remarks_opt4 = false;
-            return alert("new client saved");
-          });
+    this.clientFetchPromise = $.Deferred();
+    if (clientdb.length !== 0) {
+      client = clientdb[0];
+      this.Id = client.Id;
+      this.name = client.name;
+      this.age = 0;
+      if (client.age === null || (client.age = '' || (client.age = 'undefined'))) {
+        if (clientAge !== 0) {
+          this.age = clientAge;
         }
-        _this.session = _this.sessions.length;
-        _this.reindex();
-        return _this.save();
+      }
+      this.photos = client.photos;
+      this.sessions = client.sessions;
+      this.matches = client.matches || {};
+      _.each(this.matches, function(match) {
+        return match.favourite = match.favourite === 'true';
+      });
+      default_profile_pic = {
+        temp: 'images/profile.png',
+        original: null,
+        sized: null,
+        square: null,
+        large: null,
+        date_taken: null,
+        timestamp: null
       };
-    })(this));
+      this.profile_pic = client.profile_pic || default_profile_pic;
+      this.first_joined = client.first_joined;
+      this.rating_pigmentation = client.rating_pigmentation;
+      this.rating_sensitive = client.rating_sensitive;
+      this.rating_aging = client.rating_aging;
+      this.rating_acne = client.rating_acne;
+      this.desire_skin_brightening = client.desire_skin_brightening === 'true';
+      this.desire_skin_hydrates = client.desire_skin_hydrates === 'true';
+      this.desire_eye_bags = client.desire_eye_bags === 'true';
+      this.desire_dark_spots = client.desire_dark_spots === 'true';
+      this.desire_pigmentation = client.desire_pigmentation === 'true';
+      this.desire_acne = client.desire_acne === 'true';
+      this.desire_sensitive = client.desire_sensitive === 'true';
+      this.desire_aging = client.desire_aging === 'true';
+      this.desire_wrinkles = client.desire_wrinkles === 'true';
+      this.desire_pimples = client.desire_pimples === 'true';
+      this.desire_blackheads = client.desire_blackheads === 'true';
+      this.desire_coloration = client.desire_coloration === 'true';
+      this.checklist = client.checklist || [];
+      if (Utils.getDate() !== client.sessions[client.sessions.length - 1].date) {
+        this.sessions.push({
+          date: Utils.getDate(),
+          treatment_improvement: null,
+          service: null
+        });
+      }
+    } else {
+      alert("First Visit ");
+      this.Id = clientId;
+      this.name = cliendId;
+      this.age = clientAge;
+      this.photos = [];
+      this.sessions = [];
+      this.matches = {};
+      this.sessions.push({
+        date: Utils.getDate(),
+        treatment_improvement: null,
+        service: null
+      });
+      this.first_joined = clientRegisterDate;
+      this.profile_pic = {
+        temp: 'images/profile.png',
+        original: null,
+        sized: null,
+        square: null,
+        large: null,
+        date_taken: null,
+        timestamp: null
+      };
+      this.rating_pigmentation = null;
+      this.rating_sensitive = null;
+      this.rating_aging = null;
+      this.rating_acne = null;
+      this.desire_skin_brightening = false;
+      this.desire_skin_hydrates = false;
+      this.desire_eye_bags = false;
+      this.desire_dark_spots = false;
+      this.desire_pigmentation = false;
+      this.desire_acne = false;
+      this.desire_sensitive = false;
+      this.desire_aging = false;
+      this.desire_wrinkles = false;
+      this.desire_pimples = false;
+      this.desire_blackheads = false;
+      this.desire_coloration = false;
+      this.checklist = [];
+      this.session = this.sessions.length;
+    }
+    this.session = this.sessions.length;
+    this.reindex();
+    this.save();
+    this.clientFetchPromise.resolve();
   }
+
+  Client.prototype.savenew = function() {
+    alert("save new client");
+  };
 
   Client.prototype.reindex = function() {
     var del, getUniqId, index, largePic, originalPic, persisted, save, sizedPic, squarePic;
@@ -26013,21 +25939,38 @@ module.exports = Client = (function() {
   };
 
   Client.prototype.save = function() {
+    var dates, empty_sessions, no_photo_with_associated_date, not_this_session;
+    dates = _.map(this.photos, 'date_taken');
+    not_this_session = function(sess) {
+      return sess.date !== Utils.getDate();
+    };
+    no_photo_with_associated_date = function(sess) {
+      var cond;
+      cond = _.contains(dates, sess.date);
+      return !cond;
+    };
+    empty_sessions = [];
+    _.each(this.sessions, function(sess) {
+      if (not_this_session(sess) && no_photo_with_associated_date(sess)) {
+        return empty_sessions.push(sess);
+      }
+    });
+    this.sessions = _.difference(this.sessions, empty_sessions);
+    this.session = this.sessions.length;
     this.persistToBackend();
     return this;
   };
 
   Client.prototype.persistToBackend = function() {
+    console.log('to clean obj');
+    console.log(this.toCleanObj());
     return $.post("" + Conf.backend + "/clients/" + this.Id, this.toCleanObj(), function(res) {
-      console.log('PERSISTED:');
-      return console.log(res);
+      return console.log('PERSISTED CLIENT:');
     });
   };
 
   Client.prototype.fetchFromBackend = function(clientId) {
-    var fetchPromise, password, username;
-    username = "EURO\doreenchan";
-    password = "eurogrp!12345";
+    var fetchPromise;
     fetchPromise = $.ajax({
       url: "" + Conf.backend + "/clients",
       dataType: "json",
@@ -26052,6 +25995,7 @@ module.exports = Client = (function() {
       age: this.age,
       first_joined: this.first_joined,
       profile_pic: this.profile_pic,
+      checklist: this.checklist,
       rating_pigmentation: this.rating_pigmentation,
       rating_sensitive: this.rating_sensitive,
       rating_aging: this.rating_aging,
@@ -26068,64 +26012,10 @@ module.exports = Client = (function() {
       desire_pimples: this.desire_pimples,
       desire_blackheads: this.desire_blackheads,
       desire_coloration: this.desire_coloration,
-      cl_lifestyle_opt1: this.cl_lifestyle_opt1,
-      cl_lifestyle_opt2: this.cl_lifestyle_opt2,
-      cl_lifestyle_opt3: this.cl_lifestyle_opt3,
-      cl_lifestyle_opt4: this.cl_lifestyle_opt4,
-      cl_result_rating: this.cl_result_rating,
-      cl_causes_opt1: this.cl_causes_opt1,
-      cl_causes_opt2: this.cl_causes_opt2,
-      cl_causes_opt3: this.cl_causes_opt3,
-      cl_causes_opt4: this.cl_causes_opt4,
-      cl_homecare_opt1: this.cl_homecare_opt1,
-      cl_homecare_opt2: this.cl_homecare_opt2,
-      cl_homecare_opt3: this.cl_homecare_opt3,
-      cl_homecare_opt4: this.cl_homecare_opt4,
-      cl_facial_opt1: this.cl_facial_opt1,
-      cl_facial_opt2: this.cl_facial_opt2,
-      cl_facial_opt3: this.cl_facial_opt3,
-      cl_facial_opt4: this.cl_facial_opt4,
-      cl_remarks_opt1: this.cl_remarks_opt1,
-      cl_remarks_opt2: this.cl_remarks_opt2,
-      cl_remarks_opt3: this.cl_remarks_opt3,
-      cl_remarks_opt4: this.cl_remarks_opt4,
       photos: this.photos,
       sessions: this.sessions,
       matches: this.matches
     };
-  };
-
-  Client.prototype.GetClientDetails = function(clientId) {
-    var deferred, promise;
-    deferred = $.Deferred();
-    promise = this.GetClientDetailsFromAES(clientId);
-    promise.done(function(data) {
-      return deferred.resolve(data);
-    });
-    promise.fail(function(jqXHR, textStatus, errorThrown) {
-      return alert("Error get customer details:" + jqXHR.status + " " + errorThrown);
-    });
-    return deferred;
-  };
-
-  Client.prototype.GetClientDetailsFromAES = function(clientId) {
-    var clients, fetchPromise;
-    alert("checking....");
-    clients = {
-      "CompanyID": "SG01",
-      "CustomerID": clientId
-    };
-    fetchPromise = $.ajax({
-      url: "" + Conf.authIp + "/api/NYSS/Customer/fnGetCustomerDetails",
-      type: 'POST',
-      dataType: "json",
-      contentType: 'application/json',
-      crossDomain: true,
-      withCredentials: false,
-      useDefaultXhrHeader: false,
-      data: JSON.stringify(clients)
-    });
-    return fetchPromise;
   };
 
   return Client;
@@ -26322,7 +26212,7 @@ module.exports = canvasPage = (function(_super) {
 
 
 },{}],77:[function(require,module,exports){
-var AsLink, FaceRating, Hamburger, Header, QuickLinks, ResultHeader, Tristar, checklistPage,
+var AsLink, Hamburger, Header, QuickLinks, ResultHeader, Tristar, checklistPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -26336,246 +26226,28 @@ ResultHeader = Fa.Components.Checklist.result_header;
 
 Tristar = Fa.Components.Checklist.tristar;
 
-FaceRating = Fa.Components.Checklist.face_rating;
-
 AsLink = Fa.Behaviors.AsLink;
 
 module.exports = checklistPage = (function(_super) {
-  var causes, createLeftPanel, createLeftPanelConsultantRatings, createLeftPanelCustomerRatings, createLeftPanelDesiredResultBox, createLeftPanelSaveResult, createQ1, createQ2, createQ3, createQ4, createQ5, createQ6, createQuestions, createRightPanel, facial, homecare, init, lifestyle, remarks;
+  var createLeftPanel, createLeftPanelConsultantRatings, createLeftPanelCustomerRatings, createLeftPanelDesiredResultBox, createLeftPanelSaveResult, createRightPanel, handleFaceRating, init, initQuestionnaires, syncChecklistValues, updateResultBox;
 
   __extends(checklistPage, _super);
 
   checklistPage.DEFAULT_OPTIONS = {};
 
-  checklistPage.opFacial = [];
-
-  checklistPage.opCauses = [];
-
-  checklistPage.opHomecare = [];
-
-  checklistPage.opLifestyle = [];
-
-  checklistPage.opRemarks = [];
-
-  facial = "";
-
-  causes = "";
-
-  homecare = "";
-
-  lifestyle = "";
-
-  remarks = "";
-
   function checklistPage(options) {
-    var updateQ1Box, updateQ3Box, updateQ4Box, updateQ5Box, updateQ6Box, updateResultBox;
     checklistPage.__super__.constructor.call(this, options);
     this.container = new Fa.CContainer();
     init.call(this);
-    facial = Conf.Facial;
-    causes = Conf.Causes;
-    homecare = Conf.Homecare;
-    lifestyle = Conf.lifestyle;
-    remarks = Conf.Remarks;
     Dispatcher.pipe(this._eventInput);
-    updateResultBox = function() {
-      var text;
-      text = '';
-      if (Session.currentClient.desire_skin_brightening) {
-        text += 'Skin Brightening. ';
-      }
-      if (Session.currentClient.desire_skin_hydrates) {
-        text += 'Skin Hydrates. ';
-      }
-      if (Session.currentClient.desire_eye_bags) {
-        text += 'Eye bags. ';
-      }
-      if (Session.currentClient.desire_dark_spots) {
-        text += 'Dark spots. ';
-      }
-      if (Session.currentClient.desire_pigmentation) {
-        text += 'Pigmentation. ';
-      }
-      if (Session.currentClient.desire_acne) {
-        text += 'Acne. ';
-      }
-      if (Session.currentClient.desire_sensitive) {
-        text += 'Sensitive. ';
-      }
-      if (Session.currentClient.desire_aging) {
-        text += 'Aging. ';
-      }
-      if (Session.currentClient.desire_wrinkles) {
-        text += 'Wrinkles. ';
-      }
-      if (Session.currentClient.desire_pimples) {
-        text += 'Pimples. ';
-      }
-      if (Session.currentClient.desire_blackheads) {
-        text += 'Blackheads. ';
-      }
-      if (Session.currentClient.desire_coloration) {
-        text += 'Coloration. ';
-      }
-      return this.desiredResultText.setContent(text);
-    };
-    updateQ1Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opLifestyle = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = lifestyle.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = lifestyle.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(lifestyle[i]));
-        this.opLifestyle[i] = json.op;
-      }
-      if (Session.currentClient.cl_lifestyle_opt1) {
-        text = text + this.opLifestyle[0];
-      }
-      if (Session.currentClient.cl_lifestyle_opt2) {
-        text += this.opLifestyle[1];
-      }
-      if (Session.currentClient.cl_lifestyle_opt3) {
-        text += this.opLifestyle[2];
-      }
-      if (Session.currentClient.cl_lifestyle_opt4) {
-        text += this.opLifestyle[3];
-      }
-      return this.answerTextQ1.setContent(text);
-    };
-    updateQ3Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opCauses = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = causes.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = causes.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(causes[i]));
-        this.opCauses[i] = json.op;
-      }
-      if (Session.currentClient.cl_causes_opt1) {
-        text = text + this.opCauses[0];
-      }
-      if (Session.currentClient.cl_causes_opt2) {
-        text = text + this.opCauses[1];
-      }
-      if (Session.currentClient.cl_causes_opt3) {
-        text = text + this.opCauses[2];
-      }
-      if (Session.currentClient.cl_causes_opt4) {
-        text = text + this.opCauses[3];
-      }
-      return this.answerTextQ3.setContent(text);
-    };
-    updateQ4Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opHomecare = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = homecare.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = homecare.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(homecare[i]));
-        this.opHomecare[i] = json.op;
-      }
-      if (Session.currentClient.cl_homecare_opt1) {
-        text = text + this.opHomecare[0];
-      }
-      if (Session.currentClient.cl_homecare_opt2) {
-        text = text + this.opHomecare[1];
-      }
-      if (Session.currentClient.cl_homecare_opt3) {
-        text = text + this.opHomecare[2];
-      }
-      if (Session.currentClient.cl_homecare_opt4) {
-        text = text + this.opHomecare[3];
-      }
-      return this.answerTextQ4.setContent(text);
-    };
-    updateQ5Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opFacial = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = facial.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = facial.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(facial[i]));
-        this.opFacial[i] = json.op;
-      }
-      if (Session.currentClient.cl_facial_opt1) {
-        text = text + this.opFacial[0];
-      }
-      if (Session.currentClient.cl_facial_opt2) {
-        text = text + this.opFacial[1];
-      }
-      if (Session.currentClient.cl_facial_opt3) {
-        text = text + this.opFacial[2];
-      }
-      if (Session.currentClient.cl_facial_opt4) {
-        text = text + this.opFacial[3];
-      }
-      return this.answerTextQ5.setContent(text);
-    };
-    updateQ6Box = function() {
-      var i, json, text, x, _i, _ref;
-      text = '';
-      this.opRemarks = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (x = _i = 0, _ref = remarks.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      for (i = _i = 0, _ref = remarks.length - 1; _i <= _ref; i = _i += 1) {
-        json = JSON.parse(JSON.stringify(remarks[i]));
-        this.opRemarks[i] = json.op;
-      }
-      if (Session.currentClient.cl_remarks_opt1) {
-        text = text + this.opRemarks[0];
-      }
-      if (Session.currentClient.cl_remarks_opt2) {
-        text = text + this.opRemarks[1];
-      }
-      if (Session.currentClient.cl_remarks_opt3) {
-        text = text + this.opRemarks[2];
-      }
-      if (Session.currentClient.cl_remarks_opt4) {
-        text = text + this.opRemarks[3];
-      }
-      return this.answerTextQ6.setContent(text);
-    };
+    this._eventInput.on('checklist_questionnaires_fetched', initQuestionnaires.bind(this));
     this._eventInput.on('update_desired_results_text', updateResultBox.bind(this));
     this._eventInput.on('session_changed:current_client', updateResultBox.bind(this));
-    this._eventInput.on('update_cl_lifestyle_text', updateQ1Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ1Box.bind(this));
-    this._eventInput.on('update_cl_causes_text', updateQ3Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ3Box.bind(this));
-    this._eventInput.on('update_cl_homecare_text', updateQ4Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ4Box.bind(this));
-    this._eventInput.on('update_cl_facial_text', updateQ5Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ5Box.bind(this));
-    this._eventInput.on('update_cl_remarks_text', updateQ6Box.bind(this));
-    this._eventInput.on('session_changed:current_client', updateQ6Box.bind(this));
+    this._eventInput.on('face_rating_clicked', handleFaceRating.bind(this));
+    this._eventInput.on('current_client_checklist_updated', syncChecklistValues.bind(this));
+    if (Checklist.raw) {
+      initQuestionnaires.call(this, Checklist.raw);
+    }
     this.add(this.container);
   }
 
@@ -26589,6 +26261,12 @@ module.exports = checklistPage = (function(_super) {
     rightPanel = createRightPanel.call(this);
     sections.sequenceFrom([leftPanel, rightPanel]);
     return this.container.add(sections);
+  };
+
+  checklistPage.prototype.afterLoad = function() {
+    return Fa.Timer.setTimeout(function() {
+      return Dispatcher.emit('current_client_checklist_updated');
+    }, 1200);
   };
 
   createLeftPanel = function() {
@@ -26798,452 +26476,140 @@ module.exports = checklistPage = (function(_super) {
   };
 
   createRightPanel = function() {
-    var container, questions, questionsHeight, result, sequences, wrapper;
+    var wrapper;
     wrapper = new Fa.CContainer({
       properties: {
         border: '2px solid white'
       }
     });
-    result = createQuestions.call(this);
-    questions = result.questions;
-    questionsHeight = result.questionsHeight;
-    sequences = new Fa.SequentialLayout();
-    sequences.sequenceFrom(questions);
-    container = new Fa.CContainer({
-      size: [500, questionsHeight]
+    this.renderer = new Fa.RenderCtrl({
+      overlap: false
     });
-    container.add(sequences);
-    this.scrollview = new Fa.EasyScrollview({
-      containerSize: [500, 700],
-      itemSize: [500, 1000],
-      direction: 1,
-      paginate: false,
-      scrollBarThickness: 11,
-      scrollBarOpacity: 0.5,
-      scrollBarColor: '#555',
-      scrollContainerOpacity: 0,
-      id: 'checklist_questions'
-    });
-    this.scrollview.addItems([container]);
-    wrapper.addToCenter(this.scrollview);
+    wrapper.add(this.renderer);
     return wrapper;
   };
 
-  createQuestions = function() {
-    var questions;
-    this.questionsHeight = 0;
-    questions = [];
-    this.q1 = createQ1.call(this);
-    this.questionsHeight += this.q1.getSize()[1];
-    questions.push(this.q1);
-    this.q2 = createQ2.call(this);
-    this.questionsHeight += this.q2.getSize()[1];
-    questions.push(this.q2);
-    this.q3 = createQ3.call(this);
-    this.questionsHeight += this.q3.getSize()[1];
-    questions.push(this.q3);
-    this.q4 = createQ4.call(this);
-    this.questionsHeight += this.q4.getSize()[1];
-    questions.push(this.q4);
-    this.q5 = createQ5.call(this);
-    this.questionsHeight += this.q5.getSize()[1];
-    questions.push(this.q5);
-    this.q6 = createQ6.call(this);
-    this.questionsHeight += this.q6.getSize()[1];
-    questions.push(this.q6);
-    return {
-      questions: questions,
-      questionsHeight: this.questionsHeight
-    };
+  updateResultBox = function() {
+    var text;
+    text = '';
+    if (Session.currentClient.desire_skin_brightening) {
+      text += 'Skin Brightening. ';
+    }
+    if (Session.currentClient.desire_skin_hydrates) {
+      text += 'Skin Hydrates. ';
+    }
+    if (Session.currentClient.desire_eye_bags) {
+      text += 'Eye bags. ';
+    }
+    if (Session.currentClient.desire_dark_spots) {
+      text += 'Dark spots. ';
+    }
+    if (Session.currentClient.desire_pigmentation) {
+      text += 'Pigmentation. ';
+    }
+    if (Session.currentClient.desire_acne) {
+      text += 'Acne. ';
+    }
+    if (Session.currentClient.desire_sensitive) {
+      text += 'Sensitive. ';
+    }
+    if (Session.currentClient.desire_aging) {
+      text += 'Aging. ';
+    }
+    if (Session.currentClient.desire_wrinkles) {
+      text += 'Wrinkles. ';
+    }
+    if (Session.currentClient.desire_pimples) {
+      text += 'Pimples. ';
+    }
+    if (Session.currentClient.desire_blackheads) {
+      text += 'Blackheads. ';
+    }
+    if (Session.currentClient.desire_coloration) {
+      text += 'Coloration. ';
+    }
+    return this.desiredResultText.setContent(text);
   };
 
-  createQ1 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [2, 5, 2, 20, 2]
+  initQuestionnaires = function(questionnaires_data) {
+    var hbs_runtime, html;
+    hbs_runtime = require('hbsfy/runtime');
+    hbs_runtime.registerHelper('ifChecklist', function(param, options) {
+      if (param === 'checklist') {
+        return options.fn(this);
+      }
+      if (param === 'rating') {
+        return options.inverse(this);
+      }
+      return raise('incorrect param');
     });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '1. Lifestyle  生活方式',
+    html = require('../templates/checklist.questionnaires.hbs')({
+      questionnaires_data: questionnaires_data
+    });
+    this.questionnaires = new Fa.Surface({
+      content: html,
+      size: [void 0, void 0],
       properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
+        overflow: 'auto'
       }
     });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ1 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ1);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_lifestyle');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_lifestyle');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 120]
-    });
-    container.addToCenter(rows);
-    return container;
+    return this.renderer.show(this.questionnaires, void 0, (function(_this) {
+      return function() {
+        return syncChecklistValues.call(_this);
+      };
+    })(this));
   };
 
-  createQ2 = function() {
-    var answer, answerFlex, container, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [2, 5, 2, 20, 2]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '2. Result of Treatment So Far 护理效果',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    answer = new Fa.CContainer({
-      size: [400, void 0]
-    });
-    answerFlex = new FaceRating({
-      id: 'cl_result_rating'
-    });
-    answer.add(answerFlex);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 100]
-    });
-    container.addToCenter(rows);
-    return container;
+  syncChecklistValues = function() {
+    return _.each(Checklist.raw, (function(_this) {
+      return function(el) {
+        var answers, q, rating;
+        q = el.question;
+        if (!Checklist.getSessByQuestion(q)) {
+          if (el.type === 'checklist') {
+            Session.currentClient.checklist.push({
+              question: q,
+              type: el.type,
+              answers: []
+            });
+          }
+          if (el.type === 'rating') {
+            return Session.currentClient.checklist.push({
+              question: q,
+              type: el.type,
+              answer: null
+            });
+          }
+        } else {
+          if (el.type === 'checklist') {
+            answers = Checklist.getSessByQuestion(q).answers;
+            if (answers == null) {
+              Checklist.getSessByQuestion(q).answers = [];
+              answers = [];
+            }
+            $('#clq-checklist-' + el.index).text(answers.join(', '));
+          }
+          if (el.type === 'rating') {
+            $(".clq-rating-" + el.index).removeClass('active-face-rating').addClass('inactive-face-rating');
+            rating = Checklist.getSessByQuestion(q).answer;
+            console.log(rating);
+            if (rating != null) {
+              return $(".clq-rating-" + el.index + "[data-score=" + rating + "]").removeClass('inactive-face-rating').addClass('active-face-rating');
+            } else {
+              return $(".clq-rating-" + el.index).removeClass('active-face-rating').addClass('inactive-face-rating');
+            }
+          }
+        }
+      };
+    })(this));
   };
 
-  createQ3 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '3. Possible Causes of Skin Problem & Advice <br>&nbsp;&nbsp;&nbsp; 肌肤问题的原因及建议',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ3 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ3);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_causes');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_causes');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ4 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '4. Home Care Recommendation & Advice <br>&nbsp;&nbsp;&nbsp; 家居护理及建议',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ4 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ4);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_homecare');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_homecare');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ5 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '5. Facial Treatment Recommended for the Next Visit <br>&nbsp;&nbsp;&nbsp; 下次肌肤护理推荐',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ5 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ5);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_facial');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_facial');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
-  };
-
-  createQ6 = function() {
-    var answer, answerBox, answerFlex, answerKey, container, createAnswerBox, createAnswerKey, question, rows;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [4, 25, 4, 40, 6]
-    });
-    question = new Fa.WrappedSurface({
-      size: [void 0, true],
-      content: '6. Remarks of Treatment 护理备注',
-      properties: {
-        fontSize: '17px',
-        fontWeight: 'bolder'
-      }
-    });
-    createAnswerBox = function() {
-      var answerBox;
-      answerBox = new Fa.CContainer({
-        properties: {
-          boxShadow: '2px 2px 8px #888'
-        }
-      });
-      answerBox.add(Fa.opaqueBy(0.2)).add(new Fa.Surface({
-        properties: {
-          backgroundColor: 'white'
-        }
-      }));
-      this.answerTextQ6 = new Fa.Surface({
-        content: Array(11).join(' hello hello '),
-        properties: {
-          color: 'purple',
-          fontSize: '15px',
-          fontWeight: 'bold',
-          padding: '8px'
-        }
-      });
-      answerBox.add(this.answerTextQ6);
-      return answerBox;
-    };
-    answerBox = createAnswerBox.call(this);
-    answerBox.on('click', function() {
-      return Dispatcher.emit('show_q_remarks');
-    });
-    createAnswerKey = function() {
-      var icon;
-      icon = new Fa.WrappedSurface({
-        size: [true, true],
-        content: '<i class="ion-plus-circled"></i>',
-        properties: {
-          fontSize: '2em'
-        }
-      });
-      icon.on('click', function() {
-        return Dispatcher.emit('show_q_remarks');
-      });
-      return icon;
-    };
-    answerKey = createAnswerKey.call(this);
-    answer = new Fa.CContainer();
-    answerFlex = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 25, 3, 1]
-    });
-    answer.add(answerFlex);
-    answerFlex.sequenceFrom([Fa.EmptyView(), answerBox, answerKey, Fa.EmptyView()]);
-    rows.sequenceFrom([Fa.EmptyView(), question, Fa.EmptyView(), answer, Fa.EmptyView()]);
-    container = new Fa.CContainer({
-      size: [500, 150]
-    });
-    container.addToCenter(rows);
-    return container;
+  handleFaceRating = function(params) {
+    var q;
+    q = params.question;
+    Checklist.getSessByQuestion(q).answer = params.score;
+    Session.currentClient.save();
+    return syncChecklistValues.call(this);
   };
 
   return checklistPage;
@@ -27251,7 +26617,7 @@ module.exports = checklistPage = (function(_super) {
 })(Fa.View);
 
 
-},{}],78:[function(require,module,exports){
+},{"../templates/checklist.questionnaires.hbs":91,"hbsfy/runtime":64}],78:[function(require,module,exports){
 var AsLink, clientPage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -27304,7 +26670,7 @@ module.exports = clientPage = (function(_super) {
       content: '<strong>Continue</strong>',
       properties: {
         pointerEvents: 'none',
-        color: '#333',
+        color: '#000',
         textAlign: 'center',
         fontSize: '23px'
       }
@@ -27314,7 +26680,7 @@ module.exports = clientPage = (function(_super) {
       content: '<strong>Cancel</strong>',
       properties: {
         pointerEvents: 'none',
-        color: '#333',
+        color: '#000',
         textAlign: 'center',
         fontSize: '23px'
       }
@@ -27323,7 +26689,7 @@ module.exports = clientPage = (function(_super) {
       size: [330, 33],
       properties: {
         cursor: 'pointer',
-        backgroundColor: '#000',
+        backgroundColor: '#8A8A8A',
         borderTopLeftRadius: radius,
         borderTopRightRadius: radius,
         borderBottomLeftRadius: radius,
@@ -27340,7 +26706,7 @@ module.exports = clientPage = (function(_super) {
     this.clickZone.setInactive = (function(_this) {
       return function() {
         return _this.clickZone.setProperties({
-          backgroundColor: '#000'
+          backgroundColor: '#8A8A8A'
         });
       };
     })(this);
@@ -27354,15 +26720,37 @@ module.exports = clientPage = (function(_super) {
           return alert('Please enter the client ID');
         }
       } else {
-        promise = this.GetClientDetails(clientId);
-        return promise.done(function(data) {
-          var age, client;
-          age = data.Age;
-          client = new Models.Client(clientId, age);
-          Session.setCurrentClient(client);
-          return Dispatcher.emit('page_change', {
-            to: 'Dashboard'
-          });
+        promise = Stores.Consultant.GetClientDetails(clientId);
+        promise.done(function(clientdata) {
+          var backpromise;
+          if (clientdata.length !== 0) {
+            if (clientdata.isExist === true) {
+              window.clientdetails = Conf.clientdetails = clientdata;
+              this.age = clientdata.client.Age;
+              this.registerDate = clientdata.client.Registered_Date;
+              backpromise = Stores.Consultant.fetchFromBackend(clientId);
+              backpromise.done(function(data) {
+                var client;
+                client = new Models.Client(clientId, this.age, this.registerDate, data);
+                return client.clientFetchPromise.done(function() {
+                  Session.setCurrentClient(client);
+                  return Dispatcher.emit('page_change', {
+                    to: 'Dashboard'
+                  });
+                });
+              });
+              return backpromise.fail(function(jqXHR, textStatus, errorThrown) {
+                return alert("Error Connecting Mongo Server " + errorThrown);
+              });
+            } else {
+              return alert("client not registered in AES");
+            }
+          } else {
+            return alert("No data exists for this client in AES");
+          }
+        });
+        return promise.fail(function(jqXHR, textStatus, errorThrown) {
+          return alert("Error Connecting AES Server" + errorThrown);
         });
       }
     }).bind(this));
@@ -27370,7 +26758,7 @@ module.exports = clientPage = (function(_super) {
       size: [330, 33],
       properties: {
         cursor: 'pointer',
-        backgroundColor: '#000',
+        backgroundColor: '#8A8A8A',
         borderTopLeftRadius: radius,
         borderTopRightRadius: radius,
         borderBottomLeftRadius: radius,
@@ -27387,7 +26775,7 @@ module.exports = clientPage = (function(_super) {
     this.cancelZone.setInactive = (function(_this) {
       return function() {
         return _this.cancelZone.setProperties({
-          backgroundColor: '#000'
+          backgroundColor: '#8A8A8A'
         });
       };
     })(this);
@@ -27396,38 +26784,6 @@ module.exports = clientPage = (function(_super) {
     this.container.add(Fa.translateBy(630, 344, 0)).add(cancelText);
     this.container.add(Fa.opaqueBy(0.5)).add(Fa.translateBy(630, 298, 0)).add(this.clickZone);
     return this.container.add(Fa.opaqueBy(0.5)).add(Fa.translateBy(630, 338, 0)).add(this.cancelZone);
-  };
-
-  clientPage.prototype.GetClientDetails = function(clientId) {
-    var deferred, promise;
-    deferred = $.Deferred();
-    promise = this.GetClientDetailsFromAES(clientId);
-    promise.done(function(data) {
-      return deferred.resolve(data);
-    });
-    promise.fail(function(jqXHR, textStatus, errorThrown) {
-      return alert("Error :" + jqXHR.status + " " + errorThrown);
-    });
-    return deferred;
-  };
-
-  clientPage.prototype.GetClientDetailsFromAES = function(clientId) {
-    var clients, fetchPromise;
-    clients = {
-      "CompanyID": "SG01",
-      "CustomerID": clientId
-    };
-    fetchPromise = $.ajax({
-      url: "" + Conf.authIp + "/api/NYSS/Customer/fnGetCustomerDetails",
-      type: 'POST',
-      dataType: "json",
-      contentType: 'application/json',
-      crossDomain: true,
-      withCredentials: false,
-      useDefaultXhrHeader: false,
-      data: JSON.stringify(clients)
-    });
-    return fetchPromise;
   };
 
   return clientPage;
@@ -27477,6 +26833,8 @@ module.exports = comparePage = (function(_super) {
       return function() {
         _this.left_session = Session.currentSession;
         _this.right_session = Session.currentSession;
+        _this.numPadRendererA.init();
+        _this.numPadRendererB.init();
         _this.redrawPictureFrameA(Session.currentSession);
         return _this.redrawPictureFrameB(Session.currentSession);
       };
@@ -27656,7 +27014,6 @@ module.exports = comparePage = (function(_super) {
       return function() {
         _.each(_this.leftFrameData, function(data) {
           if (data.photo.getUniqId() === Session.currentPhoto.getUniqId()) {
-            console.log('setting..');
             data.subtitle.angle.setContent("<strong>Angle:</strong>&nbsp;" + Session.currentPhoto.angle);
             return data.subtitle.taken.setContent("<strong>Taken:</strong>&nbsp;" + Session.currentPhoto.taken_for);
           }
@@ -27672,7 +27029,6 @@ module.exports = comparePage = (function(_super) {
     this._eventInput.on("compare_left_frame_scrollview_pos_changed", (function(_this) {
       return function(opts) {
         if (_this.leftFrameData[opts.index]) {
-          console.log('pica updated');
           _this.selectorSection.selectedLeftPhoto = _this.leftFrameData[opts.index].photo;
           return _this.selectorSection.updateMatchBtn();
         }
@@ -27681,7 +27037,6 @@ module.exports = comparePage = (function(_super) {
     this._eventInput.on("compare_right_frame_scrollview_pos_changed", (function(_this) {
       return function(opts) {
         if (_this.rightFrameData[opts.index]) {
-          console.log('picb updated');
           _this.selectorSection.selectedRightPhoto = _this.rightFrameData[opts.index].photo;
           return _this.selectorSection.updateMatchBtn();
         }
@@ -27915,7 +27270,7 @@ module.exports = loginPage = (function(_super) {
       content: '<strong>Login</strong>',
       properties: {
         pointerEvents: 'none',
-        color: '#333',
+        color: '#000',
         textAlign: 'center',
         fontSize: '23px'
       }
@@ -27924,7 +27279,7 @@ module.exports = loginPage = (function(_super) {
       size: [330, 35],
       properties: {
         cursor: 'pointer',
-        backgroundColor: '#000',
+        backgroundColor: '#8A8A8A',
         borderTopLeftRadius: radius,
         borderTopRightRadius: radius,
         borderBottomLeftRadius: radius,
@@ -27941,7 +27296,7 @@ module.exports = loginPage = (function(_super) {
     this.clickZone.setInactive = (function(_this) {
       return function() {
         return _this.clickZone.setProperties({
-          backgroundColor: '#000'
+          backgroundColor: '#8A8A8A'
         });
       };
     })(this);
@@ -28018,7 +27373,9 @@ module.exports = resultPage = (function(_super) {
       return function(payload) {
         Dispatcher.emit('change_match_photos', {
           beforePic: payload.before,
-          afterPic: payload.after
+          afterPic: payload.after,
+          beforeDate: payload.beforeDate,
+          afterDate: payload.afterDate
         });
         return Dispatcher.emit('show_match_picture');
       };
@@ -28039,17 +27396,23 @@ module.exports = resultPage = (function(_super) {
     })(this));
     this._eventInput.on('all_clients_list_last_tapped_item', (function(_this) {
       return function(obj) {
+        var backpromise;
         _.each(_this.clientList, function(cl) {
           return cl.setProperties({
             backgroundColor: cl.originalColor
           });
         });
-        console.log(obj);
-        _this.currentPageClient = new Models.Client(obj.item.client.Id);
-        obj.item.setProperties({
-          backgroundColor: '#fb9c05'
+        backpromise = Stores.Consultant.fetchFromBackend(obj.item.client.Id);
+        backpromise.done(function(data) {
+          _this.currentPageClient = new Models.Client(obj.item.client.Id, 0, null, data);
+          obj.item.setProperties({
+            backgroundColor: '#fb9c05'
+          });
+          return Dispatcher.emit('_resultPageClientSelected');
         });
-        return Dispatcher.emit('_resultPageClientSelected');
+        return backpromise.fail(function(jqXHR, textStatus, errorThrown) {
+          return alert("Error Connecting  Server " + errorThrown);
+        });
       };
     })(this));
     columns = new Fa.FlexibleLayout({
@@ -28075,7 +27438,7 @@ module.exports = resultPage = (function(_super) {
     fetchPromise = $.ajax({
       url: "" + Conf.backend + "/clients_with_results",
       dataType: "json",
-      async: false,
+      async: true,
       data: query,
       type: 'GET'
     });
@@ -28228,16 +27591,12 @@ module.exports = resultPage = (function(_super) {
       aging: Session.clientFilterAging,
       no_of_result: Session.clientFilterNoOfResult
     };
-    console.log(query);
     promise = this.fetchFromBackend(query);
     deferred = $.Deferred();
     promise.done((function(_this) {
       return function(res) {
         var allContainer;
-        console.log('back from promise');
-        console.log(res);
         _.each(res, function(client) {
-          console.log(client);
           if (client.name === Session.currentClient.name) {
             return;
           }
@@ -28710,8 +28069,7 @@ module.exports = snapPage = (function(_super) {
         if (Session.currentPhoto) {
           id = Session.currentPhoto.getUniqId();
           if (id === _this.doubleTapBuffer) {
-            alert("call paint");
-            return Dispatcher.emit('show_paint');
+            return Dispatcher.emit('show_full_picture');
           }
         }
       };
@@ -28912,7 +28270,9 @@ module.exports = snapPage = (function(_super) {
     })(this));
     this._eventInput.on('snap_redraw_frames', (function(_this) {
       return function() {
-        return _this.redrawPictureFrames();
+        _this.redrawPictureFrames();
+        Dispatcher.emit('update_frame_position');
+        return Dispatcher.emit('update_snap_browser_content');
       };
     })(this));
     this._eventInput.on('update_frame_position', (function(_this) {
@@ -29045,13 +28405,53 @@ module.exports = splashPage = (function(_super) {
 var Stores;
 
 Stores = {
-  Consultant: require('./store.consultants.coffee')
+  Consultant: require('./store.consultants.coffee'),
+  Checklist: require('./store.checklist.coffee')
 };
 
 module.exports = Stores;
 
 
-},{"./store.consultants.coffee":88}],88:[function(require,module,exports){
+},{"./store.checklist.coffee":88,"./store.consultants.coffee":89}],88:[function(require,module,exports){
+var ChecklistStore;
+
+module.exports = ChecklistStore = (function() {
+  function ChecklistStore() {
+    $.getJSON("" + Conf.backend + "/checklist.json", (function(_this) {
+      return function(data) {
+        _this.raw = data;
+        _this.object = _.object(_.map(data, (function(x, index) {
+          return [
+            x.question, _.merge(x, {
+              index: index
+            })
+          ];
+        })));
+        return Dispatcher.emit('checklist_questionnaires_fetched', _this.raw);
+      };
+    })(this));
+  }
+
+  ChecklistStore.prototype.getByQuestion = function(question) {
+    return this.object[question];
+  };
+
+  ChecklistStore.prototype.getByIndex = function(index) {
+    return this.raw[index];
+  };
+
+  ChecklistStore.prototype.getSessByQuestion = function(question) {
+    return _.find(Session.currentClient.checklist, function(x) {
+      return x.question === question;
+    });
+  };
+
+  return ChecklistStore;
+
+})();
+
+
+},{}],89:[function(require,module,exports){
 var ConsultantStore;
 
 module.exports = ConsultantStore = (function() {
@@ -29107,18 +28507,18 @@ module.exports = ConsultantStore = (function() {
     var str;
     str = "{";
     str = str + "'isProduction' :" + "'yes',";
-    str = str + "'firstPage' :" + "'Login',";
-    str = str + "'backend' :" + "'" + data.DataIp + "',";
-    str = str + "'imageServerURL' :" + "'" + data.PrimaryNasIp + "'";
-    str = str + "'ScreenWidth' :" + "'" + data.ScreenWidth + "',";
-    str = str + "'ScreenHeight' :" + "'" + data.ScreenHeight + "',";
-    str = str + "'OutletId' :" + "'" + data.OutletId + "',";
-    str = str + "'BranchId' :" + "'" + data.BranchId + "',";
-    str = str + "'Brand' :" + "'" + data.Brand + "',";
-    str = str + "'DeviceType' :" + "'" + data.DeviceType + "',";
-    str = str + "'AuthIp' :" + "'" + data.AuthIp + "',";
-    str = str + "'SecondaryHost' :" + "'" + data.SecondaryHost + "',";
-    str = str + "'SecondaryNasIp' :" + "'" + data.SecondaryNasIp + "'";
+    str = str + "'FirstPage' :" + "'Login',";
+    str = str + "'DataIp' :" + "'" + data.config.DataIp + "',";
+    str = str + "'PrimaryNasIp' :" + "'" + data.config.PrimaryNasIp + "',";
+    str = str + "'ScreenWidth' :" + "'" + data.config.ScreenWidth + "',";
+    str = str + "'ScreenHeight' :" + "'" + data.config.ScreenHeight + "',";
+    str = str + "'OutletId' :" + "'" + data.config.OutletId + "',";
+    str = str + "'BranchId' :" + "'" + data.config.BranchId + "',";
+    str = str + "'Brand' :" + "'" + data.config.Brand + "',";
+    str = str + "'DeviceType' :" + "'" + data.config.DeviceType + "',";
+    str = str + "'AuthIp' :" + "'" + data.config.AuthIp + "',";
+    str = str + "'SecondaryHost' :" + "'" + data.config.SecondaryHost + "',";
+    str = str + "'SecondaryNasIp' :" + "'" + data.config.SecondaryNasIp + "'";
     str = str + "}";
     return str;
   };
@@ -29131,7 +28531,9 @@ module.exports = ConsultantStore = (function() {
       return deferred.resolve(data);
     });
     promise.fail(function(jqXHR, textStatus, errorThrown) {
-      return alert("Error Get Config:" + jqXHR.status + " " + errorThrown);
+      alert("Error Get Config:" + jqXHR.status + " " + errorThrown);
+      deferred.reject(jqXHR, textStatus, errorThrown);
+      return deferred;
     });
     return deferred;
   };
@@ -29142,7 +28544,7 @@ module.exports = ConsultantStore = (function() {
       "DeviceMacId": macId
     };
     fetchPromise = $.ajax({
-      url: 'http://testsvr.eurogrp.com:8016/api/Config/PostDeviceConfigDetails',
+      url: 'http://testsvr.eurogrp.com:8016/api/DeviceConfig/PostDeviceConfigDetails',
       type: 'POST',
       dataType: "json",
       contentType: 'application/json',
@@ -29176,25 +28578,62 @@ module.exports = ConsultantStore = (function() {
     return str;
   };
 
-  ConsultantStore.getCheckList = function(macId) {
+  ConsultantStore.GetClientDetails = function(clientId) {
     var deferred, promise;
     deferred = $.Deferred();
-    promise = this.checkListFromDb(macId);
+    promise = this.GetClientDetailsFromAES(clientId);
     promise.done(function(data) {
       return deferred.resolve(data);
     });
     promise.fail(function(jqXHR, textStatus, errorThrown) {
-      alert("Error get checklist:" + jqXHR.status + " " + errorThrown);
-      return alert("connection failed:" + Conf.backend);
+      return alert("Error get customer details:" + jqXHR.status + " " + errorThrown);
     });
     return deferred;
   };
 
-  ConsultantStore.checkListFromDb = function(macId) {
+  ConsultantStore.GetClientDetailsFromAES = function(clientId) {
+    var clients, fetchPromise;
+    clients = {
+      "CompanyID": "SG01",
+      "CustomerID": clientId
+    };
+    fetchPromise = $.ajax({
+      url: "" + Conf.authIp + "/api/NYSS/Customer/fnGetCustomerDetails",
+      type: 'POST',
+      dataType: "json",
+      contentType: 'application/json',
+      crossDomain: true,
+      withCredentials: false,
+      useDefaultXhrHeader: false,
+      data: JSON.stringify(clients)
+    });
+    return fetchPromise;
+  };
+
+  ConsultantStore.fetchFromBackend = function(clientId) {
+    var deferred, promise;
+    deferred = $.Deferred();
+    promise = this.fetchBackend(clientId);
+    promise.done(function(data) {
+      return deferred.resolve(data);
+    });
+    promise.fail(function(jqXHR, textStatus, errorThrown) {
+      alert("Error connect backend :" + jqXHR.status + " " + errorThrown);
+      deferred.reject(jqXHR, textStatus, errorThrown);
+      return deferred;
+    });
+    return deferred;
+  };
+
+  ConsultantStore.fetchBackend = function(clientId) {
     var fetchPromise;
     fetchPromise = $.ajax({
-      url: "" + Conf.backend + "/checklists/getOptions",
+      url: "" + Conf.backend + "/clients",
       dataType: "json",
+      async: false,
+      data: {
+        client_name: clientId
+      },
       type: 'GET'
     });
     return fetchPromise;
@@ -29205,7 +28644,133 @@ module.exports = ConsultantStore = (function() {
 })();
 
 
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var Handlebars = require('hbsfy/runtime');
+module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "\r\n      <div class=\"row\">\r\n        <div class=\"col col-10\" style=\"display: flex; align-items: center;justify-content: center;\">\r\n          <i class=\"ion-ios7-circle-outline answer-box-radio\" onclick=\"Dispatcher.emit('answer_box_radio_checked', {answer: '"
+    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "'})\" data-answer-id=\""
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" style=\"font-size: 26px; color: white; cursor: pointer\"></i>\r\n        </div>\r\n        <div class=\"col col-90\">\r\n          <span onclick=\"Dispatcher.emit('answer_box_radio_checked', {answer: '"
+    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "'})\" style=\"font-size: 15px; font-weight: bold; color: white; cursor: pointer\">"
+    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
+    + "</span>\r\n        </div>\r\n      </div>\r\n    ";
+  return buffer;
+  }
+
+  buffer += "<div style=\"width: 380px; height: auto;\">\r\n  <div class=\"alpha60\" style=\"border:6px solid #888; border-radius: 10px;background:rgba(5,5,5, 0.8)\">\r\n    <div style=\"margin: 5px;\">\r\n    ";
+  stack1 = helpers.each.call(depth0, (depth0 && depth0.answer_options), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n      <div class=\"row\"><br></div>\r\n      <div class=\"row\">\r\n        <div class=\"col\" style=\"display: flex; align-items: center;justify-content: center;\">\r\n          <i class=\"icon-Confirm\" onclick=\"Dispatcher.emit('cl_answer_box_confirm')\" style=\"font-size: 37px; color: #fb9c05; cursor: pointer;\"></i>\r\n        </div>\r\n        <div class=\"col\" style=\"display: flex; align-items: center;justify-content: center;\">\r\n          <i class=\"icon-Cancel\" onclick=\"Dispatcher.emit('cl_answer_box_cancel')\" style=\"font-size: 37px; color: #fb9c05; cursor: pointer;\"></i>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>";
+  return buffer;
+  });
+
+},{"hbsfy/runtime":64}],91:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var Handlebars = require('hbsfy/runtime');
+module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1, helper, options;
+  buffer += "\r\n        ";
+  stack1 = (helper = helpers.ifChecklist || (depth0 && depth0.ifChecklist),options={hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.type), options) : helperMissing.call(depth0, "ifChecklist", (depth0 && depth0.type), options));
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n    ";
+  return buffer;
+  }
+function program2(depth0,data) {
+  
+  var buffer = "", stack1, helper;
+  buffer += "\r\n          <div class=\"row\">\r\n            <div class=\"col\">\r\n              <div>\r\n                <p style=\"font-size: 17px; font-weight: bolder;\">";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</p>\r\n              </div>\r\n              <div class=\"row\">\r\n                <div class=\"col col-90\">\r\n                  <div onclick=\"Dispatcher.emit('cl_open_answer_box', {question: '";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "'})\" style=\"opacity: 0.5; box-shadow: 2px 2px 8px #888; background-color: white; min-height: 100px;\">\r\n                    <span id=\"clq-checklist-"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" style=\"font-weight: bold; padding: 8px; font-size: 15px;\">\r\n\r\n                    </span>\r\n                  </div>\r\n                </div>\r\n                <div class=\"col col-10\" style=\"display: flex; align-items: center;justify-content: center;\">\r\n                  <i onclick=\"Dispatcher.emit('cl_open_answer_box', {question: '";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "'})\" class=\"ion-plus-circled\" style=\"font-size: 2em; cursor: pointer;\"></i>\r\n                </div>\r\n              </div>\r\n            </div>\r\n          </div>\r\n        ";
+  return buffer;
+  }
+
+function program4(depth0,data) {
+  
+  var buffer = "", stack1, helper;
+  buffer += "\r\n          <div class=\"row\">\r\n            <div class=\"col\">\r\n              <div>\r\n                <p style=\"font-size: 17px; font-weight: bolder;\">";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</p>\r\n              </div>\r\n              <div class=\"row\">\r\n                <div class=\"col\">\r\n                  <i onclick=\"Dispatcher.emit('face_rating_clicked', {question: '";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "', score: 1})\" class=\"nyss-face1_white clq-rating-"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + " inactive-face-rating\" data-score=\"1\" ></i>\r\n                </div>\r\n                <div class=\"col\">\r\n                  <i onclick=\"Dispatcher.emit('face_rating_clicked', {question: '";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "', score: 2})\" class=\"nyss-face2_white clq-rating-"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + " inactive-face-rating\" data-score=\"2\"></i>\r\n                </div>\r\n                <div class=\"col\">\r\n                  <i onclick=\"Dispatcher.emit('face_rating_clicked', {question: '";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "', score: 3})\" class=\"nyss-face3_white clq-rating-"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + " inactive-face-rating\" data-score=\"3\"></i>\r\n                </div>\r\n                <div class=\"col\">\r\n                  <i onclick=\"Dispatcher.emit('face_rating_clicked', {question: '";
+  if (helper = helpers.question) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.question); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', index: '"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "', score: 4})\" class=\"nyss-face4_white clq-rating-"
+    + escapeExpression(((stack1 = (data == null || data === false ? data : data.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + " inactive-face-rating\" data-score=\"4\"></i>\r\n                </div>\r\n              </div>\r\n            </div>\r\n          </div>\r\n        ";
+  return buffer;
+  }
+
+  buffer += "<div style=\"padding: 15px;\">\r\n    ";
+  stack1 = helpers.each.call(depth0, (depth0 && depth0.questionnaires_data), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\r\n";
+  return buffer;
+  });
+
+},{"hbsfy/runtime":64}],92:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29214,15 +28779,15 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<!--\r\n<div class=\"panzoomable\">\r\n  <div class=\"rotate-90-degrees\">\r\n    <img onload=\"triggerPanzoom()\" onclick=\"Dispatcher.emit('hide_frontdrop', {for: 'show_full_picture'})\" style=\"height: 987px; width: 768px;\" src=\"";
+  buffer += "<iframe src=\"editor/editor.html?img=";
   if (helper = helpers.picture) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.picture); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" class=\"\" />\r\n  </div>\r\n</div>\r\n-->\r\n\r\n\r\n<iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\" width=\"1024\" height=\"768\"></iframe>";
+    + "\" width=\"768\" height=\"1024\"></iframe>";
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],90:[function(require,module,exports){
+},{"hbsfy/runtime":64}],93:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29239,23 +28804,19 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.after) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.after); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" /></div>\r\n</div>";
+    + "\" /></div>\r\n</div>\r\n<div class=\"row\">\r\n  <div class=\"col\"><h1 style=\"text-align: center; color: white;\">";
+  if (helper = helpers.beforeDate) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.beforeDate); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</h1></div>\r\n  <div class=\"col\"><h1 style=\"text-align: center; color: white;\">";
+  if (helper = helpers.afterDate) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.afterDate); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</h1></div>\r\n</div>";
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],91:[function(require,module,exports){
-// hbsfy compiled Handlebars template
-var Handlebars = require('hbsfy/runtime');
-module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  
-
-
-  return "\r\n <iframe src=\"http://maharishi-001-site2.myasp.net/index1.html\" width=\"1024\" height=\"768\"></iframe>\r\n";
-  });
-
-},{"hbsfy/runtime":64}],92:[function(require,module,exports){
+},{"hbsfy/runtime":64}],94:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29287,6 +28848,14 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "', after: '";
   if (helper = helpers.fullAfterPic) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.fullAfterPic); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', beforeDate: '";
+  if (helper = helpers.dateTakenBef) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.dateTakenBef); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', afterDate: '";
+  if (helper = helpers.dateTakenAft) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.dateTakenAft); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
     + "'})\" style=\"color: white; font-size: 28px\"></i></div>\r\n      <div class=\"col\" style=\"margin: 0 auto; font-size: 15px; text-align: center; color: white;\">";
   if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -29336,7 +28905,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],93:[function(require,module,exports){
+},{"hbsfy/runtime":64}],95:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29369,6 +28938,14 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.fullAfterPic) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.fullAfterPic); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
+    + "', beforeDate: '";
+  if (helper = helpers.dateTakenBef) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.dateTakenBef); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "', afterDate: '";
+  if (helper = helpers.dateTakenAft) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.dateTakenAft); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
     + "'})\" style=\"color: white; font-size: 28px\"></i></div>\r\n      <div class=\"col\" style=\"margin: 0 auto; font-size: 15px; text-align: center; color: white;\">";
   if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.title); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
@@ -29381,7 +28958,15 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.afterPic) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.afterPic); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" style=\"float:right; width: 200px; height: 256px; margin: 5px;\" />\r\n      <div style=\"clear: both;\"></div>\r\n      <div style=\"float:left; width: 200px; margin: 5px; text-align: center; font-size: 15px; font-weight: bolder; color: white\">BEFORE</div>\r\n      <div style=\"float:right; width: 200px; margin: 5px; text-align: center; font-size: 15px; font-weight: bolder; color: white\">AFTER</div>\r\n      <div style=\"clear: both;\"></div>\r\n    </div>\r\n\r\n    <div class=\"row\" style=\"height: 40px;\">\r\n      <div class=\"col\" style=\"color: white; font-size: 11px;\">Session: ";
+    + "\" style=\"float:right; width: 200px; height: 256px; margin: 5px;\" />\r\n      <div style=\"clear: both;\"></div>\r\n      <div style=\"float:left; width: 200px; margin: 5px; text-align: center; font-size: 15px; font-weight: bolder; color: white\">BEFORE&nbsp;(";
+  if (helper = helpers.dateTakenBef) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.dateTakenBef); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + ")</div>\r\n      <div style=\"float:right; width: 200px; margin: 5px; text-align: center; font-size: 15px; font-weight: bolder; color: white\">AFTER&nbsp;(";
+  if (helper = helpers.dateTakenAft) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.dateTakenAft); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + ")</div>\r\n      <div style=\"clear: both;\"></div>\r\n    </div>\r\n\r\n    <div class=\"row\" style=\"height: 40px;\">\r\n      <div class=\"col\" style=\"color: white; font-size: 11px;\">Session: ";
   if (helper = helpers.sessBef) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.sessBef); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -29409,7 +28994,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],94:[function(require,module,exports){
+},{"hbsfy/runtime":64}],96:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -29430,7 +29015,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":64}],95:[function(require,module,exports){
+},{"hbsfy/runtime":64}],97:[function(require,module,exports){
 var Utils;
 
 module.exports = Utils = (function() {
@@ -29508,7 +29093,7 @@ module.exports = Utils = (function() {
 })();
 
 
-},{}],96:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -30222,7 +29807,7 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],97:[function(require,module,exports){
+},{"jquery":65}],99:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -31464,7 +31049,7 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],98:[function(require,module,exports){
+},{"jquery":65}],100:[function(require,module,exports){
 (function (global){
 
 ; jQuery = global.jQuery = require("jquery");
@@ -31705,8 +31290,8 @@ module.exports = Utils = (function() {
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":65}],99:[function(require,module,exports){
-var AppView, Backdrop, Browser, ClientFilter, DesiredOptions, Fa, Fullview, MatchBrowser, Matchview, PageRegisters, Paintview, QCauses, QFacial, QHomecare, QLifestyle, QRemarks, SideMenu,
+},{"jquery":65}],101:[function(require,module,exports){
+var AppView, Backdrop, Browser, ChecklistAnswerBox, ClientFilter, DesiredOptions, Fa, Fullview, MatchBrowser, Matchview, PageRegisters, SideMenu,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -31724,21 +31309,11 @@ MatchBrowser = Fa.Components.Compare.match_browser;
 
 Fullview = Fa.Components.Snap.fullview;
 
-Paintview = Fa.Components.Snap.paintview;
-
 Matchview = Fa.Components.Result.matchview;
 
 DesiredOptions = Fa.Components.Checklist.desired_options;
 
-QLifestyle = Fa.Components.Checklist.q_lifestyle;
-
-QCauses = Fa.Components.Checklist.q_causes;
-
-QHomecare = Fa.Components.Checklist.q_homecare;
-
-QFacial = Fa.Components.Checklist.q_facial;
-
-QRemarks = Fa.Components.Checklist.q_remarks;
+ChecklistAnswerBox = Fa.Components.Checklist.answer_box;
 
 ClientFilter = Fa.Components.Result.client_filter;
 
@@ -31774,14 +31349,9 @@ module.exports = AppView = (function(_super) {
       size: [Conf.width, Conf.height]
     });
     this.fullPicture = new Fullview;
-    this.paint = new Paintview;
     this.matchPicture = new Matchview;
     this.desiredOpts = new DesiredOptions;
-    this.qLifestyle = new QLifestyle;
-    this.qCauses = new QCauses;
-    this.qHomecare = new QHomecare;
-    this.qFacial = new QFacial;
-    this.qRemarks = new QRemarks;
+    this.answerBox = new ChecklistAnswerBox;
     this.clientFilter = new ClientFilter;
     this.container.add(Fa.translateZBy(0)).add(this.bg);
     this.container.add(Fa.translateZBy(2)).add(this.renderer);
@@ -31848,9 +31418,7 @@ module.exports = AppView = (function(_super) {
         Dispatcher.emit('show_backdrop', {
           "for": 'show_full_picture'
         });
-        _this.frontRenderer.show(_this.fullPicture, void 0, function() {
-          return console.log('showing next');
-        });
+        _this.frontRenderer.show(_this.fullPicture);
         return _this.fullPicture.show();
       };
     })(this));
@@ -31859,9 +31427,7 @@ module.exports = AppView = (function(_super) {
         Dispatcher.emit('show_backdrop', {
           "for": 'show_full_picture'
         });
-        _this.frontRenderer.show(_this.matchPicture, void 0, function() {
-          return console.log('showing next match');
-        });
+        _this.frontRenderer.show(_this.matchPicture);
         return _this.matchPicture.show();
       };
     })(this));
@@ -31872,38 +31438,10 @@ module.exports = AppView = (function(_super) {
         });
       };
     })(this));
-    this._eventInput.on('show_q_lifestyle', (function(_this) {
+    this._eventInput.on('show_answer_box', (function(_this) {
       return function() {
-        return _this.frontRenderer.show(_this.qLifestyle, void 0, function() {
-          return _this.qLifestyle.show();
-        });
-      };
-    })(this));
-    this._eventInput.on('show_q_causes', (function(_this) {
-      return function() {
-        return _this.frontRenderer.show(_this.qCauses, void 0, function() {
-          return _this.qCauses.show();
-        });
-      };
-    })(this));
-    this._eventInput.on('show_q_homecare', (function(_this) {
-      return function() {
-        return _this.frontRenderer.show(_this.qHomecare, void 0, function() {
-          return _this.qHomecare.show();
-        });
-      };
-    })(this));
-    this._eventInput.on('show_q_facial', (function(_this) {
-      return function() {
-        return _this.frontRenderer.show(_this.qFacial, void 0, function() {
-          return _this.qFacial.show();
-        });
-      };
-    })(this));
-    this._eventInput.on('show_q_remarks', (function(_this) {
-      return function() {
-        return _this.frontRenderer.show(_this.qRemarks, void 0, function() {
-          return _this.qRemarks.show();
+        return _this.frontRenderer.show(_this.answerBox, void 0, function() {
+          return _this.answerBox.show();
         });
       };
     })(this));
@@ -31924,32 +31462,28 @@ module.exports = AppView = (function(_super) {
         return _this.renderer.show(_this.currentPage);
       };
     })(this));
-    this._eventInput.on('show_paint', (function(_this) {
-      return function() {
-        Dispatcher.emit('show_backdrop', {
-          "for": 'show_paint'
-        });
-        _this.frontRenderer.show(_this.paint, void 0, function() {
-          return console.log('showing next');
-        });
-        return _this.fullPicture.show();
-      };
-    })(this));
-    this._eventInput.on('show_match_picture', (function(_this) {
-      return function() {
-        return Dispatcher.emit('show_backdrop', {
-          "for": 'show_paint'
-        });
-      };
-    })(this));
   }
+
+  AppView.prototype.rotatePortrait = function() {
+    if (Conf.isProduction) {
+      screen.lockOrientation('portrait');
+    }
+    return this.container.setSize([Conf.screenHeight, Conf.screenWidth]);
+  };
+
+  AppView.prototype.rotateLandscape = function() {
+    if (Conf.isProduction) {
+      screen.lockOrientation('landscape');
+    }
+    return this.container.setSize([Conf.screenWidth, Conf.screenHeight]);
+  };
 
   return AppView;
 
 })(Fa.View);
 
 
-},{"../famous.coffee":71,"../pages":75}],100:[function(require,module,exports){
+},{"../famous.coffee":71,"../pages":75}],102:[function(require,module,exports){
 
 /*
 Description: apply this to a single element, this element will behave as link
@@ -31990,7 +31524,7 @@ module.exports = BhCommonAsLink = (function() {
 })();
 
 
-},{}],101:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 var BhCommonSelectGroup;
 
 module.exports = BhCommonSelectGroup = (function() {
@@ -32071,7 +31605,7 @@ module.exports = BhCommonSelectGroup = (function() {
 })();
 
 
-},{}],102:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 var Behaviors;
 
 Behaviors = {
@@ -32082,7 +31616,135 @@ Behaviors = {
 module.exports = Behaviors;
 
 
-},{"./bh.common.as_link.coffee":100,"./bh.common.select_group.coffee":101}],103:[function(require,module,exports){
+},{"./bh.common.as_link.coffee":102,"./bh.common.select_group.coffee":103}],105:[function(require,module,exports){
+var AsLink, CancelBtn, Checker, ChecklistAnswerBox, ConfirmBtn,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Checker = Fa.Elements.Checklist.checker;
+
+ConfirmBtn = Fa.Elements.Checklist.confirm_btn;
+
+CancelBtn = Fa.Elements.Checklist.cancel_btn;
+
+AsLink = Fa.Behaviors.AsLink;
+
+module.exports = ChecklistAnswerBox = (function(_super) {
+  var answerBoxRadioChecked, cancel, confirm, renderAnswerBox, _createLayouts, _createLightbox;
+
+  __extends(ChecklistAnswerBox, _super);
+
+  ChecklistAnswerBox.DEFAULT_OPTIONS = {};
+
+  function ChecklistAnswerBox(options) {
+    ChecklistAnswerBox.__super__.constructor.call(this, options);
+    _createLayouts.call(this);
+    Dispatcher.pipe(this._eventInput);
+    this._eventInput.on('cl_open_answer_box', renderAnswerBox.bind(this));
+    this._eventInput.on('answer_box_radio_checked', answerBoxRadioChecked.bind(this));
+    this._eventInput.on('cl_answer_box_confirm', confirm.bind(this));
+    this._eventInput.on('cl_answer_box_cancel', cancel.bind(this));
+  }
+
+  renderAnswerBox = function(params) {
+    var html;
+    this.question = params.question;
+    this.clientAnswer = Checklist.getSessByQuestion(this.question).answers;
+    this.answers = Checklist.object[this.question].answers;
+    html = require('../../templates/checklist.answer_box.hbs')({
+      answer_options: this.answers
+    });
+    this.content = new Fa.Surface({
+      content: html,
+      size: [true, true]
+    });
+    window.myContent = this.content;
+    this.selectedAns = {};
+    _.each(this.answers, (function(_this) {
+      return function(answer, index) {
+        if (_.contains(_this.clientAnswer, answer)) {
+          _this.selectedAns[answer] = true;
+          $(".answer-box-radio[data-answer-id=" + index + "]").removeClass('ion-ios7-circle-outline').addClass('ion-ios7-circle-filled');
+        } else {
+          _this.selectedAns[answer] = false;
+          $(".answer-box-radio[data-answer-id=" + index + "]").removeClass('ion-ios7-circle-filled').addClass('ion-ios7-circle-outline');
+        }
+      };
+    })(this));
+    return Dispatcher.emit('show_answer_box');
+  };
+
+  answerBoxRadioChecked = function(params) {
+    var answer, index;
+    index = params.index;
+    answer = params.answer;
+    if (this.selectedAns[answer]) {
+      this.selectedAns[answer] = false;
+      return $(".answer-box-radio[data-answer-id=" + index + "]").removeClass('ion-ios7-circle-filled').addClass('ion-ios7-circle-outline');
+    } else {
+      this.selectedAns[answer] = true;
+      return $(".answer-box-radio[data-answer-id=" + index + "]").removeClass('ion-ios7-circle-outline').addClass('ion-ios7-circle-filled');
+    }
+  };
+
+  confirm = function() {
+    var selected;
+    selected = [];
+    _.each(this.selectedAns, function(v, k) {
+      if (v) {
+        selected.push(k);
+      }
+    });
+    Checklist.getSessByQuestion(this.question).answers = selected;
+    Session.currentClient.save();
+    Dispatcher.emit('current_client_checklist_updated');
+    return this.hide();
+  };
+
+  cancel = function() {
+    return this.hide();
+  };
+
+  _createLayouts = function() {
+    return _createLightbox.call(this);
+  };
+
+  _createLightbox = function() {
+    var lightboxContainer, positionMod;
+    positionMod = new Fa.Modifier({
+      origin: [0.5, 0.5],
+      align: [0.5, 0.25]
+    });
+    lightboxContainer = new Fa.ContainerSurf({
+      size: [380, true],
+      properties: {
+        pointerEvents: 'none'
+      }
+    });
+    this.lightbox = new Fa.RenderCtrl({
+      overlap: false,
+      inTransition: {
+        duration: 0
+      }
+    });
+    lightboxContainer.add(this.lightbox);
+    return this.add(positionMod).add(lightboxContainer);
+  };
+
+  ChecklistAnswerBox.prototype.show = function() {
+    return this.lightbox.show(this.content);
+  };
+
+  ChecklistAnswerBox.prototype.hide = function() {
+    return this.lightbox.hide();
+  };
+
+  return ChecklistAnswerBox;
+
+})(Fa.View);
+
+
+},{"../../templates/checklist.answer_box.hbs":90}],106:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, desiredOptions,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32283,978 +31945,7 @@ module.exports = desiredOptions = (function(_super) {
 })(Fa.View);
 
 
-},{}],104:[function(require,module,exports){
-var CChecklistFaceRating,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-module.exports = CChecklistFaceRating = (function(_super) {
-  var firstFace, forthFace, init, secondFace, setupEvents, thirdFace;
-
-  __extends(CChecklistFaceRating, _super);
-
-  CChecklistFaceRating.DEFAULT_OPTIONS = {
-    id: 'not_set'
-  };
-
-  function CChecklistFaceRating(options) {
-    CChecklistFaceRating.__super__.constructor.call(this, options);
-    this.id = this.options.id;
-    this.container = new Fa.CContainer();
-    Dispatcher.pipe(this._eventInput);
-    this._eventInput.on('session_changed:current_client', (function(_this) {
-      return function() {
-        switch (_this.id) {
-          case 'cl_result_rating':
-            return _this.setRating(Session.currentClient.cl_result_rating);
-          default:
-            console.log('invalid mapping-tristar');
-            return console.log(_this.id);
-        }
-      };
-    })(this));
-    init.call(this);
-    this.add(this.container);
-  }
-
-  init = function() {
-    var cols;
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 1, 1, 1]
-    });
-    this.rating = null;
-    this.first = firstFace.call(this);
-    this.second = secondFace.call(this);
-    this.third = thirdFace.call(this);
-    this.forth = forthFace.call(this);
-    setupEvents.call(this);
-    cols.sequenceFrom([this.first, this.second, this.third, this.forth]);
-    return this.container.add(cols);
-  };
-
-  setupEvents = function() {
-    this.first.on('click', (function(_this) {
-      return function() {
-        _this.rating = 1;
-        return _this.repaint();
-      };
-    })(this));
-    this.second.on('click', (function(_this) {
-      return function() {
-        _this.rating = 2;
-        return _this.repaint();
-      };
-    })(this));
-    this.third.on('click', (function(_this) {
-      return function() {
-        _this.rating = 3;
-        return _this.repaint();
-      };
-    })(this));
-    return this.forth.on('click', (function(_this) {
-      return function() {
-        _this.rating = 4;
-        return _this.repaint();
-      };
-    })(this));
-  };
-
-  CChecklistFaceRating.prototype.setRating = function(rating) {
-    this.rating = rating;
-    return this.repaint();
-  };
-
-  CChecklistFaceRating.prototype.repaint = function() {
-    this.first.surface.setProperties({
-      fontSize: '42px',
-      color: '#555'
-    });
-    this.second.surface.setProperties({
-      fontSize: '42px',
-      color: '#555'
-    });
-    this.third.surface.setProperties({
-      fontSize: '42px',
-      color: '#555'
-    });
-    this.forth.surface.setProperties({
-      fontSize: '42px',
-      color: '#555'
-    });
-    switch (this.rating) {
-      case 1:
-        this.first.surface.setProperties({
-          fontSize: '55px',
-          color: '#fb9c05'
-        });
-        break;
-      case 2:
-        this.second.surface.setProperties({
-          fontSize: '55px',
-          color: '#fb9c05'
-        });
-        break;
-      case 3:
-        this.third.surface.setProperties({
-          fontSize: '55px',
-          color: '#fb9c05'
-        });
-        break;
-      case 4:
-        this.forth.surface.setProperties({
-          fontSize: '55px',
-          color: '#fb9c05'
-        });
-    }
-    return Dispatcher.emit("face_rating_updated", {
-      rating: this.rating,
-      id: this.id
-    });
-  };
-
-  firstFace = function() {
-    var star;
-    star = new Fa.WrappedSurface({
-      size: [true, true],
-      content: '<i class="nyss-face1_white"></i>',
-      properties: {
-        fontSize: '42px',
-        color: '#555'
-      }
-    });
-    return star;
-  };
-
-  secondFace = function() {
-    var star;
-    star = new Fa.WrappedSurface({
-      size: [true, true],
-      content: '<i class="nyss-face2_white"></i>',
-      properties: {
-        fontSize: '42px',
-        color: '#555'
-      }
-    });
-    return star;
-  };
-
-  thirdFace = function() {
-    var star;
-    star = new Fa.WrappedSurface({
-      size: [true, true],
-      content: '<i class="nyss-face3_white"></i>',
-      properties: {
-        fontSize: '42px',
-        color: '#555'
-      }
-    });
-    return star;
-  };
-
-  forthFace = function() {
-    var star;
-    star = new Fa.WrappedSurface({
-      size: [true, true],
-      content: '<i class="nyss-face4_white"></i>',
-      properties: {
-        fontSize: '42px',
-        color: '#555'
-      }
-    });
-    return star;
-  };
-
-  return CChecklistFaceRating;
-
-})(Fa.CView);
-
-
-},{}],105:[function(require,module,exports){
-var AsLink, CancelBtn, Checker, ConfirmBtn, qCauses,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-Checker = Fa.Elements.Checklist.checker;
-
-ConfirmBtn = Fa.Elements.Checklist.confirm_btn;
-
-CancelBtn = Fa.Elements.Checklist.cancel_btn;
-
-AsLink = Fa.Behaviors.AsLink;
-
-module.exports = qCauses = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
-
-  __extends(qCauses, _super);
-
-  qCauses.DEFAULT_OPTIONS = {};
-
-  qCauses.op = [];
-
-  function qCauses(options) {
-    qCauses.__super__.constructor.call(this, options);
-    _createLayouts.call(this);
-    Dispatcher.pipe(this._eventInput);
-    this._eventInput.on('session_changed:current_client', (function(_this) {
-      return function() {
-        return _this.bindFromModel();
-      };
-    })(this));
-  }
-
-  qCauses.prototype.bindFromModel = function() {
-    this.op[0].setActive(Session.currentClient.cl_causes_opt1);
-    this.op[1].setActive(Session.currentClient.cl_causes_opt2);
-    this.op[2].setActive(Session.currentClient.cl_causes_opt3);
-    return this.op[3].setActive(Session.currentClient.cl_causes_opt4);
-  };
-
-  qCauses.prototype.bindToModel = function() {
-    Session.currentClient.cl_causes_opt1 = this.op[0].getIsActive();
-    Session.currentClient.cl_causes_opt2 = this.op[1].getIsActive();
-    Session.currentClient.cl_causes_opt3 = this.op[2].getIsActive();
-    return Session.currentClient.cl_causes_opt4 = this.op[3].getIsActive();
-  };
-
-  _createLayouts = function() {
-    _createLightbox.call(this);
-    return _createContent.call(this);
-  };
-
-  _createLightbox = function() {
-    var lightboxContainer;
-    lightboxContainer = new Fa.ContainerSurf({
-      size: [380, 250],
-      properties: {
-        pointerEvents: 'none'
-      }
-    });
-    this.lightbox = new Fa.RenderCtrl({
-      overlap: true
-    });
-    lightboxContainer.add(this.lightbox);
-    return this.add(Fa.Pos.center).add(lightboxContainer);
-  };
-
-  _createContent = function() {
-    var radius, sections;
-    radius = '10px';
-    this.content = new Fa.CContainer();
-    this.bg = new Fa.Surface({
-      properties: {
-        backgroundColor: '#000',
-        border: '6px solid #888',
-        borderTopLeftRadius: radius,
-        borderTopRightRadius: radius,
-        borderBottomLeftRadius: radius,
-        borderBottomRightRadius: radius
-      }
-    });
-    this.content.add(Fa.opaqueBy(0.8)).add(this.bg);
-    sections = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 6, 4]
-    });
-    this.options = createOptions.call(this);
-    this.responder = createResponder.call(this);
-    sections.sequenceFrom([Fa.EmptyView(), this.options, this.responder]);
-    return this.content.add(sections);
-  };
-
-  createOptions = function() {
-    var data, i, json, rows, x, _i, _ref;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 1, 1, 1]
-    });
-    data = Conf.Causes;
-    this.op = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-        _results.push(0);
-      }
-      return _results;
-    })();
-    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
-      json = JSON.parse(JSON.stringify(data[i]));
-      this.op[i] = new Checker({
-        text: json.op,
-        size: [280, 40]
-      });
-    }
-    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
-    return rows;
-  };
-
-  createResponder = function() {
-    var cols;
-    this.confirmBtn = new AsLink(new ConfirmBtn, void 0, (function() {
-      this.bindToModel();
-      Dispatcher.emit('update_cl_causes_text');
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    this.cancelBtn = new AsLink(new CancelBtn, void 0, (function() {
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 2, 1, 2, 1]
-    });
-    cols.sequenceFrom([Fa.EmptyView(), this.confirmBtn.item, Fa.EmptyView(), this.cancelBtn.item, Fa.EmptyView()]);
-    return cols;
-  };
-
-  qCauses.prototype.show = function() {
-    return this.lightbox.show(this.content);
-  };
-
-  qCauses.prototype.hide = function() {
-    this.bindFromModel();
-    return this.lightbox.hide();
-  };
-
-  return qCauses;
-
-})(Fa.View);
-
-
-},{}],106:[function(require,module,exports){
-var AsLink, CancelBtn, Checker, ConfirmBtn, qFacial,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-Checker = Fa.Elements.Checklist.checker;
-
-ConfirmBtn = Fa.Elements.Checklist.confirm_btn;
-
-CancelBtn = Fa.Elements.Checklist.cancel_btn;
-
-AsLink = Fa.Behaviors.AsLink;
-
-module.exports = qFacial = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
-
-  __extends(qFacial, _super);
-
-  qFacial.DEFAULT_OPTIONS = {};
-
-  qFacial.op = [];
-
-  function qFacial(options) {
-    qFacial.__super__.constructor.call(this, options);
-    _createLayouts.call(this);
-    Dispatcher.pipe(this._eventInput);
-    this._eventInput.on('session_changed:current_client', (function(_this) {
-      return function() {
-        return _this.bindFromModel();
-      };
-    })(this));
-  }
-
-  qFacial.prototype.bindFromModel = function() {
-    this.op[0].setActive(Session.currentClient.cl_facial_opt1);
-    this.op[1].setActive(Session.currentClient.cl_facial_opt2);
-    this.op[2].setActive(Session.currentClient.cl_facial_opt3);
-    return this.op[3].setActive(Session.currentClient.cl_facial_opt4);
-  };
-
-  qFacial.prototype.bindToModel = function() {
-    Session.currentClient.cl_facial_opt1 = this.op[0].getIsActive();
-    Session.currentClient.cl_facial_opt2 = this.op[1].getIsActive();
-    Session.currentClient.cl_facial_opt3 = this.op[2].getIsActive();
-    return Session.currentClient.cl_facial_opt4 = this.op[3].getIsActive();
-  };
-
-  _createLayouts = function() {
-    _createLightbox.call(this);
-    return _createContent.call(this);
-  };
-
-  _createLightbox = function() {
-    var lightboxContainer;
-    lightboxContainer = new Fa.ContainerSurf({
-      size: [380, 250],
-      properties: {
-        pointerEvents: 'none'
-      }
-    });
-    this.lightbox = new Fa.RenderCtrl({
-      overlap: true
-    });
-    lightboxContainer.add(this.lightbox);
-    return this.add(Fa.Pos.center).add(lightboxContainer);
-  };
-
-  _createContent = function() {
-    var radius, sections;
-    radius = '10px';
-    this.content = new Fa.CContainer();
-    this.bg = new Fa.Surface({
-      properties: {
-        backgroundColor: '#000',
-        border: '6px solid #888',
-        borderTopLeftRadius: radius,
-        borderTopRightRadius: radius,
-        borderBottomLeftRadius: radius,
-        borderBottomRightRadius: radius
-      }
-    });
-    this.content.add(Fa.opaqueBy(0.8)).add(this.bg);
-    sections = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 6, 4]
-    });
-    this.options = createOptions.call(this);
-    this.responder = createResponder.call(this);
-    sections.sequenceFrom([Fa.EmptyView(), this.options, this.responder]);
-    return this.content.add(sections);
-  };
-
-  createOptions = function() {
-    var data, i, json, rows, x, _i, _ref;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 1, 1, 1]
-    });
-    data = Conf.Facial;
-    this.op = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-        _results.push(0);
-      }
-      return _results;
-    })();
-    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
-      json = JSON.parse(JSON.stringify(data[i]));
-      this.op[i] = new Checker({
-        text: json.op,
-        size: [280, 40]
-      });
-    }
-    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
-    return rows;
-  };
-
-  createResponder = function() {
-    var cols;
-    this.confirmBtn = new AsLink(new ConfirmBtn, void 0, (function() {
-      this.bindToModel();
-      Dispatcher.emit('update_cl_facial_text');
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    this.cancelBtn = new AsLink(new CancelBtn, void 0, (function() {
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 2, 1, 2, 1]
-    });
-    cols.sequenceFrom([Fa.EmptyView(), this.confirmBtn.item, Fa.EmptyView(), this.cancelBtn.item, Fa.EmptyView()]);
-    return cols;
-  };
-
-  qFacial.prototype.show = function() {
-    return this.lightbox.show(this.content);
-  };
-
-  qFacial.prototype.hide = function() {
-    this.bindFromModel();
-    return this.lightbox.hide();
-  };
-
-  return qFacial;
-
-})(Fa.View);
-
-
 },{}],107:[function(require,module,exports){
-var AsLink, CancelBtn, Checker, ConfirmBtn, qHomecare,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-Checker = Fa.Elements.Checklist.checker;
-
-ConfirmBtn = Fa.Elements.Checklist.confirm_btn;
-
-CancelBtn = Fa.Elements.Checklist.cancel_btn;
-
-AsLink = Fa.Behaviors.AsLink;
-
-module.exports = qHomecare = (function(_super) {
-  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
-
-  __extends(qHomecare, _super);
-
-  qHomecare.DEFAULT_OPTIONS = {};
-
-  qHomecare.op = [];
-
-  data = [
-    {
-      "op": "Home Care Option1"
-    }, {
-      "op": "Home Care Option2"
-    }, {
-      "op": "Home Care  Option3"
-    }, {
-      "op": "Home Care  Option4"
-    }
-  ];
-
-  function qHomecare(options) {
-    qHomecare.__super__.constructor.call(this, options);
-    _createLayouts.call(this);
-    Dispatcher.pipe(this._eventInput);
-    this._eventInput.on('session_changed:current_client', (function(_this) {
-      return function() {
-        return _this.bindFromModel();
-      };
-    })(this));
-  }
-
-  qHomecare.prototype.bindFromModel = function() {
-    this.op[0].setActive(Session.currentClient.cl_homecare_opt1);
-    this.op[1].setActive(Session.currentClient.cl_homecare_opt2);
-    this.op[2].setActive(Session.currentClient.cl_homecare_opt3);
-    return this.op[3].setActive(Session.currentClient.cl_homecare_opt4);
-  };
-
-  qHomecare.prototype.bindToModel = function() {
-    Session.currentClient.cl_homecare_opt1 = this.op[0].getIsActive();
-    Session.currentClient.cl_homecare_opt2 = this.op[1].getIsActive();
-    Session.currentClient.cl_homecare_opt3 = this.op[2].getIsActive();
-    return Session.currentClient.cl_homecare_opt4 = this.op[3].getIsActive();
-  };
-
-  _createLayouts = function() {
-    _createLightbox.call(this);
-    return _createContent.call(this);
-  };
-
-  _createLightbox = function() {
-    var lightboxContainer;
-    lightboxContainer = new Fa.ContainerSurf({
-      size: [380, 250],
-      properties: {
-        pointerEvents: 'none'
-      }
-    });
-    this.lightbox = new Fa.RenderCtrl({
-      overlap: true
-    });
-    lightboxContainer.add(this.lightbox);
-    return this.add(Fa.Pos.center).add(lightboxContainer);
-  };
-
-  _createContent = function() {
-    var radius, sections;
-    radius = '10px';
-    this.content = new Fa.CContainer();
-    this.bg = new Fa.Surface({
-      properties: {
-        backgroundColor: '#000',
-        border: '6px solid #888',
-        borderTopLeftRadius: radius,
-        borderTopRightRadius: radius,
-        borderBottomLeftRadius: radius,
-        borderBottomRightRadius: radius
-      }
-    });
-    this.content.add(Fa.opaqueBy(0.8)).add(this.bg);
-    sections = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 6, 4]
-    });
-    this.options = createOptions.call(this);
-    this.responder = createResponder.call(this);
-    sections.sequenceFrom([Fa.EmptyView(), this.options, this.responder]);
-    return this.content.add(sections);
-  };
-
-  createOptions = function() {
-    var i, json, rows, x, _i, _ref;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 1, 1, 1]
-    });
-    data = Conf.Homecare;
-    this.op = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-        _results.push(0);
-      }
-      return _results;
-    })();
-    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
-      json = JSON.parse(JSON.stringify(data[i]));
-      this.op[i] = new Checker({
-        text: json.op,
-        size: [280, 40]
-      });
-    }
-    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
-    return rows;
-  };
-
-  createResponder = function() {
-    var cols;
-    this.confirmBtn = new AsLink(new ConfirmBtn, void 0, (function() {
-      this.bindToModel();
-      Dispatcher.emit('update_cl_homecare_text');
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    this.cancelBtn = new AsLink(new CancelBtn, void 0, (function() {
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 2, 1, 2, 1]
-    });
-    cols.sequenceFrom([Fa.EmptyView(), this.confirmBtn.item, Fa.EmptyView(), this.cancelBtn.item, Fa.EmptyView()]);
-    return cols;
-  };
-
-  qHomecare.prototype.show = function() {
-    return this.lightbox.show(this.content);
-  };
-
-  qHomecare.prototype.hide = function() {
-    this.bindFromModel();
-    return this.lightbox.hide();
-  };
-
-  return qHomecare;
-
-})(Fa.View);
-
-
-},{}],108:[function(require,module,exports){
-var AsLink, CancelBtn, Checker, ConfirmBtn, qLifeStyle,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-Checker = Fa.Elements.Checklist.checker;
-
-ConfirmBtn = Fa.Elements.Checklist.confirm_btn;
-
-CancelBtn = Fa.Elements.Checklist.cancel_btn;
-
-AsLink = Fa.Behaviors.AsLink;
-
-module.exports = qLifeStyle = (function(_super) {
-  var createOptions, createResponder, _createContent, _createLayouts, _createLightbox;
-
-  __extends(qLifeStyle, _super);
-
-  qLifeStyle.DEFAULT_OPTIONS = {};
-
-  qLifeStyle.op = [];
-
-  function qLifeStyle(options) {
-    qLifeStyle.__super__.constructor.call(this, options);
-    _createLayouts.call(this);
-    Dispatcher.pipe(this._eventInput);
-    this._eventInput.on('session_changed:current_client', (function(_this) {
-      return function() {
-        return _this.bindFromModel();
-      };
-    })(this));
-  }
-
-  qLifeStyle.prototype.bindFromModel = function() {
-    this.op[0].setActive(Session.currentClient.cl_lifestyle_opt1);
-    this.op[1].setActive(Session.currentClient.cl_lifestyle_opt2);
-    this.op[2].setActive(Session.currentClient.cl_lifestyle_opt3);
-    return this.op[3].setActive(Session.currentClient.cl_lifestyle_opt4);
-  };
-
-  qLifeStyle.prototype.bindToModel = function() {
-    Session.currentClient.cl_lifestyle_opt1 = this.op[0].getIsActive();
-    Session.currentClient.cl_lifestyle_opt2 = this.op[1].getIsActive();
-    Session.currentClient.cl_lifestyle_opt3 = this.op[2].getIsActive();
-    return Session.currentClient.cl_lifestyle_opt4 = this.op[3].getIsActive();
-  };
-
-  _createLayouts = function() {
-    _createLightbox.call(this);
-    return _createContent.call(this);
-  };
-
-  _createLightbox = function() {
-    var lightboxContainer;
-    lightboxContainer = new Fa.ContainerSurf({
-      size: [380, 250],
-      properties: {
-        pointerEvents: 'none'
-      }
-    });
-    this.lightbox = new Fa.RenderCtrl({
-      overlap: true
-    });
-    lightboxContainer.add(this.lightbox);
-    return this.add(Fa.Pos.center).add(lightboxContainer);
-  };
-
-  _createContent = function() {
-    var radius, sections;
-    radius = '10px';
-    this.content = new Fa.CContainer();
-    this.bg = new Fa.Surface({
-      properties: {
-        backgroundColor: '#000',
-        border: '6px solid #888',
-        borderTopLeftRadius: radius,
-        borderTopRightRadius: radius,
-        borderBottomLeftRadius: radius,
-        borderBottomRightRadius: radius
-      }
-    });
-    this.content.add(Fa.opaqueBy(0.8)).add(this.bg);
-    sections = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 6, 4]
-    });
-    this.options = createOptions.call(this);
-    this.responder = createResponder.call(this);
-    sections.sequenceFrom([Fa.EmptyView(), this.options, this.responder]);
-    return this.content.add(sections);
-  };
-
-  createOptions = function() {
-    var data, i, json, rows, x, _i, _ref;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 1, 1, 1]
-    });
-    data = Conf.lifestyle;
-    this.op = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-        _results.push(0);
-      }
-      return _results;
-    })();
-    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
-      json = JSON.parse(JSON.stringify(data[i]));
-      this.op[i] = new Checker({
-        text: json.op,
-        size: [280, 40]
-      });
-    }
-    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
-    return rows;
-  };
-
-  createResponder = function() {
-    var cols;
-    this.confirmBtn = new AsLink(new ConfirmBtn, void 0, (function() {
-      this.bindToModel();
-      Dispatcher.emit('update_cl_lifestyle_text');
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    this.cancelBtn = new AsLink(new CancelBtn, void 0, (function() {
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 2, 1, 2, 1]
-    });
-    cols.sequenceFrom([Fa.EmptyView(), this.confirmBtn.item, Fa.EmptyView(), this.cancelBtn.item, Fa.EmptyView()]);
-    return cols;
-  };
-
-  qLifeStyle.prototype.show = function() {
-    return this.lightbox.show(this.content);
-  };
-
-  qLifeStyle.prototype.hide = function() {
-    this.bindFromModel();
-    return this.lightbox.hide();
-  };
-
-  return qLifeStyle;
-
-})(Fa.View);
-
-
-},{}],109:[function(require,module,exports){
-var AsLink, CancelBtn, Checker, ConfirmBtn, qRemarks,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-Checker = Fa.Elements.Checklist.checker;
-
-ConfirmBtn = Fa.Elements.Checklist.confirm_btn;
-
-CancelBtn = Fa.Elements.Checklist.cancel_btn;
-
-AsLink = Fa.Behaviors.AsLink;
-
-module.exports = qRemarks = (function(_super) {
-  var createOptions, createResponder, data, _createContent, _createLayouts, _createLightbox;
-
-  __extends(qRemarks, _super);
-
-  qRemarks.DEFAULT_OPTIONS = {};
-
-  qRemarks.op = [];
-
-  data = [
-    {
-      "op": "Remarks Option1"
-    }, {
-      "op": "Remarks Option2"
-    }, {
-      "op": "Remarks Option3"
-    }, {
-      "op": "Remarks Option4"
-    }
-  ];
-
-  function qRemarks(options) {
-    qRemarks.__super__.constructor.call(this, options);
-    _createLayouts.call(this);
-    Dispatcher.pipe(this._eventInput);
-    this._eventInput.on('session_changed:current_client', (function(_this) {
-      return function() {
-        return _this.bindFromModel();
-      };
-    })(this));
-  }
-
-  qRemarks.prototype.bindFromModel = function() {
-    this.op[0].setActive(Session.currentClient.cl_remarks_opt1);
-    this.op[1].setActive(Session.currentClient.cl_remarks_opt2);
-    this.op[2].setActive(Session.currentClient.cl_remarks_opt3);
-    return this.op[3].setActive(Session.currentClient.cl_remarks_opt4);
-  };
-
-  qRemarks.prototype.bindToModel = function() {
-    Session.currentClient.cl_remarks_opt1 = this.op[0].getIsActive();
-    Session.currentClient.cl_remarks_opt2 = this.op[1].getIsActive();
-    Session.currentClient.cl_remarks_opt3 = this.op[2].getIsActive();
-    return Session.currentClient.cl_remarks_opt4 = this.op[3].getIsActive();
-  };
-
-  _createLayouts = function() {
-    _createLightbox.call(this);
-    return _createContent.call(this);
-  };
-
-  _createLightbox = function() {
-    var lightboxContainer;
-    lightboxContainer = new Fa.ContainerSurf({
-      size: [380, 250],
-      properties: {
-        pointerEvents: 'none'
-      }
-    });
-    this.lightbox = new Fa.RenderCtrl({
-      overlap: true
-    });
-    lightboxContainer.add(this.lightbox);
-    return this.add(Fa.Pos.center).add(lightboxContainer);
-  };
-
-  _createContent = function() {
-    var radius, sections;
-    radius = '10px';
-    this.content = new Fa.CContainer();
-    this.bg = new Fa.Surface({
-      properties: {
-        backgroundColor: '#000',
-        border: '6px solid #888',
-        borderTopLeftRadius: radius,
-        borderTopRightRadius: radius,
-        borderBottomLeftRadius: radius,
-        borderBottomRightRadius: radius
-      }
-    });
-    this.content.add(Fa.opaqueBy(0.8)).add(this.bg);
-    sections = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 6, 4]
-    });
-    this.options = createOptions.call(this);
-    this.responder = createResponder.call(this);
-    sections.sequenceFrom([Fa.EmptyView(), this.options, this.responder]);
-    return this.content.add(sections);
-  };
-
-  createOptions = function() {
-    var i, json, rows, x, _i, _ref;
-    rows = new Fa.FlexibleLayout({
-      direction: 1,
-      ratios: [1, 1, 1, 1]
-    });
-    data = Conf.Remarks;
-    this.op = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (x = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-        _results.push(0);
-      }
-      return _results;
-    })();
-    for (i = _i = 0, _ref = data.length - 1; _i <= _ref; i = _i += 1) {
-      json = JSON.parse(JSON.stringify(data[i]));
-      this.op[i] = new Checker({
-        text: json.op,
-        size: [280, 40]
-      });
-    }
-    rows.sequenceFrom([this.op[0], this.op[1], this.op[2], this.op[3]]);
-    return rows;
-  };
-
-  createResponder = function() {
-    var cols;
-    this.confirmBtn = new AsLink(new ConfirmBtn, void 0, (function() {
-      this.bindToModel();
-      Dispatcher.emit('update_cl_remarks_text');
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    this.cancelBtn = new AsLink(new CancelBtn, void 0, (function() {
-      this.hide();
-      return Dispatcher.emit('hide_backdrop');
-    }).bind(this));
-    cols = new Fa.FlexibleLayout({
-      direction: 0,
-      ratios: [1, 2, 1, 2, 1]
-    });
-    cols.sequenceFrom([Fa.EmptyView(), this.confirmBtn.item, Fa.EmptyView(), this.cancelBtn.item, Fa.EmptyView()]);
-    return cols;
-  };
-
-  qRemarks.prototype.show = function() {
-    return this.lightbox.show(this.content);
-  };
-
-  qRemarks.prototype.hide = function() {
-    this.bindFromModel();
-    return this.lightbox.hide();
-  };
-
-  return qRemarks;
-
-})(Fa.View);
-
-
-},{}],110:[function(require,module,exports){
 var CChecklistResultHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33322,7 +32013,7 @@ module.exports = CChecklistResultHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],111:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 var CChecklistTristar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33476,7 +32167,7 @@ module.exports = CChecklistTristar = (function(_super) {
 })(Fa.CView);
 
 
-},{}],112:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var Button, SessionNumpad,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33554,7 +32245,8 @@ module.exports = SessionNumpad = (function(_super) {
   _registerEvents = function() {
     this._eventInput.on('session_changed:current_client', (function(_this) {
       return function() {
-        return _this.init();
+        _this.init();
+        return _this.syncToSess();
       };
     })(this));
     return this._eventInput.on('session_changed:current_session', (function(_this) {
@@ -33798,7 +32490,7 @@ module.exports = SessionNumpad = (function(_super) {
 })(Fa.CView);
 
 
-},{}],113:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 var sideMenuView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33874,7 +32566,7 @@ module.exports = sideMenuView = (function(_super) {
     var items, layout;
     layout = new Fa.FlexibleLayout({
       direction: 1,
-      ratios: [2, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 34]
+      ratios: [2, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 34]
     });
     items = {
       profile: _createMenuItem.call(this, 'ion-ios7-person', 'Profile Summary', 'Dashboard'),
@@ -33894,7 +32586,7 @@ module.exports = sideMenuView = (function(_super) {
         return item.on('click', _triggerAction.bind(_this, item));
       };
     })(this));
-    layout.sequenceFrom([Fa.EmptyView(), items.profile, _createHr(), items.camera, _createHr(), items.compare, _createHr(), items.result, _createHr(), items.checklist, _createHr(), items["switch"], _createHr(), items.exit, _createHr(), items.setting, _createHr(), items.canvas, _createHr(), items.experi, Fa.EmptyView()]);
+    layout.sequenceFrom([Fa.EmptyView(), items.profile, _createHr(), items.camera, _createHr(), items.compare, _createHr(), items.result, _createHr(), items.checklist, _createHr(), items["switch"], _createHr(), items.exit, _createHr(), Fa.EmptyView()]);
     return layout;
   };
 
@@ -33954,7 +32646,7 @@ module.exports = sideMenuView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/side_menu.menu_btn.hbs":94}],114:[function(require,module,exports){
+},{"../../templates/side_menu.menu_btn.hbs":96}],111:[function(require,module,exports){
 var Button, FrameNumpad,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -33994,7 +32686,6 @@ module.exports = FrameNumpad = (function(_super) {
   }
 
   FrameNumpad.prototype.init = function() {
-    console.log('initiating frame numpad');
     this.sessions = Session.currentClient.session;
     this.allCells = [];
     this.pages = [];
@@ -34028,13 +32719,7 @@ module.exports = FrameNumpad = (function(_super) {
     }
   };
 
-  _registerEvents = function() {
-    return this._eventInput.on('session_changed:current_client', (function(_this) {
-      return function() {
-        return _this.init();
-      };
-    })(this));
-  };
+  _registerEvents = function() {};
 
   FrameNumpad.prototype.createRenderBox = function() {
     var cell, created_item, currentPage, grid, maxInPage, onClick, page, sess;
@@ -34270,7 +32955,7 @@ module.exports = FrameNumpad = (function(_super) {
 })(Fa.CView);
 
 
-},{}],115:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 var BrowserContent, matchBrowserView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34385,7 +33070,7 @@ module.exports = matchBrowserView = (function(_super) {
 })(Fa.View);
 
 
-},{"./c.compare.match_browser_content.coffee":116}],116:[function(require,module,exports){
+},{"./c.compare.match_browser_content.coffee":113}],113:[function(require,module,exports){
 var MatchBrowserContent,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34585,7 +33270,7 @@ module.exports = MatchBrowserContent = (function(_super) {
 })(Fa.CView);
 
 
-},{}],117:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 var AsLink, CCompareSelSnapMicro, CameraBtn, MicroBtn, SelGroup,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34642,7 +33327,7 @@ module.exports = CCompareSelSnapMicro = (function(_super) {
 })(Fa.CView);
 
 
-},{}],118:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 var AsLink, CCompareSelectorSection, ClearBtn, FavBtn, MatchBtn, Radio, SelGroup, SetProfileBtn, UpdateBtn, ViewBtn, ViewMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34696,7 +33381,6 @@ module.exports = CCompareSelectorSection = (function(_super) {
     this.matchBtn = new MatchBtn();
     this.matchBtn.on('click', (function(_this) {
       return function() {
-        console.log('matching');
         if (_this.selectedLeftPhoto && _this.selectedRightPhoto) {
           if (Session.currentClient.isMatched(_this.selectedLeftPhoto, _this.selectedRightPhoto)) {
             Session.currentClient.removeMatch(_this.selectedLeftPhoto, _this.selectedRightPhoto);
@@ -34787,7 +33471,7 @@ module.exports = CCompareSelectorSection = (function(_super) {
 })(Fa.CView);
 
 
-},{}],119:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 var AsLink, CDashboardActionButtons, CameraBtn, CompareBtn, MicroBtn, ResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34867,7 +33551,7 @@ module.exports = CDashboardActionButtons = (function(_super) {
 })(Fa.CView);
 
 
-},{}],120:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 var CDashboardFirstVisit, Calendar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34912,7 +33596,9 @@ module.exports = CDashboardFirstVisit = (function(_super) {
   setClient = function() {
     var client;
     client = Session.currentClient;
-    return this.firstVisit.surface.setContent("" + (client.firstVisit()));
+    if (client) {
+      return this.firstVisit.surface.setContent("" + (client.firstVisit()));
+    }
   };
 
   init = function() {
@@ -34955,7 +33641,7 @@ module.exports = CDashboardFirstVisit = (function(_super) {
 })(Fa.CView);
 
 
-},{}],121:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 var CDashboardLastTreatment, Calendar,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35000,7 +33686,9 @@ module.exports = CDashboardLastTreatment = (function(_super) {
   setClient = function() {
     var client;
     client = Session.currentClient;
-    return this.lastTreatment.surface.setContent("" + (client.lastVisit()));
+    if (client) {
+      return this.lastTreatment.surface.setContent("" + (client.lastVisit()));
+    }
   };
 
   init = function() {
@@ -35043,7 +33731,7 @@ module.exports = CDashboardLastTreatment = (function(_super) {
 })(Fa.CView);
 
 
-},{}],122:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 var AsLink, CancelBtn, Checker, ConfirmBtn, SelectInput, clientFilter,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35231,7 +33919,7 @@ module.exports = clientFilter = (function(_super) {
 })(Fa.View);
 
 
-},{}],123:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 var CResultClientHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35299,7 +33987,7 @@ module.exports = CResultClientHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],124:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 var matchviewView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35319,6 +34007,8 @@ module.exports = matchviewView = (function(_super) {
       return function(payload) {
         _this.beforePic = payload.beforePic;
         _this.afterPic = payload.afterPic;
+        _this.beforeDate = payload.beforeDate;
+        _this.afterDate = payload.afterDate;
         _this.content.removeListener('click', hideFunc.bind(_this));
         return _createContent.call(_this);
       };
@@ -35362,7 +34052,9 @@ module.exports = matchviewView = (function(_super) {
     var html;
     html = require('../../templates/matchview.hbs')({
       before: this.beforePic,
-      after: this.afterPic
+      after: this.afterPic,
+      beforeDate: this.beforeDate,
+      afterDate: this.afterDate
     });
     this.content = new Fa.Surface({
       content: html,
@@ -35387,7 +34079,7 @@ module.exports = matchviewView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/matchview.hbs":90}],125:[function(require,module,exports){
+},{"../../templates/matchview.hbs":93}],122:[function(require,module,exports){
 var CResultSessionBox,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35408,17 +34100,13 @@ module.exports = CResultSessionBox = (function(_super) {
         pointerEvents: 'none'
       }
     });
-    console.log('fav');
-    console.log(this.match.favourite);
-    console.log(this.match.favourite === true);
-    console.log(this.match.favourite === 'true');
     if (this.match.favourite === true || this.match.favourite === 'true') {
       html = require('../../templates/result_box_fav.hbs')({
         title: "Session " + this.match.session + " - " + this.matchId,
         beforePic: this.match.before.sized_picture || this.match.before.temp_path,
         afterPic: this.match.after.sized_picture || this.match.after.temp_path,
-        fullBeforePic: this.match.before.original_picture || this.match.before.temp_path,
-        fullAfterPic: this.match.after.original_picture || this.match.after.temp_path,
+        fullBeforePic: this.match.before.large_picture || this.match.before.temp_path,
+        fullAfterPic: this.match.after.large_picture || this.match.after.temp_path,
         sessBef: this.match.before.session,
         sessAft: this.match.after.session,
         dateTakenBef: this.match.before.date_taken,
@@ -35435,8 +34123,8 @@ module.exports = CResultSessionBox = (function(_super) {
         title: "Session " + this.match.session + " - " + this.matchId,
         beforePic: this.match.before.sized_picture || this.match.before.temp_path,
         afterPic: this.match.after.sized_picture || this.match.after.temp_path,
-        fullBeforePic: this.match.before.original_picture || this.match.before.temp_path,
-        fullAfterPic: this.match.after.original_picture || this.match.after.temp_path,
+        fullBeforePic: this.match.before.large_picture || this.match.before.temp_path,
+        fullAfterPic: this.match.after.large_picture || this.match.after.temp_path,
         sessBef: this.match.before.session,
         sessAft: this.match.after.session,
         dateTakenBef: this.match.before.date_taken,
@@ -35462,7 +34150,7 @@ module.exports = CResultSessionBox = (function(_super) {
 })(Fa.CView);
 
 
-},{"../../templates/result_box.hbs":92,"../../templates/result_box_fav.hbs":93}],126:[function(require,module,exports){
+},{"../../templates/result_box.hbs":94,"../../templates/result_box_fav.hbs":95}],123:[function(require,module,exports){
 var CResultSessionRowView, SessionBox,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35610,7 +34298,7 @@ module.exports = CResultSessionRowView = (function(_super) {
 })(Fa.CView);
 
 
-},{"./c.result.session_box.coffee":125}],127:[function(require,module,exports){
+},{"./c.result.session_box.coffee":122}],124:[function(require,module,exports){
 var BrowserContent, browserView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35734,7 +34422,7 @@ module.exports = browserView = (function(_super) {
 })(Fa.View);
 
 
-},{"./c.snap.browser_content.coffee":128}],128:[function(require,module,exports){
+},{"./c.snap.browser_content.coffee":125}],125:[function(require,module,exports){
 var CSnapBrowserContent,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35818,13 +34506,13 @@ module.exports = CSnapBrowserContent = (function(_super) {
 })(Fa.CView);
 
 
-},{}],129:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var fullviewView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 module.exports = fullviewView = (function(_super) {
-  var hideFunc, _createContent, _createLayouts, _createLightbox;
+  var _createContent, _createLayouts, _createLightbox;
 
   __extends(fullviewView, _super);
 
@@ -35849,17 +34537,51 @@ module.exports = fullviewView = (function(_super) {
         }
       };
     })(this));
+    this._eventInput.on('process_as_new_image', (function(_this) {
+      return function(params) {
+        var data, payload, promise;
+        console.log(params);
+        data = JSON.parse(params);
+        payload = {
+          scale: data.scale,
+          angle: data.angle,
+          x: data.x,
+          y: data.y,
+          w: data.w,
+          h: data.h,
+          timestamp: Date.now(),
+          client_name: Session.currentClient.Id,
+          source: data.source
+        };
+        promise = $.ajax({
+          url: Conf.imageServerURL + '/save_as_new_image',
+          async: true,
+          data: JSON.stringify(payload),
+          contentType: 'application/json; charset=utf-8',
+          type: 'POST'
+        });
+        return promise.done(function(response) {
+          var photo;
+          console.log(response);
+          photo = Session.currentClient.addPhoto(JSON.parse(response)['original'], 'Edited', Date.now(), Session.currentPhoto.session);
+          photo.original_picture = JSON.parse(response)['original'];
+          photo.sized_picture = JSON.parse(response)['sized'];
+          photo.square_picture = JSON.parse(response)['square'];
+          photo.large_picture = JSON.parse(response)['large'];
+          photo.save();
+          Dispatcher.emit('snap_redraw_frames');
+          Dispatcher.emit('hide_frontdrop', {
+            'for': 'show_full_picture'
+          });
+          return $('body').css('opacity', '1');
+        });
+      };
+    })(this));
   }
 
   _createLayouts = function() {
     _createLightbox.call(this);
     return _createContent.call(this);
-  };
-
-  hideFunc = function() {
-    return Dispatcher.emit('hide_frontdrop', {
-      "for": 'show_match_picture'
-    });
   };
 
   _createLightbox = function() {
@@ -35889,12 +34611,14 @@ module.exports = fullviewView = (function(_super) {
   };
 
   fullviewView.prototype.show = function() {
+    $('body').css('opacity', '1');
     Dispatcher.emit('hide_appfront');
     return this.lightbox.show(this.content);
   };
 
   fullviewView.prototype.hide = function() {
     this.lightbox.hide();
+    appView.rotateLandscape();
     Dispatcher.emit('reopen_appfront');
     return Dispatcher.emit('hide_backdrop');
   };
@@ -35904,94 +34628,7 @@ module.exports = fullviewView = (function(_super) {
 })(Fa.View);
 
 
-},{"../../templates/fullview.hbs":89}],130:[function(require,module,exports){
-var paintviewView,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-module.exports = paintviewView = (function(_super) {
-  var hideFunc, _createContent, _createLayouts, _createLightbox;
-
-  __extends(paintviewView, _super);
-
-  paintviewView.DEFAULT_OPTIONS = {};
-
-  function paintviewView(options) {
-    paintviewView.__super__.constructor.call(this, options);
-    _createLayouts.call(this);
-    Dispatcher.pipe(this._eventInput);
-    this._eventInput.on('session_changed:current_photo', (function(_this) {
-      return function() {
-        if (Session.currentPhoto) {
-          _this.pictureUrl = Session.currentPhoto.largePic();
-        }
-        return _createContent.call(_this);
-      };
-    })(this));
-    this._eventInput.on('hide_frontdrop', (function(_this) {
-      return function(params) {
-        if (params && params["for"] === 'show_paint') {
-          alert("call paint done");
-          return _this.hide();
-        }
-      };
-    })(this));
-  }
-
-  _createLayouts = function() {
-    _createLightbox.call(this);
-    return _createContent.call(this);
-  };
-
-  hideFunc = function() {
-    return Dispatcher.emit('hide_frontdrop', {
-      "for": 'show_match_picture'
-    });
-  };
-
-  _createLightbox = function() {
-    var lightboxContainer;
-    lightboxContainer = new Fa.ContainerSurf({
-      size: [void 0, void 0],
-      properties: {
-        pointerEvents: 'none'
-      }
-    });
-    this.lightbox = new Fa.RenderCtrl({
-      overlap: true
-    });
-    lightboxContainer.add(this.lightbox);
-    return this.add(Fa.Pos.center).add(lightboxContainer);
-  };
-
-  _createContent = function() {
-    var html;
-    html = require('../../templates/paint.hbs')({
-      picture: this.pictureUrl
-    });
-    return this.content = new Fa.Surface({
-      content: html,
-      size: [void 0, void 0]
-    });
-  };
-
-  paintviewView.prototype.show = function() {
-    Dispatcher.emit('hide_appfront');
-    return this.lightbox.show(this.content);
-  };
-
-  paintviewView.prototype.hide = function() {
-    this.lightbox.hide();
-    Dispatcher.emit('reopen_appfront');
-    return Dispatcher.emit('hide_backdrop');
-  };
-
-  return paintviewView;
-
-})(Fa.View);
-
-
-},{"../../templates/paint.hbs":91}],131:[function(require,module,exports){
+},{"../../templates/fullview.hbs":92}],127:[function(require,module,exports){
 var AsLink, CSnapSelBeforeAfter, CompareBtn, ResultBtn, SnapBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36052,7 +34689,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
 })(Fa.CView);
 
 
-},{}],132:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 var AfterBtn, AsLink, BeforeBtn, CSnapSelBeforeAfter, SelGroup,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36089,7 +34726,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
 
   upload = function(photo) {
     var ft, options, serverURL, uploadFailure, uploadSuccess;
-    serverURL = Conf.imageServerURL;
+    serverURL = Conf.imageServerURL + '/upload';
     ft = new FileTransfer();
     options = new FileUploadOptions();
     options.fileKey = "file";
@@ -36129,20 +34766,17 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
       onSuccess = function(imageURI) {
         return Fa.Timer.setTimeout(function() {
           var photo, timestamp;
-          alert('before setting timeout');
           timestamp = Date.now();
-          alert('before adding picture');
           photo = Session.currentClient.addPhoto(imageURI, 'Before', timestamp);
-          alert('session is now: ' + Session.currentSession);
           return upload(photo);
         }, 0);
       };
       onFail = function() {
-        return alert('unable to get ImageURI');
+        return console.log('unable to get ImageURI');
       };
       return Camera.getPicture(onSuccess.bind(this), onFail, {
         quality: 100,
-        destinationType: 1,
+        destinationType: Camera.DestinationType.FILE_URI,
         targetWidth: 1400,
         targetHeight: 1800,
         saveToPhotoAlbum: false,
@@ -36161,11 +34795,11 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
         }, 0);
       };
       onFail = function() {
-        return alert('unable to get ImageURI');
+        return console.log('unable to get ImageURI');
       };
       return Camera.getPicture(onSuccess.bind(this), onFail, {
         quality: 100,
-        destinationType: 1,
+        destinationType: Camera.DestinationType.FILE_URI,
         targetWidth: 1400,
         targetHeight: 1800,
         saveToPhotoAlbum: false,
@@ -36182,7 +34816,7 @@ module.exports = CSnapSelBeforeAfter = (function(_super) {
 })(Fa.CView);
 
 
-},{}],133:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 var AsLink, CSnapSelectorSection, ClearBtn, Radio, SelGroup, SetProfileBtn, UpdateBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36268,6 +34902,7 @@ module.exports = CSnapSelectorSection = (function(_super) {
         onConfirm = function(index) {
           if (index === 1) {
             Session.currentPhoto.del();
+            Dispatcher.emit('snap_redraw_frames');
             if (Session.currentClient.photos.length > 0) {
               return Session.setCurrentPhoto(Session.currentClient.photos[0]);
             } else {
@@ -36391,7 +35026,7 @@ module.exports = CSnapSelectorSection = (function(_super) {
 })(Fa.CView);
 
 
-},{}],134:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var Components;
 
 Components = {
@@ -36410,8 +35045,7 @@ Components = {
     selector_section: require('./c.snap.selector_section.coffee'),
     browser: require('./c.snap.browser.coffee'),
     browser_content: require('./c.snap.browser_content.coffee'),
-    fullview: require('./c.snap.fullview.coffee'),
-    paintview: require('./c.snap.paintview.coffee')
+    fullview: require('./c.snap.fullview.coffee')
   },
   Compare: {
     sel_snap_micro: require('./c.compare.sel_snap_micro.coffee'),
@@ -36431,19 +35065,14 @@ Components = {
     result_header: require('./c.checklist.result_header.coffee'),
     tristar: require('./c.checklist.tristar.coffee'),
     desired_options: require('./c.checklist.desired_options.coffee'),
-    q_lifestyle: require('./c.checklist.q_lifestyle.coffee'),
-    q_causes: require('./c.checklist.q_causes.coffee'),
-    q_homecare: require('./c.checklist.q_homecare.coffee'),
-    q_facial: require('./c.checklist.q_facial.coffee'),
-    q_remarks: require('./c.checklist.q_remarks.coffee'),
-    face_rating: require('./c.checklist.face_rating.coffee')
+    answer_box: require('./c.checklist.answer_box.coffee')
   }
 };
 
 module.exports = Components;
 
 
-},{"./c.checklist.desired_options.coffee":103,"./c.checklist.face_rating.coffee":104,"./c.checklist.q_causes.coffee":105,"./c.checklist.q_facial.coffee":106,"./c.checklist.q_homecare.coffee":107,"./c.checklist.q_lifestyle.coffee":108,"./c.checklist.q_remarks.coffee":109,"./c.checklist.result_header.coffee":110,"./c.checklist.tristar.coffee":111,"./c.common.session_numpad.coffee":112,"./c.common.side_menu.coffee":113,"./c.compare.frame_numpad.coffee":114,"./c.compare.match_browser.coffee":115,"./c.compare.match_browser_content.coffee":116,"./c.compare.sel_snap_micro.coffee":117,"./c.compare.selector_section.coffee":118,"./c.dashboard.action_buttons.coffee":119,"./c.dashboard.first_visit.coffee":120,"./c.dashboard.last_treatment.coffee":121,"./c.result.client_filter.coffee":122,"./c.result.client_header.coffee":123,"./c.result.matchview.coffee":124,"./c.result.session_box.coffee":125,"./c.result.session_row.coffee":126,"./c.snap.browser.coffee":127,"./c.snap.browser_content.coffee":128,"./c.snap.fullview.coffee":129,"./c.snap.paintview.coffee":130,"./c.snap.quick_links.coffee":131,"./c.snap.sel_before_after.coffee":132,"./c.snap.selector_section.coffee":133}],135:[function(require,module,exports){
+},{"./c.checklist.answer_box.coffee":105,"./c.checklist.desired_options.coffee":106,"./c.checklist.result_header.coffee":107,"./c.checklist.tristar.coffee":108,"./c.common.session_numpad.coffee":109,"./c.common.side_menu.coffee":110,"./c.compare.frame_numpad.coffee":111,"./c.compare.match_browser.coffee":112,"./c.compare.match_browser_content.coffee":113,"./c.compare.sel_snap_micro.coffee":114,"./c.compare.selector_section.coffee":115,"./c.dashboard.action_buttons.coffee":116,"./c.dashboard.first_visit.coffee":117,"./c.dashboard.last_treatment.coffee":118,"./c.result.client_filter.coffee":119,"./c.result.client_header.coffee":120,"./c.result.matchview.coffee":121,"./c.result.session_box.coffee":122,"./c.result.session_row.coffee":123,"./c.snap.browser.coffee":124,"./c.snap.browser_content.coffee":125,"./c.snap.fullview.coffee":126,"./c.snap.quick_links.coffee":127,"./c.snap.sel_before_after.coffee":128,"./c.snap.selector_section.coffee":129}],131:[function(require,module,exports){
 var ElChecklistCancelBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36516,7 +35145,7 @@ module.exports = ElChecklistCancelBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],136:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 var ElChecker,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36614,7 +35243,7 @@ module.exports = ElChecker = (function(_super) {
 })(Fa.CView);
 
 
-},{}],137:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var ElChecklistConfirmBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36687,7 +35316,7 @@ module.exports = ElChecklistConfirmBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],138:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 var ElCommonBackdrop,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36783,7 +35412,7 @@ module.exports = ElCommonBackdrop = (function(_super) {
 })(Fa.CView);
 
 
-},{}],139:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 var ElCommonHamburger,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36832,7 +35461,7 @@ module.exports = ElCommonHamburger = (function(_super) {
 })(Fa.CView);
 
 
-},{}],140:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 var ElCommonHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36885,7 +35514,7 @@ module.exports = ElCommonHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],141:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 var ElCommonHorizontalRule,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36931,7 +35560,7 @@ module.exports = ElCommonHorizontalRule = (function(_super) {
 })(Fa.CView);
 
 
-},{}],142:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 var ElCommonSelectInput,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -36991,7 +35620,7 @@ module.exports = ElCommonSelectInput = (function(_super) {
 })(Fa.CView);
 
 
-},{}],143:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 var ElCompareActiveNumpadBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37052,7 +35681,7 @@ module.exports = ElCompareActiveNumpadBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],144:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 var ElFavMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37112,7 +35741,7 @@ module.exports = ElFavMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],145:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 var ElCompareMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37172,7 +35801,7 @@ module.exports = ElCompareMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],146:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 var ElCompareViewMatchBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37232,7 +35861,7 @@ module.exports = ElCompareViewMatchBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],147:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 var ElDashboardCameraBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37308,7 +35937,7 @@ module.exports = ElDashboardCameraBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],148:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 var ElDashboardResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37384,7 +36013,7 @@ module.exports = ElDashboardResultBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],149:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 var ElDashboardFirstVisitCal,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37439,7 +36068,7 @@ module.exports = ElDashboardFirstVisitCal = (function(_super) {
 })(Fa.CView);
 
 
-},{}],150:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 var ElDashboardLastVisitCal,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37494,7 +36123,7 @@ module.exports = ElDashboardLastVisitCal = (function(_super) {
 })(Fa.CView);
 
 
-},{}],151:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 var ElDashboardMicroBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37570,7 +36199,7 @@ module.exports = ElDashboardMicroBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],152:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 var ElDashboardProfilePic, HRule, Hamburger,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37663,7 +36292,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
     });
     upload = function(imageURI, timestamp) {
       var ft, options, serverURL;
-      serverURL = 'http://creativesatwork.me:8080/upload';
+      serverURL = Conf.imageServerURL + '/upload';
       ft = new FileTransfer();
       options = new FileUploadOptions();
       options.fileKey = "file";
@@ -37777,7 +36406,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
 })(Fa.CView);
 
 
-},{"../common/el.common.hamburger.coffee":139,"../common/el.common.horizontal_rule.coffee":141}],153:[function(require,module,exports){
+},{"../common/el.common.hamburger.coffee":135,"../common/el.common.horizontal_rule.coffee":137}],149:[function(require,module,exports){
 var ElDashboardResultBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37853,7 +36482,7 @@ module.exports = ElDashboardResultBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],154:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 var Elements;
 
 Elements = {
@@ -37901,7 +36530,7 @@ Elements = {
 module.exports = Elements;
 
 
-},{"./checklist/el.checklist.cancel_btn.coffee":135,"./checklist/el.checklist.checker.coffee":136,"./checklist/el.checklist.confirm_btn.coffee":137,"./common/el.common.backdrop.coffee":138,"./common/el.common.hamburger.coffee":139,"./common/el.common.header.coffee":140,"./common/el.common.horizontal_rule.coffee":141,"./common/el.common.select_input.coffee":142,"./compare/el.compare.active_numpad_btn.coffee":143,"./compare/el.compare.fav_btn.coffee":144,"./compare/el.compare.match_btn.coffee":145,"./compare/el.compare.view_match_btn.coffee":146,"./dashboard/el.dashboard.camera_btn.coffee":147,"./dashboard/el.dashboard.compare_btn.coffee":148,"./dashboard/el.dashboard.first_visit_cal.coffee":149,"./dashboard/el.dashboard.last_visit_cal.coffee":150,"./dashboard/el.dashboard.micro_btn.coffee":151,"./dashboard/el.dashboard.profile_section.coffee":152,"./dashboard/el.dashboard.result_btn.coffee":153,"./snap/el.snap.after_btn.coffee":155,"./snap/el.snap.before_btn.coffee":156,"./snap/el.snap.browse_header.coffee":157,"./snap/el.snap.clear_btn.coffee":158,"./snap/el.snap.picture_frame.coffee":159,"./snap/el.snap.selector_radio.coffee":160,"./snap/el.snap.set_profile_btn.coffee":161,"./snap/el.snap.update_btn.coffee":162,"./snap/el.snap.view_btn.coffee":163,"./snap/el.snap.visit_info.coffee":164}],155:[function(require,module,exports){
+},{"./checklist/el.checklist.cancel_btn.coffee":131,"./checklist/el.checklist.checker.coffee":132,"./checklist/el.checklist.confirm_btn.coffee":133,"./common/el.common.backdrop.coffee":134,"./common/el.common.hamburger.coffee":135,"./common/el.common.header.coffee":136,"./common/el.common.horizontal_rule.coffee":137,"./common/el.common.select_input.coffee":138,"./compare/el.compare.active_numpad_btn.coffee":139,"./compare/el.compare.fav_btn.coffee":140,"./compare/el.compare.match_btn.coffee":141,"./compare/el.compare.view_match_btn.coffee":142,"./dashboard/el.dashboard.camera_btn.coffee":143,"./dashboard/el.dashboard.compare_btn.coffee":144,"./dashboard/el.dashboard.first_visit_cal.coffee":145,"./dashboard/el.dashboard.last_visit_cal.coffee":146,"./dashboard/el.dashboard.micro_btn.coffee":147,"./dashboard/el.dashboard.profile_section.coffee":148,"./dashboard/el.dashboard.result_btn.coffee":149,"./snap/el.snap.after_btn.coffee":151,"./snap/el.snap.before_btn.coffee":152,"./snap/el.snap.browse_header.coffee":153,"./snap/el.snap.clear_btn.coffee":154,"./snap/el.snap.picture_frame.coffee":155,"./snap/el.snap.selector_radio.coffee":156,"./snap/el.snap.set_profile_btn.coffee":157,"./snap/el.snap.update_btn.coffee":158,"./snap/el.snap.view_btn.coffee":159,"./snap/el.snap.visit_info.coffee":160}],151:[function(require,module,exports){
 var ElSnapAfterBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -37979,7 +36608,7 @@ module.exports = ElSnapAfterBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],156:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 var ElSnapBeforeBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38057,7 +36686,7 @@ module.exports = ElSnapBeforeBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],157:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 var ElBrowseHeader,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38125,7 +36754,7 @@ module.exports = ElBrowseHeader = (function(_super) {
 })(Fa.CView);
 
 
-},{}],158:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 var ElSnapClearBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38201,7 +36830,7 @@ module.exports = ElSnapClearBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],159:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 var ElSnapPictureFrame,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38354,7 +36983,7 @@ module.exports = ElSnapPictureFrame = (function(_super) {
 })(Fa.CView);
 
 
-},{}],160:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 var ElSnapSelectorRadio,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38443,7 +37072,7 @@ module.exports = ElSnapSelectorRadio = (function(_super) {
 })(Fa.CView);
 
 
-},{}],161:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 var ElSnapSetProfileBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38519,7 +37148,7 @@ module.exports = ElSnapSetProfileBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],162:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 var ElSnapUpdateBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38595,7 +37224,7 @@ module.exports = ElSnapUpdateBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],163:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 var ElSnapViewBtn,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38671,7 +37300,7 @@ module.exports = ElSnapViewBtn = (function(_super) {
 })(Fa.CView);
 
 
-},{}],164:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 var ElSnapVisitInfo,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -38707,7 +37336,9 @@ module.exports = ElSnapVisitInfo = (function(_super) {
   ElSnapVisitInfo.prototype.updateInfo = function() {
     var client;
     client = Session.currentClient;
-    return this.info.setContent("<strong>Date Visited:</strong>&nbsp; " + Session.currentClient.sessions[Session.currentSession - 1].date + "<br><strong>Session:</strong>&nbsp; " + Session.currentSession);
+    if (client) {
+      return this.info.setContent("<strong>Date Visited:</strong>&nbsp; " + Session.currentClient.sessions[Session.currentSession - 1].date + "<br><strong>Session:</strong>&nbsp; " + Session.currentSession);
+    }
   };
 
   init = function() {
@@ -38727,7 +37358,7 @@ module.exports = ElSnapVisitInfo = (function(_super) {
 })(Fa.CView);
 
 
-},{}],165:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 var Mixins;
 
 Mixins = {
@@ -38737,7 +37368,7 @@ Mixins = {
 module.exports = Mixins;
 
 
-},{"./toggleable.coffee":166}],166:[function(require,module,exports){
+},{"./toggleable.coffee":162}],162:[function(require,module,exports){
 var Toggleable;
 
 module.exports = Toggleable = (function() {
