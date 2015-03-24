@@ -36308,6 +36308,7 @@ module.exports = ElDashboardProfilePic = (function(_super) {
         square_picture = JSON.parse(response.response)['square'];
         large_picture = JSON.parse(response.response)['large'];
         Session.currentClient.setProfilePicUploaded(original_picture, sized_picture, square_picture, large_picture);
+        Dispatcher.emit('session_changed:current_session');
         return Dispatcher.emit('page_change', {
           to: 'Dashboard'
         });
