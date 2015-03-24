@@ -36166,6 +36166,11 @@ module.exports = ElDashboardMicroBtn = (function(_super) {
         borderRadius: '50%'
       }
     });
+    this.button.on('click', (function(_this) {
+      return function() {
+        return alert("It is for Windows Version");
+      };
+    })(this));
     flex = new Fa.FlexibleLayout({
       direction: 1,
       ratios: [8, 10, 2, 10]
